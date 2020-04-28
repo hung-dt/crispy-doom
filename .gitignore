@@ -34,6 +34,10 @@ STRIFE*.pcx
 /build*
 /CMakeSettings.json
 /out
+_build/
+_bin/
+_lib/
+_tmp/
 
 # These are the default patterns globally ignored by Subversion:
 *.o
