@@ -25,6 +25,8 @@
 #include "v_video.h"
 #include "i_swap.h"
 
+#include "../../utils/lump.h"
+
 // MACROS ------------------------------------------------------------------
 
 #define	TEXTSPEED 3
@@ -98,7 +100,7 @@ extern void AM_Stop(void);
 void IN_Start(void)
 {
     int i;
-    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
+    I_SetPalette(cacheLumpName<byte*>("PLAYPAL", PU_CACHE));
     InitStats();
     LoadPics();
     intermission = true;
@@ -255,18 +257,18 @@ static void LoadPics(void)
 
     if (HubCount || gametype == DEATHMATCH)
     {
-        patchINTERPIC = W_CacheLumpName("INTERPIC", PU_STATIC);
+        patchINTERPIC = cacheLumpName<patch_t*>("INTERPIC", PU_STATIC);
         FontBLumpBase = W_GetNumForName("FONTB16");
         for (i = 0; i < 10; i++)
         {
-            FontBNumbers[i] = W_CacheLumpNum(FontBLumpBase + i, PU_STATIC);
+            FontBNumbers[i] = cacheLumpNum<patch_t*>(FontBLumpBase + i, PU_STATIC);
         }
         FontBLump = W_GetNumForName("FONTB_S") + 1;
-        FontBNegative = W_CacheLumpName("FONTB13", PU_STATIC);
+        FontBNegative = cacheLumpName<patch_t*>("FONTB13", PU_STATIC);
         FontABaseLump = W_GetNumForName("FONTA_S") + 1;
 
-        FontBSlash = W_CacheLumpName("FONTB15", PU_STATIC);
-        FontBPercent = W_CacheLumpName("FONTB05", PU_STATIC);
+        FontBSlash = cacheLumpName<patch_t*>("FONTB15", PU_STATIC);
+        FontBPercent = cacheLumpName<patch_t*>("FONTB05", PU_STATIC);
     }
 }
 
@@ -284,7 +286,7 @@ static void UnloadPics(void)
     {
         W_ReleaseLumpName("INTERPIC");
 
-        patchINTERPIC = W_CacheLumpName("INTERPIC", PU_STATIC);
+        patchINTERPIC = cacheLumpName<patch_t*>("INTERPIC", PU_STATIC);
         FontBLumpBase = W_GetNumForName("FONTB16");
         for (i = 0; i < 10; i++)
         {
@@ -321,7 +323,7 @@ void IN_Ticker(void)
         interstate = 1;
         cnt = 10;
         skipintermission = false;
-        //S_StartSound(NULL, sfx_dorcls);
+        //S_StartSound(nullptr, sfx_dorcls);
     }
 }
 
@@ -449,9 +451,9 @@ static void DrDeathTally(void)
     int temp;
 
     V_DrawPatch(TALLY_TOP_X, TALLY_TOP_Y,
-                W_CacheLumpName("tallytop", PU_CACHE));
+                cacheLumpName<patch_t*>("tallytop", PU_CACHE));
     V_DrawPatch(TALLY_LEFT_X, TALLY_LEFT_Y,
-                W_CacheLumpName("tallylft", PU_CACHE));
+                cacheLumpName<patch_t*>("tallylft", PU_CACHE));
     if (intertime < TALLY_EFFECT_TICKS)
     {
         showTotals = false;
@@ -475,7 +477,7 @@ static void DrDeathTally(void)
     if (intertime >= TALLY_EFFECT_TICKS && showTotals == false)
     {
         showTotals = true;
-        S_StartSound(NULL, SFX_PLATFORM_STOP);
+        S_StartSound(nullptr, SFX_PLATFORM_STOP);
     }
     y = yPos >> FRACBITS;
     for (i = 0; i < maxplayers; i++)
@@ -600,7 +602,7 @@ static void DrawHubText(void)
             cx += 5;
             continue;
         }
-        w = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+        w = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
         if (cx + SHORT(w->width) > SCREENWIDTH)
         {
             break;

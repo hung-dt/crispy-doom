@@ -18,9 +18,9 @@
 #include "SDL.h"
 
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomkeys.h"
 
@@ -71,7 +71,7 @@ static const txt_font_t *font;
 
 // Dummy "font" that means to try highdpi rendering, or fallback to
 // normal_font otherwise.
-static const txt_font_t highdpi_font = { "normal-highdpi", NULL, 8, 16 };
+static const txt_font_t highdpi_font = { "normal-highdpi", nullptr, 8, 16 };
 
 // Mapping from SDL keyboard scancode to internal key code.
 static const int scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
@@ -112,9 +112,9 @@ static const SDL_Color ega_colors[] =
 
 // Examine system DPI settings to determine whether to use the large font.
 
-static int Win32_UseLargeFont(void)
+static int Win32_UseLargeFont()
 {
-    HDC hdc = GetDC(NULL);
+    HDC hdc = GetDC(nullptr);
     int dpix;
 
     if (!hdc)
@@ -123,7 +123,7 @@ static int Win32_UseLargeFont(void)
     }
 
     dpix = GetDeviceCaps(hdc, LOGPIXELSX);
-    ReleaseDC(NULL, hdc);
+    ReleaseDC(nullptr, hdc);
 
     // 144 is the DPI when using "150%" scaling. If the user has this set
     // then consider this an appropriate threshold for using the large font.
@@ -142,17 +142,17 @@ static const txt_font_t *FontForName(const char *name)
         &normal_font,
         &large_font,
         &highdpi_font,
-        NULL,
+        nullptr,
     };
 
-    for (i = 0; fonts[i]->name != NULL; ++i)
+    for (i = 0; fonts[i]->name != nullptr; ++i)
     {
         if (!strcmp(fonts[i]->name, name))
         {
             return fonts[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 //
@@ -162,18 +162,18 @@ static const txt_font_t *FontForName(const char *name)
 // 640x480, use the small font.
 //
 
-static void ChooseFont(void)
+static void ChooseFont()
 {
     SDL_DisplayMode desktop_info;
     char *env;
 
     // Allow normal selection to be overridden from an environment variable:
     env = getenv("TEXTSCREEN_FONT");
-    if (env != NULL)
+    if (env != nullptr)
     {
         font = FontForName(env);
 
-        if (font != NULL)
+        if (font != nullptr)
         {
             return;
         }
@@ -226,7 +226,7 @@ static void ChooseFont(void)
 // Returns 1 if successful, 0 if an error occurred
 //
 
-int TXT_Init(void)
+int TXT_Init()
 {
     int flags = 0;
 
@@ -250,7 +250,7 @@ int TXT_Init(void)
         SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                          screen_image_w, screen_image_h, flags);
 
-    if (TXT_SDLWindow == NULL)
+    if (TXT_SDLWindow == nullptr)
         return 0;
 
     renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, 0);
@@ -293,22 +293,22 @@ int TXT_Init(void)
     SDL_SetPaletteColors(screenbuffer->format->palette, ega_colors, 0, 16);
     SDL_UnlockSurface(screenbuffer);
 
-    screendata = malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2);
+    screendata = static_cast<unsigned char*>(malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2));
     memset(screendata, 0, TXT_SCREEN_W * TXT_SCREEN_H * 2);
 
     return 1;
 }
 
-void TXT_Shutdown(void)
+void TXT_Shutdown()
 {
     free(screendata);
-    screendata = NULL;
+    screendata = nullptr;
     SDL_FreeSurface(screenbuffer);
-    screenbuffer = NULL;
+    screenbuffer = nullptr;
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-void TXT_SetColor(txt_color_t color, int r, int g, int b)
+void TXT_SetColor(txt_color_t color, std::uint8_t r, std::uint8_t g, std::uint8_t b)
 {
     SDL_Color c = {r, g, b, 0xff};
 
@@ -317,7 +317,7 @@ void TXT_SetColor(txt_color_t color, int r, int g, int b)
     SDL_UnlockSurface(screenbuffer);
 }
 
-unsigned char *TXT_GetScreenData(void)
+unsigned char *TXT_GetScreenData()
 {
     return screendata;
 }
@@ -444,13 +444,13 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
 
     SDL_RenderClear(renderer);
     GetDestRect(&rect);
-    SDL_RenderCopy(renderer, screentx, NULL, &rect);
+    SDL_RenderCopy(renderer, screentx, nullptr, &rect);
     SDL_RenderPresent(renderer);
 
     SDL_DestroyTexture(screentx);
 }
 
-void TXT_UpdateScreen(void)
+void TXT_UpdateScreen()
 {
     TXT_UpdateScreenArea(0, 0, TXT_SCREEN_W, TXT_SCREEN_H);
 }
@@ -579,7 +579,7 @@ static int SDLWheelToTXTButton(const SDL_MouseWheelEvent *wheel)
     }
 }
 
-static int MouseHasMoved(void)
+static int MouseHasMoved()
 {
     static int last_x = 0, last_y = 0;
     int x, y;
@@ -597,7 +597,7 @@ static int MouseHasMoved(void)
     }
 }
 
-signed int TXT_GetChar(void)
+signed int TXT_GetChar()
 {
     SDL_Event ev;
 
@@ -606,7 +606,7 @@ signed int TXT_GetChar(void)
         // If there is an event callback, allow it to intercept this
         // event.
 
-        if (event_callback != NULL)
+        if (event_callback != nullptr)
         {
             if (event_callback(&ev, event_callback_data))
             {
@@ -756,7 +756,7 @@ static const char *NameForKey(int key)
     {
         if (scancode_translate_table[i] == key)
         {
-            result = SDL_GetKeyName(SDL_GetKeyFromScancode(i));
+            result = SDL_GetKeyName(SDL_GetKeyFromScancode(static_cast<SDL_Scancode>(i)));
             if (TXT_UTF8_Strlen(result) > 6 || !PrintableName(result))
             {
                 break;
@@ -776,7 +776,7 @@ static const char *NameForKey(int key)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
@@ -786,7 +786,7 @@ void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
 
     keyname = NameForKey(key);
 
-    if (keyname != NULL)
+    if (keyname != nullptr)
     {
         TXT_StringCopy(buf, keyname, buf_len);
 
@@ -805,7 +805,7 @@ void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
 // Searches the desktop screen buffer to determine whether there are any
 // blinking characters.
 
-int TXT_ScreenHasBlinkingChars(void)
+int TXT_ScreenHasBlinkingChars()
 {
     int x, y;
     unsigned char *p;
@@ -860,7 +860,7 @@ void TXT_Sleep(int timeout)
     {
         // We can just wait forever until an event occurs
 
-        SDL_WaitEvent(NULL);
+        SDL_WaitEvent(nullptr);
     }
     else
     {
@@ -871,7 +871,7 @@ void TXT_Sleep(int timeout)
 
         while (SDL_GetTicks() < start_time + timeout)
         {
-            if (SDL_PollEvent(NULL) != 0)
+            if (SDL_PollEvent(nullptr) != 0)
             {
                 // Received an event, so stop waiting
 

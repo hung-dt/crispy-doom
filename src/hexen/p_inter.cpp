@@ -269,7 +269,7 @@ static void TryPickupWeapon(player_t * player, pclass_t weaponClass,
     if (weapon->special)
     {
         P_ExecuteLineSpecial(weapon->special, weapon->args,
-                             NULL, 0, player->mo);
+                             nullptr, 0, player->mo);
         weapon->special = 0;
     }
 
@@ -288,7 +288,7 @@ static void TryPickupWeapon(player_t * player, pclass_t weaponClass,
     player->bonuscount += BONUSADD;
     if (player == &players[consoleplayer])
     {
-        S_StartSound(NULL, SFX_PICKUP_WEAPON);
+        S_StartSound(nullptr, SFX_PICKUP_WEAPON);
         SB_PaletteFlash(false);
     }
 }
@@ -341,7 +341,7 @@ boolean P_GiveWeapon(player_t *player, pclass_t class, weapontype_t weapon)
 		player->pendingweapon = weapon;
 		if(player == &players[consoleplayer])
 		{
-			S_StartSound(NULL, SFX_PICKUP_WEAPON);
+			S_StartSound(nullptr, SFX_PICKUP_WEAPON);
 		}
 		return(false);
 	}
@@ -476,7 +476,7 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
     if (pieceMobj->special)
     {
         P_ExecuteLineSpecial(pieceMobj->special, pieceMobj->args,
-                             NULL, 0, player->mo);
+                             nullptr, 0, player->mo);
         pieceMobj->special = 0;
     }
     if (remove)
@@ -512,14 +512,14 @@ static void TryPickupWeaponPiece(player_t * player, pclass_t matchClass,
     {
         P_SetMessage(player, fourthWeaponText[matchClass], false);
         // Play the build-sound full volume for all players
-        S_StartSound(NULL, SFX_WEAPON_BUILD);
+        S_StartSound(nullptr, SFX_WEAPON_BUILD);
     }
     else
     {
         P_SetMessage(player, weaponPieceText[matchClass], false);
         if (player == &players[consoleplayer])
         {
-            S_StartSound(NULL, SFX_PICKUP_WEAPON);
+            S_StartSound(nullptr, SFX_PICKUP_WEAPON);
         }
     }
 }
@@ -712,7 +712,7 @@ static void TryPickupArtifact(player_t * player, artitype_t artifactType,
                               mobj_t * artifact)
 {
     static const char *artifactMessages[NUMARTIFACTS] = {
-        NULL,
+        nullptr,
         TXT_ARTIINVULNERABILITY,
         TXT_ARTIHEALTH,
         TXT_ARTISUPERHEALTH,
@@ -758,7 +758,7 @@ static void TryPickupArtifact(player_t * player, artitype_t artifactType,
         if (artifact->special)
         {
             P_ExecuteLineSpecial(artifact->special, artifact->args,
-                                 NULL, 0, NULL);
+                                 nullptr, 0, nullptr);
             artifact->special = 0;
         }
         player->bonuscount += BONUSADD;
@@ -770,7 +770,7 @@ static void TryPickupArtifact(player_t * player, artitype_t artifactType,
         }
         else
         {                       // Puzzle item
-            S_StartSound(NULL, SFX_PICKUP_ITEM);
+            S_StartSound(nullptr, SFX_PICKUP_ITEM);
             P_SetMessage(player, artifactMessages[artifactType], true);
             if (!netgame || deathmatch)
             {                   // Remove puzzle items if not cooperative netplay
@@ -897,7 +897,7 @@ static void SetDormantArtifact(mobj_t * arti)
 void A_RestoreArtifact(mobj_t * arti)
 {
     arti->flags |= MF_SPECIAL;
-    P_SetMobjState(arti, arti->info->spawnstate);
+    P_SetMobjState(arti, static_cast<statenum_t>(arti->info->spawnstate));
     S_StartSound(arti, SFX_RESPAWN);
 }
 
@@ -924,7 +924,7 @@ void A_RestoreSpecialThing1(mobj_t * thing)
 void A_RestoreSpecialThing2(mobj_t * thing)
 {
     thing->flags |= MF_SPECIAL;
-    P_SetMobjState(thing, thing->info->spawnstate);
+    P_SetMobjState(thing, static_cast<statenum_t>(thing->info->spawnstate));
 }
 
 //---------------------------------------------------------------------------
@@ -1016,7 +1016,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
             if (special->special)
             {
                 P_ExecuteLineSpecial(special->special, special->args,
-                                     NULL, 0, toucher);
+                                     nullptr, 0, toucher);
                 special->special = 0;
             }
 
@@ -1027,7 +1027,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
             player->bonuscount += BONUSADD;
             if (player == &players[consoleplayer])
             {
-                S_StartSound(NULL, sound);
+                S_StartSound(nullptr, sound);
                 SB_PaletteFlash(false);
             }
             return;
@@ -1226,7 +1226,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     }
     if (special->special)
     {
-        P_ExecuteLineSpecial(special->special, special->args, NULL,
+        P_ExecuteLineSpecial(special->special, special->args, nullptr,
                              0, toucher);
         special->special = 0;
     }
@@ -1241,7 +1241,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     player->bonuscount += BONUSADD;
     if (player == &players[consoleplayer])
     {
-        S_StartSound(NULL, sound);
+        S_StartSound(nullptr, sound);
         SB_PaletteFlash(false);
     }
 }
@@ -1274,7 +1274,7 @@ mobj_t *ActiveMinotaur(player_t * master)
         if (plr == master)
             return (mo);
     }
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -1298,12 +1298,12 @@ void P_KillMobj(mobj_t * source, mobj_t * target)
     {                           // Initiate monster death actions
         if (target->type == MT_SORCBOSS)
         {
-            P_StartACS(target->special, 0, dummyArgs, target, NULL, 0);
+            P_StartACS(target->special, 0, dummyArgs, target, nullptr, 0);
         }
         else
         {
             P_ExecuteLineSpecial(target->special, target->args,
-                                 NULL, 0, target);
+                                 nullptr, 0, target);
         }
     }
     if (source && source->player)
@@ -1486,7 +1486,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target)
     if (target->health < -(target->info->spawnhealth >> 1)
         && target->info->xdeathstate)
     {                           // Extreme death
-        P_SetMobjState(target, target->info->xdeathstate);
+        P_SetMobjState(target, static_cast<statenum_t>(target->info->xdeathstate));
     }
     else
     {                           // Normal death
@@ -1495,11 +1495,11 @@ void P_KillMobj(mobj_t * source, mobj_t * target)
             (target->info->xdeathstate))
         {
             // This is to fix the imps' staying in fall state
-            P_SetMobjState(target, target->info->xdeathstate);
+            P_SetMobjState(target, static_cast<statenum_t>(target->info->xdeathstate));
         }
         else
         {
-            P_SetMobjState(target, target->info->deathstate);
+            P_SetMobjState(target, static_cast<statenum_t>(target->info->deathstate));
         }
     }
     target->tics -= P_Random() & 3;
@@ -1522,7 +1522,7 @@ void P_MinotaurSlam(mobj_t * source, mobj_t * target)
     thrust = 16 * FRACUNIT + (P_Random() << 10);
     target->momx += FixedMul(thrust, finecosine[angle]);
     target->momy += FixedMul(thrust, finesine[angle]);
-    P_DamageMobj(target, NULL, source, HITDICE(4));
+    P_DamageMobj(target, nullptr, source, HITDICE(4));
     if (target->player)
     {
         target->reactiontime = 14 + (P_Random() & 7);
@@ -1726,9 +1726,9 @@ void P_AutoUseHealth(player_t * player, int saveHealth)
 =
 = Damages both enemies and players
 = inflictor is the thing that caused the damage
-= 		creature or missile, can be NULL (slime, etc)
+= 		creature or missile, can be nullptr (slime, etc)
 = source is the thing to target after taking damage
-=		creature or NULL
+=		creature or nullptr
 = Source and inflictor are the same for melee attacks
 = source can be null for barrel explosions and other environmental stuff
 ==================
@@ -2044,7 +2044,7 @@ void P_DamageMobj
             if (P_Random() < 96)
             {
                 target->flags |= MF_JUSTHIT;    // fight back!
-                P_SetMobjState(target, target->info->painstate);
+                P_SetMobjState(target, static_cast<statenum_t>(target->info->painstate));
             }
             else
             {                   // "electrocute" the target
@@ -2064,7 +2064,7 @@ void P_DamageMobj
         else
         {
             target->flags |= MF_JUSTHIT;        // fight back!
-            P_SetMobjState(target, target->info->painstate);
+            P_SetMobjState(target, static_cast<statenum_t>(target->info->painstate));
             if (inflictor && inflictor->type == MT_POISONCLOUD)
             {
                 if (target->flags & MF_COUNTKILL && P_Random() < 128
@@ -2097,7 +2097,7 @@ void P_DamageMobj
         if (target->state == &states[target->info->spawnstate]
             && target->info->seestate != S_NULL)
         {
-            P_SetMobjState(target, target->info->seestate);
+            P_SetMobjState(target, static_cast<statenum_t>(target->info->seestate));
         }
     }
 }
@@ -2119,7 +2119,7 @@ void P_FallingDamage(player_t * player)
 
     if (mom >= 63 * FRACUNIT)
     {                           // automatic death
-        P_DamageMobj(player->mo, NULL, NULL, 10000);
+        P_DamageMobj(player->mo, nullptr, nullptr, 10000);
         return;
     }
     damage = ((FixedMul(dist, dist) / 10) >> FRACBITS) - 24;
@@ -2129,7 +2129,7 @@ void P_FallingDamage(player_t * player)
         damage = player->mo->health - 1;
     }
     S_StartSound(player->mo, SFX_PLAYER_LAND);
-    P_DamageMobj(player->mo, NULL, NULL, damage);
+    P_DamageMobj(player->mo, nullptr, nullptr, damage);
 }
 
 //==========================================================================
@@ -2220,14 +2220,14 @@ void P_PoisonDamage(player_t * player, mobj_t * source, int damage,
     }
     if (!(leveltime & 63) && playPainSound)
     {
-        P_SetMobjState(target, target->info->painstate);
+        P_SetMobjState(target, static_cast<statenum_t>(target->info->painstate));
     }
 /*
 	if((P_Random() < target->info->painchance)
 		&& !(target->flags&MF_SKULLFLY))
 	{
 		target->flags |= MF_JUSTHIT; // fight back!
-		P_SetMobjState(target, target->info->painstate);
+		P_SetMobjState(target, static_cast<statenum_t>(target->info->painstate));
 	}
 */
 }

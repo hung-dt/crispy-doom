@@ -15,8 +15,8 @@
 // Parses "Frame" sections in dehacked files
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "doomtype.h"
 #include "d_items.h"
@@ -45,13 +45,13 @@ static void *DEH_FrameStart(deh_context_t *context, char *line)
     if (sscanf(line, "Frame %i", &frame_number) != 1)
     {
         DEH_Warning(context, "Parse error on section start");
-        return NULL;
+        return nullptr;
     }
     
     if (frame_number < 0 || frame_number >= NUMSTATES)
     {
         DEH_Warning(context, "Invalid frame number: %i", frame_number);
-        return NULL;
+        return nullptr;
     }
 
     if (frame_number >= DEH_VANILLA_NUMSTATES) 
@@ -65,50 +65,13 @@ static void *DEH_FrameStart(deh_context_t *context, char *line)
     return state;
 }
 
-// Simulate a frame overflow: Doom has 967 frames in the states[] array, but
-// DOS dehacked internally only allocates memory for 966.  As a result, 
-// attempts to set frame 966 (the last frame) will overflow the dehacked
-// array and overwrite the weaponinfo[] array instead.
-//
-// This is noticable in Batman Doom where it is impossible to switch weapons
-// away from the fist once selected.
-
-static void DEH_FrameOverflow(deh_context_t *context, char *varname, int value)
-{
-    if (!strcasecmp(varname, "Duration"))
-    {
-        weaponinfo[0].ammo = value;
-    }
-    else if (!strcasecmp(varname, "Codep frame")) 
-    {
-        weaponinfo[0].upstate = value;
-    }
-    else if (!strcasecmp(varname, "Next frame")) 
-    {
-        weaponinfo[0].downstate = value;
-    }
-    else if (!strcasecmp(varname, "Unknown 1"))
-    {
-        weaponinfo[0].readystate = value;
-    }
-    else if (!strcasecmp(varname, "Unknown 2"))
-    {
-        weaponinfo[0].atkstate = value;
-    }
-    else
-    {
-        DEH_Error(context, "Unable to simulate frame overflow: field '%s'",
-                  varname);
-    }
-}
-
 static void DEH_FrameParseLine(deh_context_t *context, char *line, void *tag)
 {
     state_t *state;
     char *variable_name, *value;
     int ivalue;
     
-    if (tag == NULL)
+    if (tag == nullptr)
        return;
 
     state = (state_t *) tag;
@@ -127,17 +90,9 @@ static void DEH_FrameParseLine(deh_context_t *context, char *line, void *tag)
 
     ivalue = atoi(value);
     
-    // [crispy] drop the overflow simulation into the frame table
-    if (state == &states[NUMSTATES - 1] && false)
-    {
-        DEH_FrameOverflow(context, variable_name, ivalue);
-    }
-    else
-    {
-        // set the appropriate field
+    // set the appropriate field
 
-        DEH_SetMapping(context, &state_mapping, state, variable_name, ivalue);
-    }
+    DEH_SetMapping(context, &state_mapping, state, variable_name, ivalue);
 }
 
 static void DEH_FrameSHA1Sum(sha1_context_t *context)
@@ -153,10 +108,10 @@ static void DEH_FrameSHA1Sum(sha1_context_t *context)
 deh_section_t deh_section_frame =
 {
     "Frame",
-    NULL,
+    nullptr,
     DEH_FrameStart,
     DEH_FrameParseLine,
-    NULL,
+    nullptr,
     DEH_FrameSHA1Sum,
 };
 

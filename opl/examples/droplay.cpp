@@ -17,9 +17,9 @@
 //
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "SDL.h"
 
@@ -151,7 +151,7 @@ void PlayFile(char *filename)
 
     timer_data.fstream = fopen(filename, "rb");
 
-    if (timer_data.fstream == NULL)
+    if (timer_data.fstream == nullptr)
     {
         fprintf(stderr, "Failed to open %s\n", filename);
         exit(-1);

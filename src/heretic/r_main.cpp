@@ -15,8 +15,8 @@
 //
 // R_main.c
 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include "doomdef.h"
 #include "m_bbox.h"
 #include "r_local.h"

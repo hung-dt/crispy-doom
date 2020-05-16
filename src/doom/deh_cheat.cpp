@@ -15,8 +15,8 @@
 // Parses "Cheat" sections in dehacked files
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomtype.h"
 
@@ -63,12 +63,12 @@ static deh_cheat_t *FindCheatByName(char *name)
             return &allcheats[i];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 static void *DEH_CheatStart(deh_context_t *context, char *line)
 {
-    return NULL;
+    return nullptr;
 }
 
 static void DEH_CheatParseLine(deh_context_t *context, char *line, void *tag)
@@ -91,7 +91,7 @@ static void DEH_CheatParseLine(deh_context_t *context, char *line, void *tag)
 
     cheat = FindCheatByName(variable_name);
 
-    if (cheat == NULL)
+    if (cheat == nullptr)
     {
         DEH_Warning(context, "Unknown cheat '%s'", variable_name);
         return;
@@ -137,10 +137,10 @@ static void DEH_CheatParseLine(deh_context_t *context, char *line, void *tag)
 deh_section_t deh_section_cheat =
 {
     "Cheat",
-    NULL,
+    nullptr,
     DEH_CheatStart,
     DEH_CheatParseLine,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 };
 

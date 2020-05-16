@@ -14,10 +14,10 @@
 // Common code shared between the client and server
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
+#include <cstring>
 
 #include "doomtype.h"
 #include "d_mode.h"
@@ -29,6 +29,8 @@
 #include "net_io.h"
 #include "net_packet.h"
 #include "net_structrw.h"
+
+#include "../utils/memory.h"
 
 // connections time out after 30 seconds
 
@@ -48,7 +50,7 @@ struct net_reliable_packet_s
     net_reliable_packet_t *next;
 };
 
-static FILE *net_debug = NULL;
+static FILE *net_debug = nullptr;
 
 static void NET_Conn_Init(net_connection_t *conn, net_addr_t *addr,
                           net_protocol_t protocol)
@@ -57,7 +59,7 @@ static void NET_Conn_Init(net_connection_t *conn, net_addr_t *addr,
     conn->num_retries = 0;
     conn->addr = addr;
     conn->protocol = protocol;
-    conn->reliable_packets = NULL;
+    conn->reliable_packets = nullptr;
     conn->reliable_send_seq = 0;
     conn->reliable_recv_seq = 0;
     conn->keepalive_recv_time = I_GetTimeMS();
@@ -135,7 +137,7 @@ static void NET_Conn_ParseReliableACK(net_connection_t *conn, net_packet_t *pack
         return;
     }
 
-    if (conn->reliable_packets == NULL)
+    if (conn->reliable_packets == nullptr)
     {
         return;
     }
@@ -310,7 +312,7 @@ void NET_Conn_Run(net_connection_t *conn)
         //
         // NB.  This is braindead, we have a fixed time of one second.
 
-        if (conn->reliable_packets != NULL
+        if (conn->reliable_packets != nullptr
          && (conn->reliable_packets->last_send_time < 0
           || nowtime - conn->reliable_packets->last_send_time > 1000))
         {
@@ -370,7 +372,6 @@ void NET_Conn_Run(net_connection_t *conn)
 net_packet_t *NET_Conn_NewReliable(net_connection_t *conn, int packet_type)
 {
     net_packet_t *packet;
-    net_reliable_packet_t *rp;
     net_reliable_packet_t **listend;
 
     // Generate a packet with the right header
@@ -385,14 +386,14 @@ net_packet_t *NET_Conn_NewReliable(net_connection_t *conn, int packet_type)
 
     // Add to the list of reliable packets
 
-    rp = malloc(sizeof(net_reliable_packet_t));
+    auto *rp = createStruct<net_reliable_packet_t>(sizeof(net_reliable_packet_t));
     rp->packet = packet;
-    rp->next = NULL;
+    rp->next = nullptr;
     rp->seq = conn->reliable_send_seq;
     rp->last_send_time = -1;
 
     for (listend = &conn->reliable_packets; 
-         *listend != NULL; 
+         *listend != nullptr; 
          listend = &((*listend)->next));
 
     *listend = rp;
@@ -444,7 +445,7 @@ boolean NET_ValidGameSettings(GameMode_t mode, GameMission_t mission,
     if (settings->skill < sk_noitems || settings->skill > sk_nightmare)
         return false;
 
-    if (!D_ValidGameVersion(mission, settings->gameversion))
+    if (!D_ValidGameVersion(mission, static_cast<GameVersion_t>(settings->gameversion)))
         return false;
 
     if (!D_ValidEpisodeMap(mission, mode, settings->episode, settings->map))
@@ -453,16 +454,16 @@ boolean NET_ValidGameSettings(GameMode_t mode, GameMission_t mission,
     return true;
 }
 
-static void CloseLog(void)
+static void CloseLog()
 {
-    if (net_debug != NULL)
+    if (net_debug != nullptr)
     {
         fclose(net_debug);
-        net_debug = NULL;
+        net_debug = nullptr;
     }
 }
 
-void NET_OpenLog(void)
+void NET_OpenLog()
 {
     int p;
 
@@ -470,7 +471,7 @@ void NET_OpenLog(void)
     if (p > 0)
     {
         net_debug = fopen(myargv[p + 1], "w");
-        if (net_debug == NULL)
+        if (net_debug == nullptr)
         {
             I_Error("Failed to open %s to write debug log.", myargv[p + 1]);
         }
@@ -482,7 +483,7 @@ void NET_Log(const char *fmt, ...)
 {
     va_list args;
 
-    if (net_debug == NULL)
+    if (net_debug == nullptr)
     {
         return;
     }
@@ -498,7 +499,7 @@ void NET_LogPacket(net_packet_t *packet)
 {
     int i, bytes;
 
-    if (net_debug == NULL)
+    if (net_debug == nullptr)
     {
         return;
     }

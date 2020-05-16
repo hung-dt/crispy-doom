@@ -17,9 +17,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <errno.h>
 #include <assert.h>
 
@@ -46,7 +46,7 @@ typedef struct
 // When the callback mutex is locked using OPL_Lock, callback functions
 // are not invoked.
 
-static SDL_mutex *callback_mutex = NULL;
+static SDL_mutex *callback_mutex = nullptr;
 
 // Queue of callbacks waiting to be invoked.
 
@@ -54,7 +54,7 @@ static opl_callback_queue_t *callback_queue;
 
 // Mutex used to control access to the callback queue.
 
-static SDL_mutex *callback_queue_mutex = NULL;
+static SDL_mutex *callback_queue_mutex = nullptr;
 
 // Current time, in us since startup:
 
@@ -76,7 +76,7 @@ static int opl_opl3mode;
 
 // Temporary mixing buffer used by the mixing callback.
 
-static uint8_t *mix_buffer = NULL;
+static uint8_t *mix_buffer = nullptr;
 
 // Register number that was written.
 
@@ -93,7 +93,7 @@ static int sdl_was_initialized = 0;
 static int mixing_freq, mixing_channels;
 static Uint16 mixing_format;
 
-static int SDLIsInitialized(void)
+static int SDLIsInitialized()
 {
     int freq, channels;
     Uint16 format;
@@ -222,9 +222,9 @@ static void OPL_Mix_Callback(void *udata, Uint8 *buffer, int len)
     }
 }
 
-static void OPL_SDL_Shutdown(void)
+static void OPL_SDL_Shutdown()
 {
-    Mix_HookMusic(NULL, NULL);
+    Mix_HookMusic(nullptr, nullptr);
 
     if (sdl_was_initialized)
     {
@@ -236,27 +236,27 @@ static void OPL_SDL_Shutdown(void)
     }
 
 /*
-    if (opl_chip != NULL)
+    if (opl_chip != nullptr)
     {
         OPLDestroy(opl_chip);
-        opl_chip = NULL;
+        opl_chip = nullptr;
     }
     */
 
-    if (callback_mutex != NULL)
+    if (callback_mutex != nullptr)
     {
         SDL_DestroyMutex(callback_mutex);
-        callback_mutex = NULL;
+        callback_mutex = nullptr;
     }
 
-    if (callback_queue_mutex != NULL)
+    if (callback_queue_mutex != nullptr)
     {
         SDL_DestroyMutex(callback_queue_mutex);
-        callback_queue_mutex = NULL;
+        callback_queue_mutex = nullptr;
     }
 }
 
-static unsigned int GetSliceSize(void)
+static unsigned int GetSliceSize()
 {
     int limit;
     int n;
@@ -338,7 +338,7 @@ static int OPL_SDL_Init(unsigned int port_base)
     }
 
     // Mix buffer: four bytes per sample (16 bits * 2 channels):
-    mix_buffer = malloc(mixing_freq * 4);
+    mix_buffer = static_cast<uint8_t*>(malloc(mixing_freq * 4));
 
     // Create the emulator structure:
 
@@ -351,7 +351,7 @@ static int OPL_SDL_Init(unsigned int port_base)
     // Set postmix that adds the OPL music. This is deliberately done
     // as a postmix and not using Mix_HookMusic() as the latter disables
     // normal SDL_mixer music mixing.
-    Mix_SetPostMix(OPL_Mix_Callback, NULL);
+    Mix_SetPostMix(OPL_Mix_Callback, nullptr);
 
     return 1;
 }
@@ -466,19 +466,19 @@ static void OPL_SDL_SetCallback(uint64_t us, opl_callback_t callback,
     SDL_UnlockMutex(callback_queue_mutex);
 }
 
-static void OPL_SDL_ClearCallbacks(void)
+static void OPL_SDL_ClearCallbacks()
 {
     SDL_LockMutex(callback_queue_mutex);
     OPL_Queue_Clear(callback_queue);
     SDL_UnlockMutex(callback_queue_mutex);
 }
 
-static void OPL_SDL_Lock(void)
+static void OPL_SDL_Lock()
 {
     SDL_LockMutex(callback_mutex);
 }
 
-static void OPL_SDL_Unlock(void)
+static void OPL_SDL_Unlock()
 {
     SDL_UnlockMutex(callback_mutex);
 }

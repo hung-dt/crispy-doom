@@ -18,8 +18,8 @@
 
 #ifndef __DOOMDEF__
 #define __DOOMDEF__
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 //haleyjd: removed WATCOMC
 #include <limits.h>
 
@@ -176,7 +176,7 @@ typedef struct mobj_s
     int health;
     int movedir;                // 0-7
     int movecount;              // when 0, select a new dir
-    struct mobj_s *target;      // thing being chased/attacked (or NULL)
+    struct mobj_s *target;      // thing being chased/attacked (or nullptr)
     // also the originator for missiles
     int reactiontime;           // if non 0, don't attack yet
     // used by player to freeze a bit after
@@ -302,7 +302,7 @@ typedef enum
 
 typedef struct
 {
-    state_t *state;             // a NULL state means not active
+    state_t *state;             // a nullptr state means not active
     int tics;
     fixed_t sx, sy;
 } pspdef_t;
@@ -467,7 +467,7 @@ typedef struct player_s
     int messageTics;            // counter for showing messages
     int damagecount, bonuscount;        // for screen flashing
     int flamecount;             // for flame thrower duration
-    mobj_t *attacker;           // who did damage (NULL for floors)
+    mobj_t *attacker;           // who did damage (nullptr for floors)
     int extralight;             // so gun flashes light up areas
     int fixedcolormap;          // can be set to REDCOLORMAP, etc
     int colormap;               // 0-3 for which color to draw player

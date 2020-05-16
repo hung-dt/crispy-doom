@@ -27,6 +27,8 @@
 
 #include "doomstat.h"
 
+#include "../../utils/lump.h"
+
 // swirl factors determine the number of waves per flat width
 
 // 1 cycle per 64 units
@@ -51,7 +53,7 @@ void R_InitDistortedFlats()
 	{
 		int i;
 
-		offsets = I_Realloc(NULL, SEQUENCE * FLATSIZE * sizeof(*offsets));
+		offsets = static_cast<int*>(I_Realloc(nullptr, SEQUENCE * FLATSIZE * sizeof(*offsets)));
 		offset = offsets;
 
 		for (i = 0; i < SEQUENCE; i++)
@@ -108,7 +110,7 @@ char *R_DistortedFlat(int flatnum)
 		char *normalflat;
 		int i;
 
-		normalflat = W_CacheLumpNum(flatnum, PU_STATIC);
+		normalflat = cacheLumpNum<char*>(flatnum, PU_STATIC);
 
 		for (i = 0; i < FLATSIZE; i++)
 		{

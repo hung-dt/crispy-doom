@@ -26,6 +26,8 @@
 #include "s_sound.h"
 #include "v_video.h"
 
+#include "../../utils/memory.h"
+
 // Macros
 
 #define MAX_AMBIENT_SFX 8       // Per level
@@ -240,7 +242,7 @@ void P_InitTerrainTypes(void)
     int size;
 
     size = (numflats + 1) * sizeof(int);
-    TerrainTypes = Z_Malloc(size, PU_STATIC, 0);
+    TerrainTypes = zmalloc<int*>(size, PU_STATIC, 0);
     memset(TerrainTypes, 0, size);
     for (i = 0; TerrainTypeDefs[i].type != -1; i++)
     {
@@ -337,13 +339,13 @@ int twoSided(int sector, int line)
 
 //==================================================================
 //
-//      Return sector_t * of sector next to current. NULL if not two-sided line
+//      Return sector_t * of sector next to current. nullptr if not two-sided line
 //
 //==================================================================
 sector_t *getNextSector(line_t * line, sector_t * sec)
 {
     if (!(line->flags & ML_TWOSIDED))
-        return NULL;
+        return nullptr;
 
     if (line->frontsector == sec)
         return line->backsector;
@@ -420,7 +422,7 @@ fixed_t P_FindNextHighestFloor(sector_t * sec, int currentheight)
         check = sec->lines[i];
         other = getNextSector(check, sec);
 
-        if (other != NULL && other->floorheight > height)
+        if (other != nullptr && other->floorheight > height)
         {
             if (other->floorheight < min)
             {
@@ -869,20 +871,20 @@ void P_PlayerInSpecialSector(player_t * player)
         case 7:                // Damage_Sludge
             if (!(leveltime & 31))
             {
-                P_DamageMobj(player->mo, NULL, NULL, 4);
+                P_DamageMobj(player->mo, nullptr, nullptr, 4);
             }
             break;
         case 5:                // Damage_LavaWimpy
             if (!(leveltime & 15))
             {
-                P_DamageMobj(player->mo, &LavaInflictor, NULL, 5);
+                P_DamageMobj(player->mo, &LavaInflictor, nullptr, 5);
                 P_HitFloor(player->mo);
             }
             break;
         case 16:               // Damage_LavaHefty
             if (!(leveltime & 15))
             {
-                P_DamageMobj(player->mo, &LavaInflictor, NULL, 8);
+                P_DamageMobj(player->mo, &LavaInflictor, nullptr, 8);
                 P_HitFloor(player->mo);
             }
             break;
@@ -890,7 +892,7 @@ void P_PlayerInSpecialSector(player_t * player)
             P_Thrust(player, 0, 2048 * 28);
             if (!(leveltime & 15))
             {
-                P_DamageMobj(player->mo, &LavaInflictor, NULL, 5);
+                P_DamageMobj(player->mo, &LavaInflictor, nullptr, 5);
                 P_HitFloor(player->mo);
             }
             break;
@@ -906,7 +908,7 @@ void P_PlayerInSpecialSector(player_t * player)
                 P_SetCenterMessage(&players[consoleplayer],
                     (crispy->secretmessage == SECRETMESSAGE_COUNT) ? str_count : HUSTR_SECRETFOUND);
                 // Play the chat sound when secret found, it's a message after all
-                S_StartSound(NULL, sfx_chat);
+                S_StartSound(nullptr, sfx_chat);
             }
             sector->special = 0;
             break;
@@ -915,7 +917,7 @@ void P_PlayerInSpecialSector(player_t * player)
                player->cheats &= ~CF_GODMODE;
                if(!(leveltime&0x1f))
                {
-               P_DamageMobj(player->mo, NULL, NULL, 20);
+               P_DamageMobj(player->mo, nullptr, nullptr, 20);
                }
                if(player->health <= 10)
                {
@@ -1127,7 +1129,7 @@ int EV_DoDonut(line_t * line)
             //
             //      Spawn rising slime
             //
-            floor = Z_Malloc(sizeof(*floor), PU_LEVSPEC, 0);
+            floor = zmalloc<floormove_t*>(sizeof(*floor), PU_LEVSPEC, 0);
             P_AddThinker(&floor->thinker);
             s2->specialdata = floor;
             floor->thinker.function = T_MoveFloor;
@@ -1143,7 +1145,7 @@ int EV_DoDonut(line_t * line)
             //
             //      Spawn lowering donut-hole
             //
-            floor = Z_Malloc(sizeof(*floor), PU_LEVSPEC, 0);
+            floor = zmalloc<floormove_t*>(sizeof(*floor), PU_LEVSPEC, 0);
             P_AddThinker(&floor->thinker);
             s1->specialdata = floor;
             floor->thinker.function = T_MoveFloor;
@@ -1247,9 +1249,9 @@ void P_SpawnSpecials(void)
     //      Init other misc stuff
     //
     for (i = 0; i < MAXCEILINGS; i++)
-        activeceilings[i] = NULL;
+        activeceilings[i] = nullptr;
     for (i = 0; i < MAXPLATS; i++)
-        activeplats[i] = NULL;
+        activeplats[i] = nullptr;
     for (i = 0; i < MAXBUTTONS; i++)
         memset(&buttonlist[i], 0, sizeof(button_t));
 }
@@ -1315,12 +1317,12 @@ void P_AmbientSound(void)
         {
             case afxcmd_play:
                 AmbSfxVolume = P_Random() >> 2;
-                S_StartSoundAtVolume(NULL, *AmbSfxPtr++, AmbSfxVolume);
+                S_StartSoundAtVolume(nullptr, *AmbSfxPtr++, AmbSfxVolume);
                 break;
             case afxcmd_playabsvol:
                 sound = *AmbSfxPtr++;
                 AmbSfxVolume = *AmbSfxPtr++;
-                S_StartSoundAtVolume(NULL, sound, AmbSfxVolume);
+                S_StartSoundAtVolume(nullptr, sound, AmbSfxVolume);
                 break;
             case afxcmd_playrelvol:
                 sound = *AmbSfxPtr++;
@@ -1333,7 +1335,7 @@ void P_AmbientSound(void)
                 {
                     AmbSfxVolume = 127;
                 }
-                S_StartSoundAtVolume(NULL, sound, AmbSfxVolume);
+                S_StartSoundAtVolume(nullptr, sound, AmbSfxVolume);
                 break;
             case afxcmd_delay:
                 AmbSfxTics = *AmbSfxPtr++;

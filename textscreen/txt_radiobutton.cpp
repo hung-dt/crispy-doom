@@ -12,8 +12,8 @@
 // GNU General Public License for more details.
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomkeys.h"
 
@@ -23,6 +23,8 @@
 #include "txt_main.h"
 #include "txt_utf8.h"
 #include "txt_window.h"
+
+#include "../utils/memory.h"
 
 static void TXT_RadioButtonSizeCalc(TXT_UNCAST_ARG(radiobutton))
 {
@@ -118,14 +120,12 @@ txt_widget_class_t txt_radiobutton_class =
     TXT_RadioButtonKeyPress,
     TXT_RadioButtonDestructor,
     TXT_RadioButtonMousePress,
-    NULL,
+    nullptr,
 };
 
 txt_radiobutton_t *TXT_NewRadioButton(const char *label, int *variable, int value)
 {
-    txt_radiobutton_t *radiobutton;
-
-    radiobutton = malloc(sizeof(txt_radiobutton_t));
+    auto* radiobutton = createStruct<txt_radiobutton_t>();
 
     TXT_InitWidget(radiobutton, &txt_radiobutton_class);
     radiobutton->label = strdup(label);

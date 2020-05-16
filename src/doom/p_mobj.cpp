@@ -16,7 +16,7 @@
 //	Moving object handling. Spawn functions.
 //
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "i_system.h"
 #include "z_zone.h"
@@ -34,6 +34,7 @@
 
 #include "doomstat.h"
 
+#include "../../utils/memory.h"
 
 void G_PlayerReborn (int player);
 void P_SpawnMapThing (mapthing_t*	mthing);
@@ -77,7 +78,7 @@ P_SetMobjState
 	// Modified handling.
 	// Call action functions when the state is set
 	if (st->action.acp3)
-	    st->action.acp3(mobj, NULL, NULL); // [crispy] let pspr action pointers get called from mobj states
+	    st->action.acp3(mobj, nullptr, nullptr); // [crispy] let pspr action pointers get called from mobj states
 	
 	state = st->nextstate;
 
@@ -131,7 +132,8 @@ static void P_ExplodeMissileSafe (mobj_t* mo, boolean safe)
 {
     mo->momx = mo->momy = mo->momz = 0;
 
-    P_SetMobjState (mo, safe ? P_LatestSafeState(mobjinfo[mo->type].deathstate) : mobjinfo[mo->type].deathstate);
+    P_SetMobjState(mo, safe ? P_LatestSafeState(static_cast<statenum_t>(mobjinfo[mo->type].deathstate))
+                            : static_cast<statenum_t>(mobjinfo[mo->type].deathstate));
 
     mo->tics -= safe ? Crispy_Random()&3 : P_Random()&3;
 
@@ -173,7 +175,7 @@ void P_XYMovement (mobj_t* mo)
 	    mo->flags &= ~MF_SKULLFLY;
 	    mo->momx = mo->momy = mo->momz = 0;
 
-	    P_SetMobjState (mo, mo->info->spawnstate);
+	    P_SetMobjState(mo, static_cast<statenum_t>(mo->info->spawnstate));
 	}
 	return;
     }
@@ -541,7 +543,7 @@ void P_MobjThinker (mobj_t* mobj)
     }
     else
     // [AM] Handle interpolation unless we're an active player.
-    if (!(mobj->player != NULL && mobj == mobj->player->mo))
+    if (!(mobj->player != nullptr && mobj == mobj->player->mo))
     {
         // Assume we can interpolate at the beginning
         // of the tic.
@@ -561,7 +563,7 @@ void P_MobjThinker (mobj_t* mobj)
     {
 	P_XYMovement (mobj);
 
-	// FIXME: decent NOP/NULL/Nil function pointer please.
+	// FIXME: decent NOP/nullptr/Nil function pointer please.
 	if (mobj->thinker.function.acv == (actionf_v) (-1))
 	    return;		// mobj was removed
     }
@@ -570,7 +572,7 @@ void P_MobjThinker (mobj_t* mobj)
     {
 	P_ZMovement (mobj);
 	
-	// FIXME: decent NOP/NULL/Nil function pointer please.
+	// FIXME: decent NOP/nullptr/Nil function pointer please.
 	if (mobj->thinker.function.acv == (actionf_v) (-1))
 	    return;		// mobj was removed
     }
@@ -627,8 +629,8 @@ P_SpawnMobjSafe
     mobj_t*	mobj;
     state_t*	st;
     mobjinfo_t*	info;
-	
-    mobj = Z_Malloc (sizeof(*mobj), PU_LEVEL, NULL);
+
+    mobj = zmalloc<mobj_t*>(sizeof(*mobj), PU_LEVEL, nullptr);
     memset (mobj, 0, sizeof (*mobj));
     info = &mobjinfo[type];
 	
@@ -647,7 +649,7 @@ P_SpawnMobjSafe
     mobj->lastlook = safe ? Crispy_Random () % MAXPLAYERS : P_Random () % MAXPLAYERS;
     // do not set the state with P_SetMobjState,
     // because action routines can not be called yet
-    st = &states[safe ? P_LatestSafeState(info->spawnstate) : info->spawnstate];
+    st = &states[safe ? P_LatestSafeState(static_cast<statenum_t>(info->spawnstate)) : info->spawnstate];
 
     mobj->state = st;
     mobj->tics = st->tics;
@@ -803,7 +805,7 @@ void P_RespawnSpecials (void)
     else
 	z = ONFLOORZ;
 
-    mo = P_SpawnMobj (x,y,z, i);
+    mo = P_SpawnMobj (x,y,z, static_cast<mobjtype_t>(i));
     mo->spawnpoint = *mthing;	
     mo->angle = ANG45 * (mthing->angle/45);
 
@@ -868,7 +870,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
     p->mo = mobj;
     p->playerstate = PST_LIVE;	
     p->refire = 0;
-    p->message = NULL;
+    p->message = nullptr;
     p->damagecount = 0;
     p->bonuscount = 0;
     p->extralight = 0;
@@ -1004,8 +1006,8 @@ void P_SpawnMapThing (mapthing_t* mthing)
 	z = ONCEILINGZ;
     else
 	z = ONFLOORZ;
-    
-    mobj = P_SpawnMobj (x,y,z, i);
+
+    mobj = P_SpawnMobj(x, y, z, static_cast<mobjtype_t>(i));
     mobj->spawnpoint = *mthing;
 
     if (mobj->tics > 0)
@@ -1151,15 +1153,15 @@ void P_CheckMissileSpawn (mobj_t* th)
 	P_ExplodeMissile (th);
 }
 
-// Certain functions assume that a mobj_t pointer is non-NULL,
-// causing a crash in some situations where it is NULL.  Vanilla
+// Certain functions assume that a mobj_t pointer is non-nullptr,
+// causing a crash in some situations where it is nullptr.  Vanilla
 // Doom did not crash because of the lack of proper memory 
-// protection. This function substitutes NULL pointers for
+// protection. This function substitutes nullptr pointers for
 // pointers to a dummy mobj, to avoid a crash.
 
 mobj_t *P_SubstNullMobj(mobj_t *mobj)
 {
-    if (mobj == NULL)
+    if (mobj == nullptr)
     {
         static mobj_t dummy_mobj;
 

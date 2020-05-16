@@ -15,8 +15,8 @@
 //    PC speaker interface.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "SDL.h"
 #include "SDL_mixer.h"
@@ -236,7 +236,7 @@ static int PCSound_SDL_Init(pcsound_callback_func callback_func)
     current_freq = 0;
     current_remaining = 0;
 
-    Mix_SetPostMix(PCSound_Mix_Callback, NULL);
+    Mix_SetPostMix(PCSound_Mix_Callback, nullptr);
 
     return 1;
 }

@@ -15,7 +15,7 @@
 //
 // P_map.c
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "doomdef.h"
 #include "i_system.h"
@@ -177,7 +177,7 @@ boolean P_TeleportMove(mobj_t * thing, fixed_t x, fixed_t y)
     tmbbox[BOXLEFT] = x - tmthing->radius;
 
     newsubsec = R_PointInSubsector(x, y);
-    ceilingline = NULL;
+    ceilingline = nullptr;
 
 //
 // the base floor / ceiling is from the subsector that contains the
@@ -237,7 +237,7 @@ static void check_spechit(void)
 	if (numspechit >= spechit_max)
 	{
 		spechit_max = spechit_max ? spechit_max * 2 : MAXSPECIALCROSS;
-		spechit = I_Realloc(spechit, sizeof(*spechit) * spechit_max);
+		spechit = static_cast<line_t*>(I_Realloc(spechit, sizeof(*spechit) * spechit_max));
 
 		if (spechit_max == 2 * MAXSPECIALCROSS)
 		{
@@ -378,7 +378,7 @@ boolean PIT_CheckThing(mobj_t * thing)
         P_DamageMobj(thing, tmthing, tmthing, damage);
         tmthing->flags &= ~MF_SKULLFLY;
         tmthing->momx = tmthing->momy = tmthing->momz = 0;
-        P_SetMobjState(tmthing, tmthing->info->seestate);
+        P_SetMobjState(tmthing, static_cast<statenum_t>(tmthing->info->seestate));
         return (false);
     }
     // Check for missile
@@ -579,7 +579,7 @@ boolean P_CheckPosition(mobj_t * thing, fixed_t x, fixed_t y)
     tmbbox[BOXLEFT] = x - tmthing->radius;
 
     newsubsec = R_PointInSubsector(x, y);
-    ceilingline = NULL;
+    ceilingline = nullptr;
 
 //
 // the base floor / ceiling is from the subsector that contains the
@@ -656,7 +656,7 @@ mobj_t *P_CheckOnmobj(mobj_t * thing)
     tmbbox[BOXLEFT] = x - tmthing->radius;
 
     newsubsec = R_PointInSubsector(x, y);
-    ceilingline = NULL;
+    ceilingline = nullptr;
 
 //
 // the base floor / ceiling is from the subsector that contains the
@@ -669,7 +669,7 @@ mobj_t *P_CheckOnmobj(mobj_t * thing)
     numspechit = 0;
 
     if (tmflags & MF_NOCLIP)
-        return NULL;
+        return nullptr;
 
 //
 // check things first, possibly picking things up
@@ -690,7 +690,7 @@ mobj_t *P_CheckOnmobj(mobj_t * thing)
                 return onmobj;
             }
     *tmthing = oldmo;
-    return NULL;
+    return nullptr;
 }
 
 //=============================================================================
@@ -1181,7 +1181,7 @@ void P_SlideMove(mobj_t * mo)
 */
 
 
-mobj_t *linetarget;             // who got hit (or NULL)
+mobj_t *linetarget;             // who got hit (or nullptr)
 mobj_t *shootthing;
 fixed_t shootz;                 // height if not aiming up or down
                                                                         // ???: use slope for monsters?
@@ -1426,7 +1426,7 @@ fixed_t P_AimLineAttack(mobj_t * t1, angle_t angle, fixed_t distance)
     topslope = 100 * FRACUNIT / 160;    // can't shoot outside view angles
     bottomslope = -100 * FRACUNIT / 160;
     attackrange = distance;
-    linetarget = NULL;
+    linetarget = nullptr;
 
     P_PathTraverse(t1->x, t1->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS,
                    PTR_AimTraverse);
@@ -1675,7 +1675,7 @@ boolean PIT_ChangeSector(mobj_t * thing)
     nofit = true;
     if (crushchange && !(leveltime & 3))
     {
-        P_DamageMobj(thing, NULL, NULL, 10);
+        P_DamageMobj(thing, nullptr, nullptr, 10);
         // spray blood in a random direction
         mo = P_SpawnMobj(thing->x, thing->y, thing->z + thing->height / 2,
                          MT_BLOOD);

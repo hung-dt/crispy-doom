@@ -65,7 +65,7 @@ P_SetPsprite
         if (!stnum)
         {
             // object removed itself
-            psp->state = NULL;
+            psp->state = nullptr;
             break;
         }
 
@@ -116,7 +116,7 @@ void P_BringUpWeapon (player_t* player)
     if (player->pendingweapon == wp_flame)
         S_StartSound (player->mo, sfx_flidl);   // villsa [STRIFE] flame sounds
 
-    newstate = weaponinfo[player->pendingweapon].upstate;
+    newstate = static_cast<statenum_t>(weaponinfo[player->pendingweapon].upstate);
 
     player->psprites[ps_weapon].sy = WEAPONBOTTOM;
     P_SetPsprite (player, ps_weapon, newstate);
@@ -125,7 +125,7 @@ void P_BringUpWeapon (player_t* player)
     if(player->pendingweapon == wp_elecbow)
         P_SetPsprite(player, ps_flash, S_XBOW_10); // 31
     else if(player->pendingweapon == wp_sigil && player->sigiltype)
-        P_SetPsprite(player, ps_flash, S_SIGH_00 + player->sigiltype); // 117
+        P_SetPsprite(player, ps_flash, static_cast<statenum_t>(S_SIGH_00 + player->sigiltype)); // 117
     else
         P_SetPsprite(player, ps_flash, S_NULL);
 
@@ -197,7 +197,7 @@ boolean P_CheckAmmo (player_t* player)
 
 
     // Now set appropriate weapon overlay.
-    P_SetPsprite(player, ps_weapon, weaponinfo[player->readyweapon].downstate);
+    P_SetPsprite(player, ps_weapon, static_cast<statenum_t>(weaponinfo[player->readyweapon].downstate));
 
     return false;
 }
@@ -216,7 +216,7 @@ void P_FireWeapon (player_t* player)
         return;
 
     P_SetMobjState (player->mo, S_PLAY_05); // 292
-    newstate = weaponinfo[player->readyweapon].atkstate;
+    newstate = static_cast<statenum_t>(weaponinfo[player->readyweapon].atkstate);
     P_SetPsprite (player, ps_weapon, newstate);
     
     // villsa [STRIFE] exclude these weapons from causing noise
@@ -232,9 +232,9 @@ void P_FireWeapon (player_t* player)
 //
 void P_DropWeapon (player_t* player)
 {
-    P_SetPsprite (player,
-                  ps_weapon,
-                  weaponinfo[player->readyweapon].downstate);
+    P_SetPsprite(player,
+                 ps_weapon,
+                 static_cast<statenum_t>(weaponinfo[player->readyweapon].downstate));
 }
 
 
@@ -272,7 +272,7 @@ void A_WeaponReady( player_t* player, pspdef_t* psp)
     {
         // change weapon
         //  (pending weapon should allready be validated)
-        newstate = weaponinfo[player->readyweapon].downstate;
+        newstate = static_cast<statenum_t>(weaponinfo[player->readyweapon].downstate);
         P_SetPsprite (player, ps_weapon, newstate);
         return;
     }
@@ -401,7 +401,7 @@ A_Raise
 
     // The weapon has been raised all the way,
     //  so change to the ready state.
-    newstate = weaponinfo[player->readyweapon].readystate;
+    newstate = static_cast<statenum_t>(weaponinfo[player->readyweapon].readystate);
 
     P_SetPsprite (player, ps_weapon, newstate);
 }
@@ -417,7 +417,7 @@ A_GunFlash
   pspdef_t*	psp ) 
 {
     P_SetMobjState (player->mo, S_PLAY_06);
-    P_SetPsprite (player,ps_flash,weaponinfo[player->readyweapon].flashstate);
+    P_SetPsprite(player, ps_flash, static_cast<statenum_t>(weaponinfo[player->readyweapon].flashstate));
 }
 
 
@@ -528,7 +528,7 @@ void A_FireMissile(player_t* player, pspdef_t* psp)
 void A_FireMauler2(player_t* player, pspdef_t* pspr)
 {
     P_SetMobjState(player->mo, S_PLAY_06);
-    P_DamageMobj(player->mo, player->mo, NULL, 20);
+    P_DamageMobj(player->mo, player->mo, nullptr, 20);
     player->ammo[weaponinfo[player->readyweapon].ammo] -= 30;
     P_SpawnPlayerMissile(player->mo, MT_TORPEDO);
     P_Thrust(player, player->mo->angle + ANG180, 512000);
@@ -568,7 +568,7 @@ void A_FireGrenade(player_t* player, pspdef_t* pspr)
     // set flash frame
     st1 = &states[(pspr->state - states) + weaponinfo[player->readyweapon].flashstate];
     st2 = &states[weaponinfo[player->readyweapon].atkstate];
-    P_SetPsprite(player, ps_flash, st1 - st2);
+    P_SetPsprite(player, ps_flash, static_cast<statenum_t>(st1 - st2));
 
     player->mo->z += 32*FRACUNIT; // ugh
     mo = P_SpawnMortar(player->mo, type);
@@ -781,7 +781,7 @@ void A_FireSigil(player_t* player, pspdef_t* pspr)
 
     // BUG: setting inflictor causes firing the Sigil to always push the player
     // toward the east, no matter what direction he is facing.
-    P_DamageMobj(player->mo, player->mo, NULL, 4 * (player->sigiltype + 1));
+    P_DamageMobj(player->mo, player->mo, nullptr, 4 * (player->sigiltype + 1));
 
     // restore armor
     player->armortype = i;
@@ -872,7 +872,7 @@ void A_FireSigil(player_t* player, pspdef_t* pspr)
 void A_GunFlashThinker(player_t* player, pspdef_t* pspr)
 {
     if(player->readyweapon == wp_sigil && player->sigiltype)
-        P_SetPsprite(player, ps_flash, S_SIGH_00 + player->sigiltype);
+        P_SetPsprite(player, ps_flash, static_cast<statenum_t>(S_SIGH_00 + player->sigiltype));
     else
         P_SetPsprite(player, ps_flash, S_NULL);
 
@@ -952,7 +952,7 @@ void P_SetupPsprites(player_t* player)
 
     // remove all psprites
     for(i = 0; i < NUMPSPRITES; i++)
-        player->psprites[i].state = NULL;
+        player->psprites[i].state = nullptr;
 
     // spawn the gun
     player->pendingweapon = player->readyweapon;

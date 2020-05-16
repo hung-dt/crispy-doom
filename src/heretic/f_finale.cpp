@@ -24,6 +24,8 @@
 #include "s_sound.h"
 #include "v_video.h"
 
+#include "../../utils/lump.h"
+
 static int finalestage;                // 0 = text, 1 = art screen
 static int finalecount;
 
@@ -55,7 +57,7 @@ void F_StartFinale(void)
     viewactive = false;
     automapactive = false;
     players[consoleplayer].messageTics = 1;
-    players[consoleplayer].message = NULL;
+    players[consoleplayer].message = nullptr;
 
     switch (gameepisode)
     {
@@ -103,7 +105,7 @@ boolean F_Responder(event_t * event)
         /*
         memset((byte *) 0xa0000, 0, SCREENWIDTH * SCREENHEIGHT);
         memset(I_VideoBuffer, 0, SCREENWIDTH * SCREENHEIGHT);
-        I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
+        I_SetPalette(cacheLumpName<byte*>("PLAYPAL", PU_CACHE));
         */
         return true;
     }
@@ -164,7 +166,7 @@ void F_TextWrite(void)
 //
 // erase the entire screen to a tiled background
 //
-    src = W_CacheLumpName(finaleflat, PU_CACHE);
+    src = cacheLumpName<byte*>(finaleflat, PU_CACHE);
     dest = I_VideoBuffer;
     for (y = 0; y < SCREENHEIGHT; y++)
     {
@@ -211,7 +213,7 @@ void F_TextWrite(void)
             continue;
         }
 
-        w = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+        w = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
         if (cx + SHORT(w->width) > SCREENWIDTH)
             break;
         V_DrawPatch(cx, cy, w);
@@ -265,8 +267,8 @@ void F_DemonScroll(void)
     {
         return;
     }
-    p1 = W_CacheLumpName(DEH_String("FINAL1"), PU_LEVEL);
-    p2 = W_CacheLumpName(DEH_String("FINAL2"), PU_LEVEL);
+    p1 = cacheLumpName<byte*>(DEH_String("FINAL1"), PU_LEVEL);
+    p2 = cacheLumpName<byte*>(DEH_String("FINAL2"), PU_LEVEL);
     if (finalecount < 70)
     {
         V_CopyScaledBuffer(I_VideoBuffer, p1, ORIGHEIGHT * ORIGWIDTH);
@@ -314,10 +316,10 @@ void F_DrawUnderwater(void)
                 underwawa = true;
                 V_DrawFilledBox(0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
                 lumpname = DEH_String("E2PAL");
-                palette = W_CacheLumpName(lumpname, PU_STATIC);
+                palette = cacheLumpName<byte*>(lumpname, PU_STATIC);
                 I_SetPalette(palette);
                 W_ReleaseLumpName(lumpname);
-                V_DrawRawScreen(W_CacheLumpName(DEH_String("E2END"), PU_CACHE));
+                V_DrawRawScreen(cacheLumpName<pixel_t*>(DEH_String("E2END"), PU_CACHE));
             }
             paused = false;
             MenuActive = false;
@@ -328,12 +330,12 @@ void F_DrawUnderwater(void)
             if (underwawa)
             {
                 lumpname = DEH_String("PLAYPAL");
-                palette = W_CacheLumpName(lumpname, PU_STATIC);
+                palette = cacheLumpName<byte*>(lumpname, PU_STATIC);
                 I_SetPalette(palette);
                 W_ReleaseLumpName(lumpname);
                 underwawa = false;
             }
-            V_DrawRawScreen(W_CacheLumpName(DEH_String("TITLE"), PU_CACHE));
+            V_DrawRawScreen(cacheLumpName<pixel_t*>(DEH_String("TITLE"), PU_CACHE));
             //D_StartTitle(); // go to intro/demo mode.
     }
 }
@@ -356,8 +358,8 @@ void F_BunnyScroll(void)
     int stage;
     static int laststage;
 
-    p1 = W_CacheLumpName("PFUB2", PU_LEVEL);
-    p2 = W_CacheLumpName("PFUB1", PU_LEVEL);
+    p1 = cacheLumpName<patch_t*>("PFUB2", PU_LEVEL);
+    p2 = cacheLumpName<patch_t*>("PFUB1", PU_LEVEL);
 
     V_MarkRect(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
@@ -380,7 +382,7 @@ void F_BunnyScroll(void)
     if (finalecount < 1180)
     {
         V_DrawPatch((SCREENWIDTH - 13 * 8) / 2, (SCREENHEIGHT - 8 * 8) / 2, 0,
-                    W_CacheLumpName("END0", PU_CACHE));
+                    cacheLumpName<patch_t*>("END0", PU_CACHE));
         laststage = 0;
         return;
     }
@@ -390,13 +392,13 @@ void F_BunnyScroll(void)
         stage = 6;
     if (stage > laststage)
     {
-        S_StartSound(NULL, sfx_pistol);
+        S_StartSound(nullptr, sfx_pistol);
         laststage = stage;
     }
 
     M_snprintf(name, sizeof(name), "END%i", stage);
     V_DrawPatch((SCREENWIDTH - 13 * 8) / 2, (SCREENHEIGHT - 8 * 8) / 2,
-                W_CacheLumpName(name, PU_CACHE));
+                cacheLumpName<patch_t*>(name, PU_CACHE));
 }
 #endif
 
@@ -420,11 +422,11 @@ void F_Drawer(void)
             case 1:
                 if (gamemode == shareware)
                 {
-                    V_DrawRawScreen(W_CacheLumpName("ORDER", PU_CACHE));
+                    V_DrawRawScreen(cacheLumpName<pixel_t*>("ORDER", PU_CACHE));
                 }
                 else
                 {
-                    V_DrawRawScreen(W_CacheLumpName("CREDIT", PU_CACHE));
+                    V_DrawRawScreen(cacheLumpName<pixel_t*>("CREDIT", PU_CACHE));
                 }
                 break;
             case 2:
@@ -435,7 +437,7 @@ void F_Drawer(void)
                 break;
             case 4:            // Just show credits screen for extended episodes
             case 5:
-                V_DrawRawScreen(W_CacheLumpName("CREDIT", PU_CACHE));
+                V_DrawRawScreen(cacheLumpName<pixel_t*>("CREDIT", PU_CACHE));
                 break;
         }
     }

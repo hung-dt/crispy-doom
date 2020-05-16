@@ -16,7 +16,7 @@
 //	Mission begin melt/wipe screen special effect.
 //
 
-#include <string.h>
+#include <cstring>
 
 #include "z_zone.h"
 #include "i_video.h"
@@ -26,6 +26,8 @@
 #include "doomtype.h"
 
 #include "f_wipe.h"
+
+#include "../utils/memory.h"
 
 //
 //                       SCREEN WIPE PACKAGE
@@ -49,7 +51,7 @@ wipe_shittyColMajorXform
     int		y;
     dpixel_t*	dest;
 
-    dest = (dpixel_t*) Z_Malloc(width*height*sizeof(*dest), PU_STATIC, 0);
+    dest = zmalloc<dpixel_t*>(width*height*sizeof(*dest), PU_STATIC, 0);
 
     for(y=0;y<height;y++)
 	for(x=0;x<width;x++)
@@ -147,7 +149,7 @@ wipe_initMelt
     
     // setup initial column positions
     // (y<0 => not ready to scroll yet)
-    y = (int *) Z_Malloc(width*sizeof(int), PU_STATIC, 0);
+    y = zmalloc<int*>(width*sizeof(int), PU_STATIC, 0);
     y[0] = -(M_Random()%16);
     for (i=1;i<width;i++)
     {
@@ -234,7 +236,7 @@ wipe_StartScreen
   int	width,
   int	height )
 {
-    wipe_scr_start = Z_Malloc(SCREENWIDTH * SCREENHEIGHT * sizeof(*wipe_scr_start), PU_STATIC, NULL);
+    wipe_scr_start = zmalloc<pixel_t*>(SCREENWIDTH * SCREENHEIGHT * sizeof(*wipe_scr_start), PU_STATIC, nullptr);
     I_ReadScreen(wipe_scr_start);
     return 0;
 }
@@ -246,7 +248,7 @@ wipe_EndScreen
   int	width,
   int	height )
 {
-    wipe_scr_end = Z_Malloc(SCREENWIDTH * SCREENHEIGHT * sizeof(*wipe_scr_end), PU_STATIC, NULL);
+    wipe_scr_end = zmalloc<pixel_t*>(SCREENWIDTH * SCREENHEIGHT * sizeof(*wipe_scr_end), PU_STATIC, nullptr);
     I_ReadScreen(wipe_scr_end);
     V_DrawBlock(x, y, width, height, wipe_scr_start); // restore start scr.
     return 0;

@@ -12,9 +12,9 @@
 // GNU General Public License for more details.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "SDL_joystick.h"
 
@@ -184,14 +184,14 @@ static void PromptWindowClosed(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(joystick))
     TXT_CAST_ARG(SDL_Joystick, joystick);
 
     SDL_JoystickClose(joystick);
-    TXT_SDL_SetEventCallback(NULL, NULL);
+    TXT_SDL_SetEventCallback(nullptr, nullptr);
     SDL_JoystickEventState(SDL_DISABLE);
     SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
 static void OpenErrorWindow(void)
 {
-    TXT_MessageBox(NULL, "Please configure a controller first!");
+    TXT_MessageBox(nullptr, "Please configure a controller first!");
 }
 
 static void OpenPromptWindow(txt_joystick_input_t *joystick_input)
@@ -212,7 +212,7 @@ static void OpenPromptWindow(txt_joystick_input_t *joystick_input)
 
     joystick = SDL_JoystickOpen(joystick_index);
 
-    if (joystick == NULL)
+    if (joystick == nullptr)
     {
         OpenErrorWindow();
         return;
@@ -220,7 +220,7 @@ static void OpenPromptWindow(txt_joystick_input_t *joystick_input)
 
     // Open the prompt window
 
-    window = TXT_MessageBox(NULL, "Press the new button on the controller...");
+    window = TXT_MessageBox(nullptr, "Press the new button on the controller...");
 
     TXT_SDL_SetEventCallback(EventCallback, joystick_input);
     TXT_SignalConnect(window, "closed", PromptWindowClosed, joystick);
@@ -319,7 +319,7 @@ txt_widget_class_t txt_joystick_input_class =
     TXT_JoystickInputKeyPress,
     TXT_JoystickInputDestructor,
     TXT_JoystickInputMousePress,
-    NULL,
+    nullptr,
 };
 
 txt_joystick_input_t *TXT_NewJoystickInput(int *variable)

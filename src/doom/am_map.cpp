@@ -17,7 +17,7 @@
 //
 
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "deh_main.h"
 
@@ -46,6 +46,9 @@
 #include "dstrings.h"
 
 #include "am_map.h"
+
+#include "../utils/lump.h"
+
 extern boolean inhelpscreens; // [crispy]
 
 
@@ -545,7 +548,7 @@ void AM_loadPics(void)
     for (i=0;i<10;i++)
     {
 	DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-	marknums[i] = W_CacheLumpName(namebuf, PU_STATIC);
+	marknums[i] = cacheLumpName<patch_t*>(namebuf, PU_STATIC);
     }
 
 }
@@ -617,7 +620,7 @@ void AM_LevelInit(boolean reinit)
 //
 void AM_Stop (void)
 {
-    static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0 };
+    static event_t st_notify = { ev_keydown, ev_keyup, AM_MSGEXITED, 0 };
 
     AM_unloadPics();
     automapactive = false;
@@ -1024,9 +1027,9 @@ AM_clipMline
 	TOP	=8
     };
     
-    register int	outcode1 = 0;
-    register int	outcode2 = 0;
-    register int	outside;
+    int	outcode1 = 0;
+    int	outcode2 = 0;
+    int	outside;
     
     fpoint_t	tmp;
     int		dx;
@@ -1152,15 +1155,15 @@ AM_drawFline
 ( fline_t*	fl,
   int		color )
 {
-    register int x;
-    register int y;
-    register int dx;
-    register int dy;
-    register int sx;
-    register int sy;
-    register int ax;
-    register int ay;
-    register int d;
+    int x;
+    int y;
+    int dx;
+    int dy;
+    int sx;
+    int sy;
+    int ax;
+    int ay;
+    int d;
     
     static int fuck = 0;
 

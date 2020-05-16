@@ -17,7 +17,7 @@
 // Chat mode
 //
 
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 
 #include "doomdef.h"
@@ -30,6 +30,8 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "v_video.h"
+
+#include "../../utils/lump.h"
 
 #define QUEUESIZE		128
 #define MESSAGESIZE	128
@@ -300,7 +302,7 @@ void CT_Ticker(void)
                 {
                     P_SetMessage(&players[consoleplayer], plr_lastmsg[i],
                                  true);
-                    S_StartSound(NULL, sfx_chat);
+                    S_StartSound(nullptr, sfx_chat);
                 }
                 else if (i == consoleplayer && (*chat_msg[i]))
                 {
@@ -308,14 +310,14 @@ void CT_Ticker(void)
                     {
                         P_SetMessage(&players[consoleplayer],
                                      DEH_String("-MESSAGE SENT-"), true);
-                        S_StartSound(NULL, sfx_chat);
+                        S_StartSound(nullptr, sfx_chat);
                     }
                     else
                     {
                         P_SetMessage(&players[consoleplayer],
                                      DEH_String("THERE ARE NO OTHER PLAYERS IN THE GAME!"),
                                      true);
-                        S_StartSound(NULL, sfx_chat);
+                        S_StartSound(nullptr, sfx_chat);
                     }
                 }
                 CT_ClearChatMessage(i);
@@ -356,14 +358,14 @@ void CT_Drawer(void)
             }
             else
             {
-                patch = W_CacheLumpNum(FontABaseLump +
+                patch = cacheLumpNum<patch_t*>(FontABaseLump +
                                        chat_msg[consoleplayer][i] - 33,
                                        PU_CACHE);
                 V_DrawPatch(x, 10, patch);
                 x += patch->width;
             }
         }
-        V_DrawPatch(x, 10, W_CacheLumpName(DEH_String("FONTA59"), PU_CACHE));
+        V_DrawPatch(x, 10, cacheLumpName<patch_t*>(DEH_String("FONTA59"), PU_CACHE));
         BorderTopRefresh = true;
         UpdateState |= I_MESSAGES;
     }
@@ -426,7 +428,7 @@ void CT_AddChar(int player, char c)
     }
     else
     {
-        patch = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+        patch = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
         msglen[player] += patch->width;
     }
 }
@@ -455,7 +457,7 @@ void CT_BackSpace(int player)
     }
     else
     {
-        patch = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+        patch = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
         msglen[player] -= patch->width;
     }
     chat_msg[player][msgptr[player]] = 0;

@@ -15,8 +15,8 @@
 // Parses "Thing" sections in dehacked files
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "doomtype.h"
 
@@ -29,10 +29,10 @@
 
 typedef struct {
     const char *flag;
-    int bits;
+    unsigned int bits;
 } bex_thingbits_t;
 
-static const bex_thingbits_t bex_thingbitstable[] = {
+static constexpr bex_thingbits_t bex_thingbitstable[] = {
     {"SPECIAL", MF_SPECIAL},
     {"SOLID", MF_SOLID},
     {"SHOOTABLE", MF_SHOOTABLE},
@@ -105,7 +105,7 @@ static void *DEH_ThingStart(deh_context_t *context, char *line)
     if (sscanf(line, "Thing %i", &thing_number) != 1)
     {
         DEH_Warning(context, "Parse error on section start");
-        return NULL;
+        return nullptr;
     }
 
     // dehacked files are indexed from 1
@@ -114,7 +114,7 @@ static void *DEH_ThingStart(deh_context_t *context, char *line)
     if (thing_number < 0 || thing_number >= NUMMOBJTYPES)
     {
         DEH_Warning(context, "Invalid thing number: %i", thing_number);
-        return NULL;
+        return nullptr;
     }
     
     mobj = &mobjinfo[thing_number];
@@ -128,7 +128,7 @@ static void DEH_ThingParseLine(deh_context_t *context, char *line, void *tag)
     char *variable_name, *value;
     int ivalue;
     
-    if (tag == NULL)
+    if (tag == nullptr)
        return;
 
     mobj = (mobjinfo_t *) tag;
@@ -152,7 +152,7 @@ static void DEH_ThingParseLine(deh_context_t *context, char *line, void *tag)
     // [crispy] support BEX bits mnemonics in Things fields
     if (!ivalue && !strcasecmp(variable_name, "bits"))
     {
-	for ( ; (value = strtok(value, ",+| \t\f\r")); value = NULL)
+	for ( ; (value = strtok(value, ",+| \t\f\r")); value = nullptr)
 	{
 	    int i;
 	    for (i = 0; i < arrlen(bex_thingbitstable); i++)
@@ -182,10 +182,10 @@ static void DEH_ThingSHA1Sum(sha1_context_t *context)
 deh_section_t deh_section_thing =
 {
     "Thing",
-    NULL,
+    nullptr,
     DEH_ThingStart,
     DEH_ThingParseLine,
-    NULL,
+    nullptr,
     DEH_ThingSHA1Sum,
 };
 

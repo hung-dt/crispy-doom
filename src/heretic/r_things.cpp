@@ -14,13 +14,16 @@
 // GNU General Public License for more details.
 //
 // R_things.c
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "doomdef.h"
 #include "deh_str.h"
 #include "i_swap.h"
 #include "i_system.h"
 #include "r_local.h"
+
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 typedef struct
 {
@@ -153,14 +156,14 @@ void R_InitSpriteDefs(const char **namelist)
 
 // count the number of sprite names
     check = namelist;
-    while (*check != NULL)
+    while (*check != nullptr)
         check++;
     numsprites = check - namelist;
 
     if (!numsprites)
         return;
 
-    sprites = Z_Malloc(numsprites * sizeof(*sprites), PU_STATIC, NULL);
+    sprites = zmalloc<spritedef_t*>(numsprites * sizeof(*sprites), PU_STATIC, nullptr);
 
     start = firstspritelump - 1;
     end = lastspritelump + 1;
@@ -230,7 +233,7 @@ void R_InitSpriteDefs(const char **namelist)
         //
         sprites[i].numframes = maxframe;
         sprites[i].spriteframes =
-            Z_Malloc(maxframe * sizeof(spriteframe_t), PU_STATIC, NULL);
+            zmalloc<spriteframe_t*>(maxframe * sizeof(spriteframe_t), PU_STATIC, nullptr);
         memcpy(sprites[i].spriteframes, sprtemp,
                maxframe * sizeof(spriteframe_t));
     }
@@ -246,7 +249,7 @@ void R_InitSpriteDefs(const char **namelist)
 ===============================================================================
 */
 
-vissprite_t *vissprites = NULL, *vissprite_p;
+vissprite_t *vissprites = nullptr, *vissprite_p;
 int newvissprite;
 static int numvissprites;
 
@@ -317,7 +320,7 @@ vissprite_t *R_NewVisSprite(void)
         return &overflowsprite;
 
 	numvissprites = numvissprites ? 2 * numvissprites : MAXVISSPRITES;
-	vissprites = I_Realloc(vissprites, numvissprites * sizeof(*vissprites));
+	vissprites = static_cast<vissprite_t*>(I_Realloc(vissprites, numvissprites * sizeof(*vissprites)));
 	memset(vissprites + numvissprites_old, 0, (numvissprites - numvissprites_old) * sizeof(*vissprites));
 
 	vissprite_p = vissprites + numvissprites_old;
@@ -401,12 +404,12 @@ void R_DrawVisSprite(vissprite_t * vis, int x1, int x2)
     fixed_t baseclip;
 
 
-    patch = W_CacheLumpNum(vis->patch + firstspritelump, PU_CACHE);
+    patch = cacheLumpNum<patch_t*>(vis->patch + firstspritelump, PU_CACHE);
 
     dc_colormap = vis->colormap;
 
 //      if(!dc_colormap)
-//              colfunc = tlcolfunc;  // NULL colormap = shadow draw
+//              colfunc = tlcolfunc;  // nullptr colormap = shadow draw
 
     if (vis->mobjflags & MF_SHADOW)
     {
@@ -485,7 +488,7 @@ void R_DrawVisSprite(vissprite_t * vis, int x1, int x2)
 
 void R_ProjectSprite(mobj_t * thing)
 {
-    fixed_t trx, try;
+    fixed_t trx, tr_y;
     fixed_t gxt, gyt;
     fixed_t tx, tz;
     fixed_t xscale;
@@ -537,10 +540,10 @@ void R_ProjectSprite(mobj_t * thing)
 // transform the origin point
 //
     trx = interpx - viewx;
-    try = interpy - viewy;
+    tr_y = interpy - viewy;
 
     gxt = FixedMul(trx, viewcos);
-    gyt = -FixedMul(try, viewsin);
+    gyt = -FixedMul(tr_y, viewsin);
     tz = gxt - gyt;
 
     if (tz < MINZ)
@@ -548,7 +551,7 @@ void R_ProjectSprite(mobj_t * thing)
     xscale = FixedDiv(projection, tz);
 
     gxt = -FixedMul(trx, viewsin);
-    gyt = FixedMul(try, viewcos);
+    gyt = FixedMul(tr_y, viewcos);
     tx = -(gyt + gxt);
 
     if (abs(tx) > (tz << 2))
@@ -638,7 +641,7 @@ void R_ProjectSprite(mobj_t * thing)
 //
 
 //      if (thing->flags & MF_SHADOW)
-//              vis->colormap = NULL;                   // shadow draw
+//              vis->colormap = nullptr;                   // shadow draw
 //      else ...
 
     if (fixedcolormap)

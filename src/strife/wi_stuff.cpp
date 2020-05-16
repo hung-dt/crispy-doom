@@ -18,7 +18,7 @@
 
 // haleyjd 08/23/2010: There is no intermission in Strife
 #if 0
-#include <stdio.h>
+#include <cstdio>
 
 #include "z_zone.h"
 
@@ -221,7 +221,7 @@ static point_t lnodes[NUMEPISODES][NUMMAPS] =
 
 #define ANIM(type, period, nanims, x, y, nexttic)            \
    { (type), (period), (nanims), { (x), (y) }, (nexttic),    \
-     0, { NULL, NULL, NULL }, 0, 0, 0, 0 }
+     0, { nullptr, nullptr, nullptr }, 0, 0, 0, 0 }
 
 
 static anim_t epsd0animinfo[] =
@@ -338,10 +338,10 @@ static int		NUMCMAPS;
 //
 
 // You Are Here graphic
-static patch_t*		yah[3] = { NULL, NULL, NULL }; 
+static patch_t*		yah[3] = { nullptr, nullptr, nullptr }; 
 
 // splat
-static patch_t*		splat[2] = { NULL, NULL };
+static patch_t*		splat[2] = { nullptr, nullptr };
 
 // %, : graphics
 static patch_t*		percent;
@@ -499,7 +499,7 @@ WI_drawOnLnode
 	{
 	    i++;
 	}
-    } while (!fits && i!=2 && c[i] != NULL);
+    } while (!fits && i!=2 && c[i] != nullptr);
 
     if (fits && i<2)
     {
@@ -1709,7 +1709,7 @@ static void WI_loadUnloadData(load_callback_t callback)
 
 static void WI_loadCallback(char *name, patch_t **variable)
 {
-    *variable = W_CacheLumpName(name, PU_STATIC);
+    *variable = cacheLumpName<patch_t*>(name, PU_STATIC);
 }
 
 void WI_loadData(void)
@@ -1717,13 +1717,13 @@ void WI_loadData(void)
     if (gamemode == commercial)
     {
 	NUMCMAPS = 32;
-	lnames = (patch_t **) Z_Malloc(sizeof(patch_t*) * NUMCMAPS,
-				       PU_STATIC, NULL);
+	lnames = zmalloc<patch_t **>(sizeof(patch_t*) * NUMCMAPS,
+				       PU_STATIC, nullptr);
     }
     else
     {
-	lnames = (patch_t **) Z_Malloc(sizeof(patch_t*) * NUMMAPS,
-				       PU_STATIC, NULL);
+	lnames = zmalloc<patch_t **>(sizeof(patch_t*) * NUMMAPS,
+				       PU_STATIC, nullptr);
     }
 
     WI_loadUnloadData(WI_loadCallback);
@@ -1732,16 +1732,16 @@ void WI_loadData(void)
     // them with the status bar code
 
     // your face
-    star = W_CacheLumpName(DEH_String("STFST01"), PU_STATIC);
+    star = cacheLumpName<*>(DEH_String("STFST01"), PU_STATIC);
 
     // dead face
-    bstar = W_CacheLumpName(DEH_String("STFDEAD0"), PU_STATIC);
+    bstar = cacheLumpName<*>(DEH_String("STFDEAD0"), PU_STATIC);
 }
 
 static void WI_unloadCallback(char *name, patch_t **variable)
 {
     W_ReleaseLumpName(name);
-    *variable = NULL;
+    *variable = nullptr;
 }
 
 void WI_unloadData(void)

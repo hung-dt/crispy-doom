@@ -12,11 +12,13 @@
 // GNU General Public License for more details.
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "txt_conditional.h"
 #include "txt_strut.h"
+
+#include "../utils/memory.h"
 
 struct txt_conditional_s
 {
@@ -132,9 +134,8 @@ txt_conditional_t *TXT_NewConditional(int *var, int expected_value,
                                       TXT_UNCAST_ARG(child))
 {
     TXT_CAST_ARG(txt_widget_t, child);
-    txt_conditional_t *conditional;
 
-    conditional = malloc(sizeof(txt_conditional_t));
+    auto* conditional = createStruct<txt_conditional_t>();
 
     TXT_InitWidget(conditional, &txt_conditional_class);
     conditional->var = var;

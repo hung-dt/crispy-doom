@@ -18,7 +18,7 @@
 //	Pending weapon.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "doomdef.h"
 #include "d_event.h"
@@ -569,7 +569,7 @@ void P_PlayerThink (player_t* player)
     {
         player->nukagecount--;
         if(!(leveltime & 0x1f) && player->nukagecount > 16*TICRATE)
-            P_DamageMobj(player->mo, NULL, NULL, 5);
+            P_DamageMobj(player->mo, nullptr, nullptr, 5);
     }
 
     if(player->damagecount)
@@ -825,7 +825,7 @@ boolean P_SpawnTeleportBeacon(player_t* player)
         beacon->momx = FixedMul(finecosine[angle], (5*FRACUNIT));
         beacon->momy = FixedMul(finesine[angle], (5*FRACUNIT));
         beacon->momz = FRACUNIT;
-        P_SetMobjState(beacon, beacon->info->seestate);
+        P_SetMobjState(beacon, static_cast<statenum_t>(beacon->info->seestate));
         return true;
     }
     else
@@ -855,7 +855,7 @@ boolean P_UseInventoryItem(player_t* player, int item)
             return false;
 
         name = P_RemoveInventoryItem(player, i, 1);
-        if(name == NULL)
+        if(name == nullptr)
             name = "Item";
 
         M_snprintf(useinventorymsg, sizeof(useinventorymsg),
@@ -863,7 +863,7 @@ boolean P_UseInventoryItem(player_t* player, int item)
         player->message = useinventorymsg;
 
         if(player == &players[consoleplayer])
-            S_StartSound(NULL, sfx_itemup);
+            S_StartSound(nullptr, sfx_itemup);
 
         return true;
     }

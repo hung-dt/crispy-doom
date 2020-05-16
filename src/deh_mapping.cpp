@@ -17,9 +17,9 @@
 // name
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomtype.h"
 #include "i_system.h"
@@ -33,16 +33,16 @@ static deh_mapping_entry_t *GetMappingEntryByName(deh_context_t *context,
 {
     int i;
 
-    for (i=0; mapping->entries[i].name != NULL; ++i)
+    for (i=0; mapping->entries[i].name != nullptr; ++i)
     {
         deh_mapping_entry_t *entry = &mapping->entries[i];
 
         if (!strcasecmp(entry->name, name))
         {
-            if (entry->location == NULL)
+            if (entry->location == nullptr)
             {
                 DEH_Warning(context, "Field '%s' is unsupported", name);
-                return NULL;
+                return nullptr;
             }
 
             return entry;
@@ -53,7 +53,7 @@ static deh_mapping_entry_t *GetMappingEntryByName(deh_context_t *context,
 
     DEH_Warning(context, "Field named '%s' not found", name);
 
-    return NULL;
+    return nullptr;
 }
 
 //
@@ -83,7 +83,7 @@ boolean DEH_SetMapping(deh_context_t *context, deh_mapping_t *mapping,
 
     entry = GetMappingEntryByName(context, mapping, name);
 
-    if (entry == NULL)
+    if (entry == nullptr)
     {
         return false;
     }
@@ -129,12 +129,9 @@ boolean DEH_SetMapping(deh_context_t *context, deh_mapping_t *mapping,
 boolean DEH_SetStringMapping(deh_context_t *context, deh_mapping_t *mapping,
                              void *structptr, char *name, char *value)
 {
-    deh_mapping_entry_t *entry;
-    void *location;
+    deh_mapping_entry_t *entry = GetMappingEntryByName(context, mapping, name);
 
-    entry = GetMappingEntryByName(context, mapping, name);
-
-    if (entry == NULL)
+    if (entry == nullptr)
     {
         return false;
     }
@@ -147,7 +144,7 @@ boolean DEH_SetStringMapping(deh_context_t *context, deh_mapping_t *mapping,
         return false;
     }
 
-    location = GetStructField(structptr, mapping, entry);
+    char* location = static_cast<char*>(GetStructField(structptr, mapping, entry));
 
     // Copy value into field:
 
@@ -163,12 +160,12 @@ void DEH_StructSHA1Sum(sha1_context_t *context, deh_mapping_t *mapping,
 
     // Go through each mapping
 
-    for (i=0; mapping->entries[i].name != NULL; ++i)
+    for (i=0; mapping->entries[i].name != nullptr; ++i)
     {
         deh_mapping_entry_t *entry = &mapping->entries[i];
         void *location;
 
-        if (entry->location == NULL)
+        if (entry->location == nullptr)
         {
             // Unsupported field
 

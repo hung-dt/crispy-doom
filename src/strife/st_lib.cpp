@@ -17,7 +17,7 @@
 //
 
 
-#include <stdio.h>
+#include <cstdio>
 #include <ctype.h>
 
 #include "deh_main.h"
@@ -35,12 +35,10 @@
 #include "st_lib.h"
 #include "r_local.h"
 
+#include "../../utils/lump.h"
 
 // in AM_map.c
 extern boolean		automapactive; 
-
-
-
 
 //
 // Hack display negative frags.
@@ -51,7 +49,7 @@ patch_t*		sttminus;
 void STlib_init(void)
 {
     // haleyjd 08/28/10: [STRIFE] STTMINUS -> STCFN045
-    sttminus = (patch_t *) W_CacheLumpName(DEH_String("STCFN045"), PU_STATIC);
+    sttminus = cacheLumpName<patch_t*>(DEH_String("STCFN045"), PU_STATIC);
 }
 
 

@@ -17,11 +17,13 @@
 
 // HEADER FILES ------------------------------------------------------------
 
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include "h2def.h"
 #include "i_system.h"
 #include "m_misc.h"
+
+#include "../../utils/lump.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -128,7 +130,7 @@ static void OpenScript(const char *name, int type)
     if (type == LUMP_SCRIPT)
     {                           // Lump script
         ScriptLumpNum = W_GetNumForName(name);
-        ScriptBuffer = (char *) W_CacheLumpNum(ScriptLumpNum, PU_STATIC);
+        ScriptBuffer = cacheLumpNum<char*>(ScriptLumpNum, PU_STATIC);
         ScriptSize = W_LumpLength(ScriptLumpNum);
         M_StringCopy(ScriptName, name, sizeof(ScriptName));
     }
@@ -282,7 +284,7 @@ void SC_MustGetStringName(char *name)
     SC_MustGetString();
     if (SC_Compare(name) == false)
     {
-        SC_ScriptError(NULL);
+        SC_ScriptError(nullptr);
     }
 }
 
@@ -392,7 +394,7 @@ int SC_MatchString(const char **strings)
 {
     int i;
 
-    for (i = 0; *strings != NULL; i++)
+    for (i = 0; *strings != nullptr; i++)
     {
         if (SC_Compare(*strings++))
         {
@@ -415,7 +417,7 @@ int SC_MustMatchString(const char **strings)
     i = SC_MatchString(strings);
     if (i == -1)
     {
-        SC_ScriptError(NULL);
+        SC_ScriptError(nullptr);
     }
     return i;
 }
@@ -443,7 +445,7 @@ boolean SC_Compare(const char *text)
 
 void SC_ScriptError(const char *message)
 {
-    if (message == NULL)
+    if (message == nullptr)
     {
         message = "Bad syntax.";
     }

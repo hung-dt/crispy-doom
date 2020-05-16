@@ -17,7 +17,7 @@
 //	all OS independend parts.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "i_system.h"
 #include "i_timer.h"
@@ -220,7 +220,7 @@ void D_CheckNetGame (void)
     }
 
     SaveGameSettings(&settings);
-    D_StartNetGame(&settings, NULL);
+    D_StartNetGame(&settings, nullptr);
     LoadGameSettings(&settings);
 }
 

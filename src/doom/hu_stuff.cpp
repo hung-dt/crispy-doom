@@ -17,7 +17,7 @@
 
 
 #include <ctype.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "doomdef.h"
 #include "doomkeys.h"
@@ -49,6 +49,8 @@
 #include "r_state.h" // [crispy] colormaps
 #include "v_video.h" // [crispy] V_DrawPatch() et al.
 #include "v_trans.h" // [crispy] colored kills/items/secret/etc. messages
+
+#include "../../utils/lump.h"
 
 //
 // Locally used constants, shortcuts.
@@ -442,7 +444,7 @@ void HU_Init(void)
     for (i=0;i<HU_FONTSIZE;i++)
     {
 	DEH_snprintf(buffer, 9, "STCFN%.3d", j++);
-	hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+	hu_font[i] = cacheLumpName<patch_t*>(buffer, PU_STATIC);
     }
 
     if (gameversion == exe_chex)
@@ -468,7 +470,7 @@ void HU_Init(void)
     // [crispy] initialize the crosshair types
     for (i = 0; laserpatch[i].c; i++)
     {
-	patch_t *patch = NULL;
+	patch_t *patch = nullptr;
 
 	// [crispy] check for alternative crosshair patches from e.g. prboom-plus.wad first
 //	if ((laserpatch[i].l = W_CheckNumForName(laserpatch[i].a)) == -1)
@@ -476,7 +478,7 @@ void HU_Init(void)
 		DEH_snprintf(buffer, 9, "STCFN%.3d", toupper(laserpatch[i].c));
 		laserpatch[i].l = W_GetNumForName(buffer);
 
-		patch = W_CacheLumpNum(laserpatch[i].l, PU_STATIC);
+		patch = cacheLumpNum<patch_t*>(laserpatch[i].l, PU_STATIC);
 
 		laserpatch[i].w -= SHORT(patch->leftoffset);
 		laserpatch[i].h -= SHORT(patch->topoffset);
@@ -490,7 +492,7 @@ void HU_Init(void)
 
 	if (!patch)
 	{
-		patch = W_CacheLumpNum(laserpatch[i].l, PU_STATIC);
+		patch = cacheLumpNum<patch_t*>(laserpatch[i].l, PU_STATIC);
 	}
 
 	laserpatch[i].w += SHORT(patch->width)/2;
@@ -541,15 +543,15 @@ typedef struct
 
 static const speciallevel_t speciallevels[] = {
     // [crispy] ExM0
-    {doom, 1, 0, NULL, NULL},
-    {doom, 2, 0, NULL, NULL},
-    {doom, 3, 0, NULL, NULL},
-    {doom, 4, 0, NULL, NULL},
+    {doom, 1, 0, nullptr, nullptr},
+    {doom, 2, 0, nullptr, nullptr},
+    {doom, 3, 0, nullptr, nullptr},
+    {doom, 4, 0, nullptr, nullptr},
     // [crispy] Romero's latest E1 additions
     {doom, 1, 8, "e1m8b.wad", HUSTR_E1M8B},
     {doom, 1, 4, "e1m4b.wad", HUSTR_E1M4B},
     // [crispy] E1M10 "Sewers" (Xbox Doom)
-    {doom, 1, 10, NULL, HUSTR_E1M10},
+    {doom, 1, 10, nullptr, HUSTR_E1M10},
     // [crispy] The Master Levels for Doom 2
     {doom2, 0, 1, "attack.wad", MHUSTR_1},
     {doom2, 0, 1, "canyon.wad", MHUSTR_2},
@@ -735,7 +737,7 @@ void HU_Start(void)
     {
 	char *m;
 
-	ptr = M_StringJoin(crstr[CR_GOLD], W_WadNameForLump(maplumpinfo), ": ", crstr[CR_GRAY], maplumpinfo->name, NULL);
+	ptr = M_StringJoin(crstr[CR_GOLD], W_WadNameForLump(maplumpinfo), ": ", crstr[CR_GRAY], maplumpinfo->name, nullptr);
 	m = ptr;
 
 	while (*m)
@@ -812,7 +814,7 @@ static void HU_DrawCrosshair (void)
     if (lump != laserpatch[crispy->crosshairtype].l)
     {
 	lump = laserpatch[crispy->crosshairtype].l;
-	patch = W_CacheLumpNum(lump, PU_STATIC);
+	patch = cacheLumpNum<patch_t*>(lump, PU_STATIC);
     }
 
     dp_translucent = true;
@@ -852,7 +854,7 @@ void HU_Drawer(void)
 	HUlib_drawSText(&w_secret);
     }
 
-    dp_translation = NULL;
+    dp_translation = nullptr;
     if (crispy->screenshotmsg == 4)
 	HUlib_eraseSText(&w_message);
     else
@@ -898,7 +900,7 @@ void HU_Drawer(void)
     if (crispy->crosshair == CROSSHAIR_STATIC)
 	HU_DrawCrosshair();
 
-    dp_translation = NULL;
+    dp_translation = nullptr;
     dp_translucent = false;
 
     // [crispy] demo timer widget

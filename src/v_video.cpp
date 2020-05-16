@@ -21,10 +21,10 @@
 
 #include "SDL_version.h" // [crispy]
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 #include "i_system.h"
 
@@ -49,6 +49,9 @@
 #include <png.h>
 #endif
 
+#include "../utils/lump.h"
+#include "../utils/memory.h"
+
 // TODO: There are separate RANGECHECK defines for different games, but this
 // is common code. Fix this.
 #define RANGECHECK
@@ -56,26 +59,26 @@
 // Blending table used for fuzzpatch, etc.
 // Only used in Heretic/Hexen
 
-byte *tinttable = NULL;
-byte *tranmap = NULL;
-byte *dp_translation = NULL;
+byte *tinttable = nullptr;
+byte *tranmap = nullptr;
+byte *dp_translation = nullptr;
 boolean dp_translucent = false;
 #ifdef CRISPY_TRUECOLOR
 extern pixel_t *colormaps;
 #endif
 
 // villsa [STRIFE] Blending table used for Strife
-byte *xlatab = NULL;
+byte *xlatab = nullptr;
 
 // The screen buffer that the v_video.c code draws to.
 
-static pixel_t *dest_screen = NULL;
+static pixel_t *dest_screen = nullptr;
 
 int dirtybox[4]; 
 
 // haleyjd 08/28/10: clipping callback function for patches.
 // This is needed for Chocolate Strife, which clips patches to the screen.
-static vpatchclipfunc_t patchclip_callback = NULL;
+static vpatchclipfunc_t patchclip_callback = nullptr;
 
 //
 // V_MarkRect 
@@ -682,7 +685,7 @@ void V_DrawShadowedPatch(int x, int y, patch_t *patch)
 
 void V_LoadTintTable(void)
 {
-    tinttable = W_CacheLumpName("TINTTAB", PU_STATIC);
+    tinttable = cacheLumpName<byte*>("TINTTAB", PU_STATIC);
 }
 
 //
@@ -693,7 +696,7 @@ void V_LoadTintTable(void)
 
 void V_LoadXlaTable(void)
 {
-    xlatab = W_CacheLumpName("XLATAB", PU_STATIC);
+    xlatab = cacheLumpName<byte*>("XLATAB", PU_STATIC);
 }
 
 //
@@ -923,7 +926,7 @@ void WritePCXfile(char *filename, pixel_t *data,
     pcx_t*	pcx;
     byte*	pack;
 	
-    pcx = Z_Malloc (width*height*2+1000, PU_STATIC, NULL);
+    pcx = zmalloc<decltype(pcx)>(width*height*2+1000, PU_STATIC, nullptr);
 
     pcx->manufacturer = 0x0a;		// PCX id
     pcx->version = 5;			// 256 color
@@ -1020,7 +1023,7 @@ void WritePNGfile(char *filename, pixel_t *data,
         return;
     }
 
-    ppng = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
+    ppng = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                    error_fn, warning_fn);
     if (!ppng)
     {
@@ -1032,7 +1035,7 @@ void WritePNGfile(char *filename, pixel_t *data,
     if (!pinfo)
     {
         fclose(handle);
-        png_destroy_write_struct(&ppng, NULL);
+        png_destroy_write_struct(&ppng, nullptr);
         return;
     }
 
@@ -1164,7 +1167,7 @@ void V_ScreenShot(const char *format)
     {
     WritePNGfile(lbmname, I_VideoBuffer,
                  SCREENWIDTH, SCREENHEIGHT,
-                 W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
+                 cacheLumpName<byte*> (DEH_String("PLAYPAL"), PU_CACHE));
     }
     else
 #endif
@@ -1172,7 +1175,7 @@ void V_ScreenShot(const char *format)
     // save the pcx file
     WritePCXfile(lbmname, I_VideoBuffer,
                  SCREENWIDTH, SCREENHEIGHT,
-                 W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
+                 cacheLumpName<byte*> (DEH_String("PLAYPAL"), PU_CACHE));
     }
 }
 

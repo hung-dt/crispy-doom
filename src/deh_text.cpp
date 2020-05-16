@@ -15,9 +15,9 @@
 // Parses Text substitution sections in dehacked files
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomtype.h"
 
@@ -26,6 +26,8 @@
 #include "deh_defs.h"
 #include "deh_io.h"
 #include "deh_main.h"
+
+#include <string>
 
 // [crispy] support INCLUDE NOTEXT directive in BEX files
 boolean bex_notext = false;
@@ -52,14 +54,13 @@ static int TXT_MaxStringLength(int len)
 
 static void *DEH_TextStart(deh_context_t *context, char *line)
 {
-    char *from_text, *to_text;
     int fromlen, tolen;
     int i;
 
     if (sscanf(line, "Text %i %i", &fromlen, &tolen) != 2)
     {
         DEH_Warning(context, "Parse error on section start");
-        return NULL;
+        return nullptr;
     }
 
     // Only allow string replacements that are possible in Vanilla Doom.  
@@ -69,11 +70,11 @@ static void *DEH_TextStart(deh_context_t *context, char *line)
     {
         DEH_Error(context, "Replacement string is longer than the maximum "
                            "possible in doom.exe");
-        return NULL;
+        return nullptr;
     }
 
-    from_text = malloc(fromlen + 1);
-    to_text = malloc(tolen + 1);
+    std::string from_text = std::string(fromlen + 1, 0);
+    std::string to_text = std::string(tolen + 1, 0);
 
     // read in the "from" text
 
@@ -93,13 +94,10 @@ static void *DEH_TextStart(deh_context_t *context, char *line)
 
     if (!bex_notext)
     {
-    DEH_AddStringReplacement(from_text, to_text);
+    DEH_AddStringReplacement(from_text.c_str(), to_text.c_str());
     }
 
-    free(from_text);
-    free(to_text);
-
-    return NULL;
+    return nullptr;
 }
 
 static void DEH_TextParseLine(deh_context_t *context, char *line, void *tag)
@@ -110,10 +108,10 @@ static void DEH_TextParseLine(deh_context_t *context, char *line, void *tag)
 deh_section_t deh_section_text =
 {
     "Text",
-    NULL,
+    nullptr,
     DEH_TextStart,
     DEH_TextParseLine,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 };
 

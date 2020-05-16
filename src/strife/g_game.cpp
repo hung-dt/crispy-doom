@@ -15,9 +15,9 @@
 // DESCRIPTION:  none
 //
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 
 #include "doomdef.h" 
 #include "doomkeys.h"
@@ -68,6 +68,8 @@
 
 #include "g_game.h"
 
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 #define SAVEGAMESIZE	0x2c000
 
@@ -678,7 +680,7 @@ void G_DoLoadLevel (void)
     levelstarttic = gametic;        // for time calculation
 
     if (wipegamestate == GS_LEVEL) 
-        wipegamestate = -1;             // force a wipe 
+        wipegamestate = GS_INVALID;             // force a wipe 
 
     gamestate = GS_LEVEL; 
 
@@ -1319,9 +1321,9 @@ void G_DoReborn (int playernum)
         // respawn at the start
 
         // first dissasociate the corpse 
-        // [STRIFE] Checks for NULL first
+        // [STRIFE] Checks for nullptr first
         if(players[playernum].mo)
-            players[playernum].mo->player = NULL;
+            players[playernum].mo->player = nullptr;
 
         // spawn at random spot if in death match 
         if (deathmatch) 
@@ -1630,8 +1632,8 @@ void G_DoWorldDone2(void)
 //
 void G_ReadCurrent(const char *path)
 {
-    char *temppath = NULL;
-    byte *buffer = NULL;
+    char *temppath = nullptr;
+    byte *buffer = nullptr;
 
     temppath = M_SafeFilePath(path, "\\current");
 
@@ -1683,7 +1685,7 @@ void G_DoLoadGame (boolean userload)
     save_stream = fopen(loadpath, "rb");
 
     // [STRIFE] If the file does not exist, G_DoLoadLevel is called.
-    if (save_stream == NULL)
+    if (save_stream == nullptr)
     {
         G_DoLoadLevel();
         return;
@@ -1828,7 +1830,7 @@ void G_DoSaveGame (char *path)
 
     save_stream = fopen(temp_savegame_file, "wb");
 
-    if (save_stream == NULL)
+    if (save_stream == nullptr)
     {
         return;
     }
@@ -2121,7 +2123,7 @@ static void IncreaseDemoBuffer(void)
     // Generate a new buffer twice the size
     new_length = current_length * 2;
     
-    new_demobuffer = Z_Malloc(new_length, PU_STATIC, 0);
+    new_demobuffer = zmalloc<byte*>(new_length, PU_STATIC, 0);
     new_demop = new_demobuffer + (demo_p - demobuffer);
 
     // Copy over the old data
@@ -2196,7 +2198,7 @@ void G_RecordDemo (char* name)
 
     usergame = false;
     demoname_size = strlen(name) + 5;
-    demoname = Z_Malloc(demoname_size, PU_STATIC, NULL);
+    demoname = zmalloc<char*>(demoname_size, PU_STATIC, nullptr);
     M_snprintf(demoname, demoname_size, "%s.lmp", name);
     maxsize = 0x20000;
 
@@ -2211,7 +2213,7 @@ void G_RecordDemo (char* name)
     i = M_CheckParmWithArgs("-maxdemo", 1);
     if (i)
         maxsize = atoi(myargv[i+1])*1024;
-    demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
+    demobuffer = zmalloc<byte*>(maxsize,PU_STATIC,nullptr); 
     demoend = demobuffer + maxsize;
 
     demorecording = true; 
@@ -2310,7 +2312,7 @@ void G_DoPlayDemo (void)
     int     demoversion;
 
     gameaction = ga_nothing; 
-    demobuffer = demo_p = W_CacheLumpName (defdemoname, PU_STATIC); 
+    demobuffer = demo_p = cacheLumpName<byte*> (defdemoname, PU_STATIC); 
 
     demoversion = *demo_p++;
 

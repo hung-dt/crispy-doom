@@ -12,8 +12,8 @@
 // GNU General Public License for more details.
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "txt_label.h"
 #include "txt_gui.h"
@@ -21,6 +21,8 @@
 #include "txt_main.h"
 #include "txt_utf8.h"
 #include "txt_window.h"
+
+#include "../utils/memory.h"
 
 static void TXT_LabelSizeCalc(TXT_UNCAST_ARG(label))
 {
@@ -107,10 +109,10 @@ txt_widget_class_t txt_label_class =
     TXT_NeverSelectable,
     TXT_LabelSizeCalc,
     TXT_LabelDrawer,
-    NULL,
+    nullptr,
     TXT_LabelDestructor,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 };
 
 void TXT_SetLabel(txt_label_t *label, const char *value)
@@ -141,7 +143,7 @@ void TXT_SetLabel(txt_label_t *label, const char *value)
 
     // Split into lines
 
-    label->lines = malloc(sizeof(char *) * label->h);
+    label->lines = static_cast<char**>(malloc(sizeof(char *) * label->h));
     label->lines[0] = label->label;
     y = 1;
 
@@ -170,18 +172,16 @@ void TXT_SetLabel(txt_label_t *label, const char *value)
 
 txt_label_t *TXT_NewLabel(const char *text)
 {
-    txt_label_t *label;
-
-    label = malloc(sizeof(txt_label_t));
+    auto* label = createStruct<txt_label_t>();
 
     TXT_InitWidget(label, &txt_label_class);
-    label->label = NULL;
-    label->lines = NULL;
+    label->label = nullptr;
+    label->lines = nullptr;
 
     // Default colors
 
-    label->bgcolor = -1;
-    label->fgcolor = -1;
+    label->bgcolor = TXT_COLOR_BLACK;
+    label->fgcolor = TXT_COLOR_BLACK;
 
     TXT_SetLabel(label, text);
 

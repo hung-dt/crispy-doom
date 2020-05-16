@@ -250,7 +250,7 @@ boolean P_GiveWeapon(player_t * player, weapontype_t weapon)
         player->pendingweapon = weapon;
         if (player == &players[consoleplayer])
         {
-            S_StartSound(NULL, sfx_wpnup);
+            S_StartSound(nullptr, sfx_wpnup);
         }
         return (false);
     }
@@ -508,7 +508,7 @@ void P_SetDormantArtifact(mobj_t * arti)
 void A_RestoreArtifact(mobj_t * arti)
 {
     arti->flags |= MF_SPECIAL;
-    P_SetMobjState(arti, arti->info->spawnstate);
+    P_SetMobjState(arti, static_cast<statenum_t>(arti->info->spawnstate));
     S_StartSound(arti, sfx_respawn);
 }
 
@@ -552,7 +552,7 @@ void A_RestoreSpecialThing1(mobj_t * thing)
 void A_RestoreSpecialThing2(mobj_t * thing)
 {
     thing->flags |= MF_SPECIAL;
-    P_SetMobjState(thing, thing->info->spawnstate);
+    P_SetMobjState(thing, static_cast<statenum_t>(thing->info->spawnstate));
 }
 
 //---------------------------------------------------------------------------
@@ -892,7 +892,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
     player->bonuscount += BONUSADD;
     if (player == &players[consoleplayer])
     {
-        S_StartSound(NULL, sound);
+        S_StartSound(nullptr, sound);
         SB_PaletteFlash();
     }
 }
@@ -926,7 +926,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target)
                 source->player->frags[target->player - players]++;
                 if (source->player == &players[consoleplayer])
                 {
-                    S_StartSound(NULL, sfx_gfrag);
+                    S_StartSound(nullptr, sfx_gfrag);
                 }
                 if (source->player->chickenTics)
                 {               // Make a super chicken
@@ -961,11 +961,11 @@ void P_KillMobj(mobj_t * source, mobj_t * target)
     if (target->health < -(target->info->spawnhealth >> 1)
         && target->info->xdeathstate)
     {                           // Extreme death
-        P_SetMobjState(target, target->info->xdeathstate);
+        P_SetMobjState(target, static_cast<statenum_t>(target->info->xdeathstate));
     }
     else
     {                           // Normal death
-        P_SetMobjState(target, target->info->deathstate);
+        P_SetMobjState(target, static_cast<statenum_t>(target->info->deathstate));
     }
     target->tics -= P_Random() & 3;
 //      I_StartSound(&actor->r, actor->info->deathsound);
@@ -987,7 +987,7 @@ void P_MinotaurSlam(mobj_t * source, mobj_t * target)
     thrust = 16 * FRACUNIT + (P_Random() << 10);
     target->momx += FixedMul(thrust, finecosine[angle]);
     target->momy += FixedMul(thrust, finesine[angle]);
-    P_DamageMobj(target, NULL, NULL, HITDICE(6));
+    P_DamageMobj(target, nullptr, nullptr, HITDICE(6));
     if (target->player)
     {
         target->reactiontime = 14 + (P_Random() & 7);
@@ -1022,7 +1022,7 @@ void P_TouchWhirlwind(mobj_t * target)
     }
     if (!(leveltime & 7))
     {
-        P_DamageMobj(target, NULL, NULL, 3);
+        P_DamageMobj(target, nullptr, nullptr, 3);
     }
 }
 
@@ -1238,9 +1238,9 @@ void P_AutoUseHealth(player_t * player, int saveHealth)
 =
 = Damages both enemies and players
 = inflictor is the thing that caused the damage
-= 		creature or missile, can be NULL (slime, etc)
+= 		creature or missile, can be nullptr (slime, etc)
 = source is the thing to target after taking damage
-=		creature or NULL
+=		creature or nullptr
 = Source and inflictor are the same for melee attacks
 = source can be null for barrel explosions and other environmental stuff
 ==================
@@ -1482,7 +1482,7 @@ void P_DamageMobj
         && !(target->flags & MF_SKULLFLY))
     {
         target->flags |= MF_JUSTHIT;    // fight back!
-        P_SetMobjState(target, target->info->painstate);
+        P_SetMobjState(target, static_cast<statenum_t>(target->info->painstate));
     }
     target->reactiontime = 0;   // we're awake now...
     if (!target->threshold && source && !(source->flags2 & MF2_BOSS)
@@ -1495,7 +1495,7 @@ void P_DamageMobj
         if (target->state == &states[target->info->spawnstate]
             && target->info->seestate != S_NULL)
         {
-            P_SetMobjState(target, target->info->seestate);
+            P_SetMobjState(target, static_cast<statenum_t>(target->info->seestate));
         }
     }
 }

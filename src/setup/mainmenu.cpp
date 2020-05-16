@@ -12,9 +12,9 @@
 // GNU General Public License for more details.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "config.h"
 #include "textscreen.h"
@@ -27,7 +27,7 @@
 #include "m_misc.h"
 #include "z_zone.h"
 
-#include "setup_icon.c"
+#include "setup_icon.cpp"
 #include "mode.h"
 
 #include "compatibility.h"
@@ -106,7 +106,7 @@ static int MainMenuKeyPress(txt_window_t *window, int key, void *user_data)
             SensibleDefaults();
             cheat_sequence_index = 0;
 
-            window = TXT_MessageBox(NULL, "    \x01    ");
+            window = TXT_MessageBox(nullptr, "    \x01    ");
 
             return 1;
         }
@@ -121,7 +121,7 @@ static int MainMenuKeyPress(txt_window_t *window, int key, void *user_data)
 
 static void DoQuit(void *widget, void *dosave)
 {
-    if (dosave != NULL)
+    if (dosave != nullptr)
     {
         M_SaveDefaults();
     }
@@ -138,24 +138,24 @@ static void QuitConfirm(void *unused1, void *unused2)
     txt_button_t *yes_button;
     txt_button_t *no_button;
 
-    window = TXT_NewWindow(NULL);
+    window = TXT_NewWindow(nullptr);
 
     TXT_AddWidgets(window, 
                    label = TXT_NewLabel("Exiting setup.\nSave settings?"),
                    TXT_NewStrut(24, 0),
                    yes_button = TXT_NewButton2("  Yes  ", DoQuit, DoQuit),
-                   no_button = TXT_NewButton2("  No   ", DoQuit, NULL),
-                   NULL);
+                   no_button = TXT_NewButton2("  No   ", DoQuit, nullptr),
+                   nullptr);
 
     TXT_SetWidgetAlign(label, TXT_HORIZ_CENTER);
     TXT_SetWidgetAlign(yes_button, TXT_HORIZ_CENTER);
     TXT_SetWidgetAlign(no_button, TXT_HORIZ_CENTER);
 
     // Only an "abort" button in the middle.
-    TXT_SetWindowAction(window, TXT_HORIZ_LEFT, NULL);
+    TXT_SetWindowAction(window, TXT_HORIZ_LEFT, nullptr);
     TXT_SetWindowAction(window, TXT_HORIZ_CENTER, 
                         TXT_NewWindowAbortAction(window));
-    TXT_SetWindowAction(window, TXT_HORIZ_RIGHT, NULL);
+    TXT_SetWindowAction(window, TXT_HORIZ_RIGHT, nullptr);
 }
 
 static void LaunchDoom(void *unused1, void *unused2)
@@ -202,7 +202,7 @@ static txt_button_t *GetLaunchButton(void)
             break;
     }
 
-    return TXT_NewButton2(label, LaunchDoom, NULL);
+    return TXT_NewButton2(label, LaunchDoom, nullptr);
 }
 
 void MainMenu(void)
@@ -217,36 +217,36 @@ void MainMenu(void)
 
     TXT_AddWidgets(window,
         TXT_NewButton2("Configure Display",
-                       (TxtWidgetSignalFunc) ConfigDisplay, NULL),
+                       (TxtWidgetSignalFunc) ConfigDisplay, nullptr),
         TXT_NewButton2("Configure Sound",
-                       (TxtWidgetSignalFunc) ConfigSound, NULL),
+                       (TxtWidgetSignalFunc) ConfigSound, nullptr),
         TXT_NewButton2("Configure Keyboard",
-                       (TxtWidgetSignalFunc) ConfigKeyboard, NULL),
+                       (TxtWidgetSignalFunc) ConfigKeyboard, nullptr),
         TXT_NewButton2("Configure Mouse",
-                       (TxtWidgetSignalFunc) ConfigMouse, NULL),
+                       (TxtWidgetSignalFunc) ConfigMouse, nullptr),
         TXT_NewButton2("Configure Gamepad/Joystick",
-                       (TxtWidgetSignalFunc) ConfigJoystick, NULL),
+                       (TxtWidgetSignalFunc) ConfigJoystick, nullptr),
         TXT_NewButton2(gamemission == doom ? "Crispness" : "Compatibility",
-                       (TxtWidgetSignalFunc) CompatibilitySettings, NULL),
+                       (TxtWidgetSignalFunc) CompatibilitySettings, nullptr),
         GetLaunchButton(),
         TXT_NewStrut(0, 1),
         TXT_NewButton2("Start a Network Game",
-                       (TxtWidgetSignalFunc) StartMultiGame, NULL),
+                       (TxtWidgetSignalFunc) StartMultiGame, nullptr),
         TXT_NewButton2("Join a Network Game",
-                       (TxtWidgetSignalFunc) JoinMultiGame, NULL),
+                       (TxtWidgetSignalFunc) JoinMultiGame, nullptr),
         TXT_NewButton2("Multiplayer Configuration",
-                       (TxtWidgetSignalFunc) MultiplayerConfig, NULL),
-        NULL);
+                       (TxtWidgetSignalFunc) MultiplayerConfig, nullptr),
+        nullptr);
 
     quit_action = TXT_NewWindowAction(KEY_ESCAPE, "Quit");
     warp_action = TXT_NewWindowAction(KEY_F2, "Warp");
-    TXT_SignalConnect(quit_action, "pressed", QuitConfirm, NULL);
+    TXT_SignalConnect(quit_action, "pressed", QuitConfirm, nullptr);
     TXT_SignalConnect(warp_action, "pressed",
-                      (TxtWidgetSignalFunc) WarpMenu, NULL);
+                      (TxtWidgetSignalFunc) WarpMenu, nullptr);
     TXT_SetWindowAction(window, TXT_HORIZ_LEFT, quit_action);
     TXT_SetWindowAction(window, TXT_HORIZ_CENTER, warp_action);
 
-    TXT_SetKeyListener(window, MainMenuKeyPress, NULL);
+    TXT_SetKeyListener(window, MainMenuKeyPress, nullptr);
 }
 
 //
@@ -255,7 +255,7 @@ void MainMenu(void)
 
 static void InitConfig(void)
 {
-    M_SetConfigDir(NULL);
+    M_SetConfigDir(nullptr);
     InitBindings();
 
     SetChatMacroDefaults();

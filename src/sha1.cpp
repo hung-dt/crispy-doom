@@ -31,9 +31,9 @@
  *  8498 3E44 1C3B D26E BAAE  4AA1 F951 29E5 E546 70F1
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <assert.h>
 
 #include "i_swap.h"
@@ -212,7 +212,7 @@ void SHA1_Update(sha1_context_t *hd, byte *inbuf, size_t inlen)
     {
 	for (; inlen && hd->count < 64; inlen--)
 	    hd->buf[hd->count++] = *inbuf++;
-	SHA1_Update(hd, NULL, 0);
+	SHA1_Update(hd, nullptr, 0);
 	if (!inlen)
 	    return;
     }
@@ -242,7 +242,7 @@ void SHA1_Final(sha1_digest_t digest, sha1_context_t *hd)
     uint32_t t, msb, lsb;
     byte *p;
 
-    SHA1_Update(hd, NULL, 0); /* flush */;
+    SHA1_Update(hd, nullptr, 0); /* flush */;
 
     t = hd->nblocks;
     /* multiply by 64 to make a byte count */
@@ -271,7 +271,7 @@ void SHA1_Final(sha1_digest_t digest, sha1_context_t *hd)
 	hd->buf[hd->count++] = 0x80; /* pad character */
 	while (hd->count < 64)
 	    hd->buf[hd->count++] = 0;
-	SHA1_Update(hd, NULL, 0);  /* flush */;
+	SHA1_Update(hd, nullptr, 0);  /* flush */;
 	memset(hd->buf, 0, 56 ); /* fill next block with zeroes */
     }
     /* append the 64 bit count */

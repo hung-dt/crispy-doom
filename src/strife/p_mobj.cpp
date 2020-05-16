@@ -16,7 +16,7 @@
 //	Moving object handling. Spawn functions.
 //
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "i_system.h"
 #include "z_zone.h"
@@ -29,6 +29,8 @@
 #include "s_sound.h"
 #include "doomstat.h"
 #include "d_main.h"     // villsa [STRIFE]
+
+#include "../../utils/memory.h"
 
 extern line_t *spechit[];  // haleyjd:
 extern int     numspechit; // [STRIFE] - needed in P_XYMovement
@@ -89,7 +91,7 @@ void P_ExplodeMissile (mobj_t* mo)
 {
     mo->momx = mo->momy = mo->momz = 0;
 
-    P_SetMobjState (mo, mobjinfo[mo->type].deathstate);
+    P_SetMobjState(mo, static_cast<statenum_t>(mobjinfo[mo->type].deathstate));
 
     // villsa [STRIFE] removed tics randomization
 
@@ -131,7 +133,7 @@ void P_XYMovement (mobj_t* mo)
             mo->flags &= ~MF_SKULLFLY;
             mo->momx = mo->momy = mo->momz = 0;
 
-            P_SetMobjState (mo, mo->info->spawnstate);
+            P_SetMobjState(mo, static_cast<statenum_t>(mo->info->spawnstate));
         }
         return;
     }
@@ -196,7 +198,7 @@ void P_XYMovement (mobj_t* mo)
                 // *** BUG: In vanilla Strife the second condition is simply
                 // if(numspechit). However, numspechit can be negative, and
                 // when it is, this accesses spechit[-2]. This always causes the
-                // DOS exe to read from NULL, and the 'special' value there (in
+                // DOS exe to read from nullptr, and the 'special' value there (in
                 // DOS 6.22 at least) is 0x70, which does nothing.
                 if(blockingline && blockingline->special)
                     P_ShootSpecialLine(mo, blockingline);
@@ -369,7 +371,7 @@ void P_ZMovement (mobj_t* mo)
                 // villsa [STRIFE] fall damage
                 // haleyjd 09/18/10: Repaired calculation
                 if(mo->momz < -20*FRACUNIT)
-                    P_DamageMobj(mo, NULL, mo, mo->momz / -25000);
+                    P_DamageMobj(mo, nullptr, mo, mo->momz / -25000);
 
                 // haleyjd 20110224: *Any* fall centers your view, not just
                 // damaging falls (moved outside the above if).
@@ -531,7 +533,7 @@ void P_MobjThinker (mobj_t* mobj)
     {
         P_XYMovement (mobj);
 
-        // FIXME: decent NOP/NULL/Nil function pointer please.
+        // FIXME: decent NOP/nullptr/Nil function pointer please.
         if (mobj->thinker.function.acv == (actionf_v) (-1))
             return;     // mobj was removed
 
@@ -547,7 +549,7 @@ void P_MobjThinker (mobj_t* mobj)
     {
         P_ZMovement (mobj);
 
-        // FIXME: decent NOP/NULL/Nil function pointer please.
+        // FIXME: decent NOP/nullptr/Nil function pointer please.
         if (mobj->thinker.function.acv == (actionf_v) (-1))
             return;     // mobj was removed
 
@@ -627,7 +629,7 @@ P_SpawnMobj
     state_t*	st;
     mobjinfo_t*	info;
 
-    mobj = Z_Malloc (sizeof(*mobj), PU_LEVEL, NULL);
+    mobj = zmalloc<mobj_t*>(sizeof(*mobj), PU_LEVEL, nullptr);
     memset (mobj, 0, sizeof (*mobj));
     info = &mobjinfo[type];
 
@@ -852,7 +854,7 @@ void P_SpawnPlayer(mapthing_t* mthing)
     p->mo               = mobj;
     p->playerstate      = PST_LIVE;	
     p->refire           = 0;
-    p->message          = NULL;
+    p->message          = nullptr;
     p->damagecount      = 0;
     p->bonuscount       = 0;
     p->extralight       = 0;
@@ -1127,15 +1129,15 @@ void P_CheckMissileSpawn (mobj_t* th)
         P_ExplodeMissile (th);
 }
 
-// Certain functions assume that a mobj_t pointer is non-NULL,
-// causing a crash in some situations where it is NULL.  Vanilla
+// Certain functions assume that a mobj_t pointer is non-nullptr,
+// causing a crash in some situations where it is nullptr.  Vanilla
 // Doom did not crash because of the lack of proper memory 
-// protection. This function substitutes NULL pointers for
+// protection. This function substitutes nullptr pointers for
 // pointers to a dummy mobj, to avoid a crash.
 
 mobj_t *P_SubstNullMobj(mobj_t *mobj)
 {
-    if (mobj == NULL)
+    if (mobj == nullptr)
     {
         static mobj_t dummy_mobj;
 

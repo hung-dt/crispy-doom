@@ -16,8 +16,8 @@
 // Parses [PARS] sections in BEX files
 //
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "deh_bexpars.h"
 #include "deh_io.h"
@@ -34,7 +34,7 @@ static void *DEH_BEXParsStart(deh_context_t *context, char *line)
 	DEH_Warning(context, "Parse error on section start");
     }
 
-    return NULL;
+    return nullptr;
 }
 
 static void DEH_BEXParsParseLine(deh_context_t *context, char *line, void *tag)
@@ -72,9 +72,9 @@ static void DEH_BEXParsParseLine(deh_context_t *context, char *line, void *tag)
 deh_section_t deh_section_bexpars =
 {
     "[PARS]",
-    NULL,
+    nullptr,
     DEH_BEXParsStart,
     DEH_BEXParsParseLine,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 };

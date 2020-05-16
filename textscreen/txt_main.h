@@ -23,6 +23,8 @@
 
 #include "txt_sdl.h"
 
+#include <cstdint>
+
 // textscreen key values:
 // Key values are difficult because we have to support multiple conflicting
 // address spaces.
@@ -73,7 +75,7 @@
 
 #define TXT_COLOR_BLINKING (1 << 3)
 
-typedef enum
+enum txt_color_t
 {
     TXT_COLOR_BLACK,
     TXT_COLOR_BLUE,
@@ -91,21 +93,21 @@ typedef enum
     TXT_COLOR_BRIGHT_MAGENTA,
     TXT_COLOR_YELLOW,
     TXT_COLOR_BRIGHT_WHITE,
-} txt_color_t;
+};
 
 // Modifier keys.
 
-typedef enum
+enum txt_modifier_t
 {
     TXT_MOD_SHIFT,
     TXT_MOD_CTRL,
     TXT_MOD_ALT,
     TXT_NUM_MODIFIERS
-} txt_modifier_t;
+};
 
 // Due to the way the SDL API works, we provide different ways of configuring
 // how we read input events, each of which is useful in different scenarios.
-typedef enum
+enum txt_input_mode_t
 {
     // "Localized" output that takes software keyboard layout into account,
     // but key shifting has no effect.
@@ -120,8 +122,7 @@ typedef enum
     // Setting this mode may activate the on-screen keyboard, depending on
     // device and OS.
     TXT_INPUT_TEXT,
-} txt_input_mode_t;
-
+};
 
 #ifdef __GNUC__
 
@@ -150,7 +151,7 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h);
 void TXT_UpdateScreen(void);
 
 // Set the RGB value for a particular entry in the color palette:
-void TXT_SetColor(txt_color_t color, int r, int g, int b);
+void TXT_SetColor(txt_color_t color, std::uint8_t r, std::uint8_t g, std::uint8_t b);
 
 // Read a character from the keyboard
 int TXT_GetChar(void);

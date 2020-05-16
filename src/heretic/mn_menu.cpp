@@ -16,7 +16,7 @@
 
 // MN_menu.c
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <ctype.h>
 
 #include "deh_str.h"
@@ -32,6 +32,8 @@
 #include "s_sound.h"
 #include "v_video.h"
 #include "v_trans.h" // [crispy] dp_translation
+
+#include "../../utils/lump.h"
 
 // Macros
 
@@ -171,8 +173,8 @@ static int quickload;
 
 static MenuItem_t MainItems[] = {
     {ITT_EFUNC, "NEW GAME", SCNetCheck, 1, MENU_EPISODE},
-    {ITT_SETMENU, "OPTIONS", NULL, 0, MENU_OPTIONS},
-    {ITT_SETMENU, "GAME FILES", NULL, 0, MENU_FILES},
+    {ITT_SETMENU, "OPTIONS", nullptr, 0, MENU_OPTIONS},
+    {ITT_SETMENU, "GAME FILES", nullptr, 0, MENU_FILES},
     {ITT_EFUNC, "INFO", SCInfo, 0, MENU_NONE},
     {ITT_EFUNC, "QUIT GAME", SCQuitGame, 0, MENU_NONE}
 };
@@ -203,7 +205,7 @@ static Menu_t EpisodeMenu = {
 
 static MenuItem_t FilesItems[] = {
     {ITT_EFUNC, "LOAD GAME", SCNetCheck, 2, MENU_LOAD},
-    {ITT_SETMENU, "SAVE GAME", NULL, 0, MENU_SAVE}
+    {ITT_SETMENU, "SAVE GAME", nullptr, 0, MENU_SAVE}
 };
 
 static Menu_t FilesMenu = {
@@ -215,12 +217,12 @@ static Menu_t FilesMenu = {
 };
 
 static MenuItem_t LoadItems[] = {
-    {ITT_EFUNC, NULL, SCLoadGame, 0, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 1, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 2, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 3, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 4, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 5, MENU_NONE}
+    {ITT_EFUNC, nullptr, SCLoadGame, 0, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCLoadGame, 1, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCLoadGame, 2, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCLoadGame, 3, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCLoadGame, 4, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCLoadGame, 5, MENU_NONE}
 };
 
 static Menu_t LoadMenu = {
@@ -232,12 +234,12 @@ static Menu_t LoadMenu = {
 };
 
 static MenuItem_t SaveItems[] = {
-    {ITT_EFUNC, NULL, SCSaveGame, 0, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 1, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 2, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 3, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 4, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 5, MENU_NONE}
+    {ITT_EFUNC, nullptr, SCSaveGame, 0, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCSaveGame, 1, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCSaveGame, 2, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCSaveGame, 3, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCSaveGame, 4, MENU_NONE},
+    {ITT_EFUNC, nullptr, SCSaveGame, 5, MENU_NONE}
 };
 
 static Menu_t SaveMenu = {
@@ -269,9 +271,9 @@ static MenuItem_t OptionsItems[] = {
     {ITT_EFUNC, "END GAME", SCEndGame, 0, MENU_NONE},
     {ITT_EFUNC, "MESSAGES : ", SCMessages, 0, MENU_NONE},
     {ITT_LRFUNC, "MOUSE SENSITIVITY", SCMouseSensi, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_SETMENU, "MORE...", NULL, 0, MENU_OPTIONS2},
-    {ITT_SETMENU, "CRISPNESS...", NULL, 0, MENU_CRISPNESS}
+    {ITT_EMPTY, nullptr, nullptr, 0, MENU_NONE},
+    {ITT_SETMENU, "MORE...", nullptr, 0, MENU_OPTIONS2},
+    {ITT_SETMENU, "CRISPNESS...", nullptr, 0, MENU_CRISPNESS}
 };
 
 static Menu_t OptionsMenu = {
@@ -284,11 +286,11 @@ static Menu_t OptionsMenu = {
 
 static MenuItem_t Options2Items[] = {
     {ITT_LRFUNC, "SCREEN SIZE", SCScreenSize, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
+    {ITT_EMPTY, nullptr, nullptr, 0, MENU_NONE},
     {ITT_LRFUNC, "SFX VOLUME", SCSfxVolume, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
+    {ITT_EMPTY, nullptr, nullptr, 0, MENU_NONE},
     {ITT_LRFUNC, "MUSIC VOLUME", SCMusicVolume, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE}
+    {ITT_EMPTY, nullptr, nullptr, 0, MENU_NONE}
 };
 
 static Menu_t Options2Menu = {
@@ -304,8 +306,8 @@ static MenuItem_t CrispnessItems[] = {
     {ITT_LRFUNC, "SMOOTH PIXEL SCALING:", CrispySmoothing, 0, MENU_NONE},
     {ITT_LRFUNC, "UNCAPPED FRAMERATE:", CrispyUncapped, 0, MENU_NONE},
     {ITT_LRFUNC, "ENABLE VSYNC:", CrispyVsync, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
+    {ITT_EMPTY, nullptr, nullptr, 0, MENU_NONE},
+    {ITT_EMPTY, nullptr, nullptr, 0, MENU_NONE},
     {ITT_LRFUNC, "SHOW LEVEL STATS:", CrispyAutomapStats, 0, MENU_NONE},
     {ITT_LRFUNC, "SHOW LEVEL TIME:", CrispyLevelTime, 0, MENU_NONE},
     {ITT_LRFUNC, "SHOW PLAYER COORDS:", CrispyPlayerCoords, 0, MENU_NONE},
@@ -385,7 +387,7 @@ void MN_DrTextA(const char *text, int x, int y)
         }
         else
         {
-            p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+            p = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
             V_DrawPatch(x, y, p);
             x += SHORT(p->width) - 1;
         }
@@ -415,7 +417,7 @@ int MN_TextAWidth(const char *text)
         }
         else
         {
-            p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+            p = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
             width += SHORT(p->width) - 1;
         }
     }
@@ -443,7 +445,7 @@ void MN_DrTextB(const char *text, int x, int y)
         }
         else
         {
-            p = W_CacheLumpNum(FontBBaseLump + c - 33, PU_CACHE);
+            p = cacheLumpNum<patch_t*>(FontBBaseLump + c - 33, PU_CACHE);
             V_DrawPatch(x, y, p);
             x += SHORT(p->width) - 1;
         }
@@ -473,7 +475,7 @@ int MN_TextBWidth(const char *text)
         }
         else
         {
-            p = W_CacheLumpNum(FontBBaseLump + c - 33, PU_CACHE);
+            p = cacheLumpNum<patch_t*>(FontBBaseLump + c - 33, PU_CACHE);
             width += SHORT(p->width) - 1;
         }
     }
@@ -554,7 +556,7 @@ void MN_Drawer(void)
         {
             BorderNeedRefresh = true;
         }
-        if (CurrentMenu->drawFunc != NULL)
+        if (CurrentMenu->drawFunc != nullptr)
         {
             CurrentMenu->drawFunc();
         }
@@ -593,14 +595,14 @@ void MN_Drawer(void)
         y = CurrentMenu->y + (CurrentItPos * (ITEM_HEIGHT/2)) + SELECTOR_YOFFSET;
         selName = DEH_String(MenuTime & 8 ? "INVGEMR1" : "INVGEMR2");
         V_DrawPatch(x + (SELECTOR_XOFFSET/2), y,
-                    W_CacheLumpName(selName, PU_CACHE));
+                    cacheLumpName<patch_t*>(selName, PU_CACHE));
         }
         else
         {
         y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT) + SELECTOR_YOFFSET;
         selName = DEH_String(MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
         V_DrawPatch(x + SELECTOR_XOFFSET, y,
-                    W_CacheLumpName(selName, PU_CACHE));
+                    cacheLumpName<patch_t*>(selName, PU_CACHE));
         }
     }
 }
@@ -616,10 +618,10 @@ static void DrawMainMenu(void)
     int frame;
 
     frame = (MenuTime / 3) % 18;
-    V_DrawPatch(88, 0, W_CacheLumpName(DEH_String("M_HTIC"), PU_CACHE));
-    V_DrawPatch(40, 10, W_CacheLumpNum(SkullBaseLump + (17 - frame),
+    V_DrawPatch(88, 0, cacheLumpName<patch_t*>(DEH_String("M_HTIC"), PU_CACHE));
+    V_DrawPatch(40, 10, cacheLumpNum<patch_t*>(SkullBaseLump + (17 - frame),
                                        PU_CACHE));
-    V_DrawPatch(232, 10, W_CacheLumpNum(SkullBaseLump + frame, PU_CACHE));
+    V_DrawPatch(232, 10, cacheLumpNum<patch_t*>(SkullBaseLump + frame, PU_CACHE));
 }
 
 //---------------------------------------------------------------------------
@@ -653,7 +655,7 @@ static void DrawFilesMenu(void)
 // clear out the quicksave/quickload stuff
     quicksave = 0;
     quickload = 0;
-    players[consoleplayer].message = NULL;
+    players[consoleplayer].message = nullptr;
     players[consoleplayer].messageTics = 1;
 }
 
@@ -746,7 +748,7 @@ static void DrawFileSlots(Menu_t * menu)
     y = menu->y;
     for (i = 0; i < 6; i++)
     {
-        V_DrawPatch(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE));
+        V_DrawPatch(x, y, cacheLumpName<patch_t*>(DEH_String("M_FSLOT"), PU_CACHE));
         if (SlotStatus[i])
         {
             MN_DrTextA(SlotText[i], x + 5, y + 5);
@@ -873,7 +875,7 @@ static boolean SCMessages(int option)
     {
         P_SetMessage(&players[consoleplayer], DEH_String("MESSAGES OFF"), true);
     }
-    S_StartSound(NULL, sfx_chat);
+    S_StartSound(nullptr, sfx_chat);
     return true;
 }
 
@@ -901,7 +903,7 @@ static boolean SCLoadGame(int option)
     if (quickload == -1)
     {
         quickload = option + 1;
-        players[consoleplayer].message = NULL;
+        players[consoleplayer].message = nullptr;
         players[consoleplayer].messageTics = 1;
     }
     return true;
@@ -952,7 +954,7 @@ static boolean SCSaveGame(int option)
     if (quicksave == -1)
     {
         quicksave = option + 1;
-        players[consoleplayer].message = NULL;
+        players[consoleplayer].message = nullptr;
         players[consoleplayer].messageTics = 1;
     }
     return true;
@@ -1094,7 +1096,7 @@ static boolean SCScreenSize(int option)
 static boolean SCInfo(int option)
 {
     InfoType = 1;
-    S_StartSound(NULL, sfx_dorcls);
+    S_StartSound(nullptr, sfx_dorcls);
     if (!netgame && !demoplayback)
     {
         paused = true;
@@ -1229,7 +1231,7 @@ boolean MN_Responder(event_t * event)
         else
         {
             SCQuitGame(0);
-            S_StartSound(NULL, sfx_chat);
+            S_StartSound(nullptr, sfx_chat);
         }
         return true;
     }
@@ -1274,7 +1276,7 @@ boolean MN_Responder(event_t * event)
             SB_state = -1;      //refresh the statbar
             BorderNeedRefresh = true;
         }
-        S_StartSound(NULL, sfx_dorcls);
+        S_StartSound(nullptr, sfx_dorcls);
         return (true);          //make the info screen eat the keypress
     }
 
@@ -1299,9 +1301,9 @@ boolean MN_Responder(event_t * event)
                 case 2:
                     players[consoleplayer].messageTics = 0;
                     //set the msg to be cleared
-                    players[consoleplayer].message = NULL;
+                    players[consoleplayer].message = nullptr;
                     paused = false;
-                    I_SetPalette(W_CacheLumpName
+                    I_SetPalette(cacheLumpName<byte*>
                                  ("PLAYPAL", PU_CACHE));
                     D_StartTitle();     // go to intro/demo mode.
                     break;
@@ -1353,7 +1355,7 @@ boolean MN_Responder(event_t * event)
                 return (false);
             }
             SCScreenSize(LEFT_DIR);
-            S_StartSound(NULL, sfx_keyup);
+            S_StartSound(nullptr, sfx_keyup);
             BorderNeedRefresh = true;
             UpdateState |= I_FULLSCRN;
             return (true);
@@ -1365,7 +1367,7 @@ boolean MN_Responder(event_t * event)
                 return (false);
             }
             SCScreenSize(RIGHT_DIR);
-            S_StartSound(NULL, sfx_keyup);
+            S_StartSound(nullptr, sfx_keyup);
             BorderNeedRefresh = true;
             UpdateState |= I_FULLSCRN;
             return (true);
@@ -1389,7 +1391,7 @@ boolean MN_Responder(event_t * event)
                 {
                     paused = true;
                 }
-                S_StartSound(NULL, sfx_dorcls);
+                S_StartSound(nullptr, sfx_dorcls);
                 slottextloaded = false;     //reload the slot text, when needed
             }
             return true;
@@ -1407,7 +1409,7 @@ boolean MN_Responder(event_t * event)
                 {
                     paused = true;
                 }
-                S_StartSound(NULL, sfx_dorcls);
+                S_StartSound(nullptr, sfx_dorcls);
                 slottextloaded = false;     //reload the slot text, when needed
             }
             return true;
@@ -1423,7 +1425,7 @@ boolean MN_Responder(event_t * event)
             {
                 paused = true;
             }
-            S_StartSound(NULL, sfx_dorcls);
+            S_StartSound(nullptr, sfx_dorcls);
             slottextloaded = false; //reload the slot text, when needed
             return true;
         }
@@ -1447,7 +1449,7 @@ boolean MN_Responder(event_t * event)
                     {
                         paused = true;
                     }
-                    S_StartSound(NULL, sfx_dorcls);
+                    S_StartSound(nullptr, sfx_dorcls);
                     slottextloaded = false; //reload the slot text, when needed
                     quicksave = -1;
                     P_SetMessage(&players[consoleplayer],
@@ -1461,7 +1463,7 @@ boolean MN_Responder(event_t * event)
                     {
                         paused = true;
                     }
-                    S_StartSound(NULL, sfx_chat);
+                    S_StartSound(nullptr, sfx_chat);
                 }
             }
             return true;
@@ -1470,7 +1472,7 @@ boolean MN_Responder(event_t * event)
         {
             if (gamestate == GS_LEVEL && !demoplayback)
             {
-                S_StartSound(NULL, sfx_chat);
+                S_StartSound(nullptr, sfx_chat);
                 SCEndGame(0);
             }
             return true;
@@ -1493,7 +1495,7 @@ boolean MN_Responder(event_t * event)
                 {
                     paused = true;
                 }
-                S_StartSound(NULL, sfx_dorcls);
+                S_StartSound(nullptr, sfx_dorcls);
                 slottextloaded = false;     //reload the slot text, when needed
                 quickload = -1;
                 P_SetMessage(&players[consoleplayer],
@@ -1507,7 +1509,7 @@ boolean MN_Responder(event_t * event)
                     paused = true;
                 }
                 typeofask = 4;
-                S_StartSound(NULL, sfx_chat);
+                S_StartSound(nullptr, sfx_chat);
             }
             return true;
         }
@@ -1516,7 +1518,7 @@ boolean MN_Responder(event_t * event)
             if (gamestate == GS_LEVEL)
             {
                 SCQuitGame(0);
-                S_StartSound(NULL, sfx_chat);
+                S_StartSound(nullptr, sfx_chat);
             }
             return true;
         }
@@ -1527,7 +1529,7 @@ boolean MN_Responder(event_t * event)
             {
                 usegamma = 0;
             }
-            I_SetPalette((byte *) W_CacheLumpName("PLAYPAL", PU_CACHE));
+            I_SetPalette(cacheLumpName<byte*>("PLAYPAL", PU_CACHE));
             return true;
         }
 
@@ -1560,7 +1562,7 @@ boolean MN_Responder(event_t * event)
                 }
             }
             while (CurrentMenu->items[CurrentItPos].type == ITT_EMPTY);
-            S_StartSound(NULL, sfx_switch);
+            S_StartSound(nullptr, sfx_switch);
             return (true);
         }
         else if (key == key_menu_up)         // Previous menu item
@@ -1577,24 +1579,24 @@ boolean MN_Responder(event_t * event)
                 }
             }
             while (CurrentMenu->items[CurrentItPos].type == ITT_EMPTY);
-            S_StartSound(NULL, sfx_switch);
+            S_StartSound(nullptr, sfx_switch);
             return (true);
         }
         else if (key == key_menu_left)       // Slider left
         {
-            if (item->type == ITT_LRFUNC && item->func != NULL)
+            if (item->type == ITT_LRFUNC && item->func != nullptr)
             {
                 item->func(LEFT_DIR);
-                S_StartSound(NULL, sfx_keyup);
+                S_StartSound(nullptr, sfx_keyup);
             }
             return (true);
         }
         else if (key == key_menu_right)      // Slider right
         {
-            if (item->type == ITT_LRFUNC && item->func != NULL)
+            if (item->type == ITT_LRFUNC && item->func != nullptr)
             {
                 item->func(RIGHT_DIR);
-                S_StartSound(NULL, sfx_keyup);
+                S_StartSound(nullptr, sfx_keyup);
             }
             return (true);
         }
@@ -1604,7 +1606,7 @@ boolean MN_Responder(event_t * event)
             {
                 SetMenu(item->menu);
             }
-            else if (item->func != NULL)
+            else if (item->func != nullptr)
             {
                 CurrentMenu->oldItPos = CurrentItPos;
                 if (item->type == ITT_LRFUNC)
@@ -1622,7 +1624,7 @@ boolean MN_Responder(event_t * event)
                     }
                 }
             }
-            S_StartSound(NULL, sfx_dorcls);
+            S_StartSound(nullptr, sfx_dorcls);
             return (true);
         }
         else if (key == key_menu_activate)     // Toggle menu
@@ -1632,7 +1634,7 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_back)         // Go back to previous menu
         {
-            S_StartSound(NULL, sfx_switch);
+            S_StartSound(nullptr, sfx_switch);
             if (CurrentMenu->prevMenu == MENU_NONE)
             {
                 MN_DeactivateMenu();
@@ -1754,7 +1756,7 @@ void MN_ActivateMenu(void)
     {
         paused = true;
     }
-    S_StartSound(NULL, sfx_dorcls);
+    S_StartSound(nullptr, sfx_dorcls);
     slottextloaded = false;     //reload the slot text, when needed
 }
 
@@ -1766,7 +1768,7 @@ void MN_ActivateMenu(void)
 
 void MN_DeactivateMenu(void)
 {
-    if (CurrentMenu != NULL)
+    if (CurrentMenu != nullptr)
     {
         CurrentMenu->oldItPos = CurrentItPos;
     }
@@ -1779,13 +1781,13 @@ void MN_DeactivateMenu(void)
     {
         paused = false;
     }
-    S_StartSound(NULL, sfx_dorcls);
+    S_StartSound(nullptr, sfx_dorcls);
     if (soundchanged)
     {
         S_SetMaxVolume(true);   //recalc the sound curve
         soundchanged = false;
     }
-    players[consoleplayer].message = NULL;
+    players[consoleplayer].message = nullptr;
     players[consoleplayer].messageTics = 1;
 }
 
@@ -1797,10 +1799,10 @@ void MN_DeactivateMenu(void)
 
 void MN_DrawInfo(void)
 {
-    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
-    V_DrawRawScreen(W_CacheLumpNum(W_GetNumForName("TITLE") + InfoType,
+    I_SetPalette(cacheLumpName<byte*>("PLAYPAL", PU_CACHE));
+    V_DrawRawScreen(cacheLumpNum<patch_t*>(W_GetNumForName("TITLE") + InfoType,
                                    PU_CACHE));
-//      V_DrawPatch(0, 0, W_CacheLumpNum(W_GetNumForName("TITLE")+InfoType,
+//      V_DrawPatch(0, 0, cacheLumpNum<patch_t*>(W_GetNumForName("TITLE")+InfoType,
 //              PU_CACHE));
 }
 
@@ -1834,13 +1836,13 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot)
 
     x = menu->x + 24;
     y = menu->y + 2 + (item * ITEM_HEIGHT);
-    V_DrawPatch(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE));
+    V_DrawPatch(x - 32, y, cacheLumpName<patch_t*>(DEH_String("M_SLDLT"), PU_CACHE));
     for (x2 = x, count = width; count--; x2 += 8)
     {
-        V_DrawPatch(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1"
+        V_DrawPatch(x2, y, cacheLumpName<patch_t*>(DEH_String(count & 1 ? "M_SLDMD1"
                                            : "M_SLDMD2"), PU_CACHE));
     }
-    V_DrawPatch(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE));
+    V_DrawPatch(x2, y, cacheLumpName<patch_t*>(DEH_String("M_SLDRT"), PU_CACHE));
 
     // [crispy] print the value
     M_snprintf(num, 4, "%3d", slot);
@@ -1853,7 +1855,7 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot)
     }
 
     V_DrawPatch(x + 4 + slot * 8, y + 7,
-                W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE));
+                cacheLumpName<patch_t*>(DEH_String("M_SLDKB"), PU_CACHE));
 }
 
 //---------------------------------------------------------------------------
@@ -1869,11 +1871,11 @@ static void M_DrawCrispnessBackground(void)
 
     if (gamemode == shareware)
     {
-        src = W_CacheLumpName(DEH_String("FLOOR04"), PU_CACHE);
+        src = cacheLumpName<byte*>(DEH_String("FLOOR04"), PU_CACHE);
     }
     else
     {
-        src = W_CacheLumpName(DEH_String("FLAT513"), PU_CACHE);
+        src = cacheLumpName<byte*>(DEH_String("FLAT513"), PU_CACHE);
     }
     dest = I_VideoBuffer;
 
@@ -1941,5 +1943,5 @@ static void DrawCrispnessMenu(void)
         crispy->secretmessage == SECRETMESSAGE_ON ? "ON" :
         "COUNT", 250, 130);
 
-    dp_translation = NULL;
+    dp_translation = nullptr;
 }

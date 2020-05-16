@@ -19,6 +19,8 @@
 #include "m_random.h"
 #include "p_local.h"
 
+#include "../../utils/memory.h"
+
 //============================================================================
 //
 //      T_Light
@@ -143,7 +145,7 @@ boolean EV_SpawnLight(line_t * line, byte * arg, lighttype_t type)
         think = false;
         sec = &sectors[secNum];
 
-        light = (light_t *) Z_Malloc(sizeof(light_t), PU_LEVSPEC, 0);
+        light = zmalloc<light_t*>(sizeof(light_t), PU_LEVSPEC, 0);
         light->type = type;
         light->sector = sec;
         light->count = 0;
@@ -266,9 +268,7 @@ void T_Phase(phase_t * phase)
 
 void P_SpawnPhasedLight(sector_t * sector, int base, int index)
 {
-    phase_t *phase;
-
-    phase = Z_Malloc(sizeof(*phase), PU_LEVSPEC, 0);
+    phase_t *phase = zmalloc<phase_t*>(sizeof(*phase), PU_LEVSPEC, 0);
     P_AddThinker(&phase->thinker);
     phase->sector = sector;
     if (index == -1)
@@ -309,7 +309,7 @@ void P_SpawnLightSequence(sector_t * sector, int indexStep)
     count = 1;
     do
     {
-        nextSec = NULL;
+        nextSec = nullptr;
         sec->special = LIGHT_SEQUENCE_START;    // make sure that the search doesn't back up.
         for (i = 0; i < sec->linecount; i++)
         {
@@ -343,7 +343,7 @@ void P_SpawnLightSequence(sector_t * sector, int indexStep)
     base = sector->lightlevel;
     do
     {
-        nextSec = NULL;
+        nextSec = nullptr;
         if (sec->lightlevel)
         {
             base = sec->lightlevel;

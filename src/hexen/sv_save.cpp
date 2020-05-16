@@ -23,6 +23,8 @@
 #include "i_swap.h"
 #include "p_local.h"
 
+#include "../../utils/memory.h"
+
 // MACROS ------------------------------------------------------------------
 
 #define MAX_TARGET_PLAYERS 512
@@ -300,7 +302,7 @@ static void StreamIn_pspdef_t(pspdef_t *str)
     }
     else
     {
-        str->state = NULL;
+        str->state = nullptr;
     }
 
     // int tics;
@@ -316,7 +318,7 @@ static void StreamOut_pspdef_t(pspdef_t *str)
     // state_t *state;
     // This is a pointer; store the index in the states table,
     // rather than the pointer itself.
-    if (str->state != NULL)
+    if (str->state != nullptr)
     {
         SV_WriteLong(str->state - states);
     }
@@ -345,7 +347,7 @@ static void StreamIn_player_t(player_t *str)
     // mobj_t *mo;
     // Pointer value is reset on load.
     str->mo = SV_ReadPtr();
-    str->mo = NULL;
+    str->mo = nullptr;
 
     // playerstate_t playerstate;
     str->playerstate = SV_ReadLong();
@@ -354,7 +356,7 @@ static void StreamIn_player_t(player_t *str)
     StreamIn_ticcmd_t(&str->cmd);
 
     // pclass_t class;
-    str->class = SV_ReadLong();
+    str->pclass = SV_ReadLong();
 
     // fixed_t viewz;
     str->viewz = SV_ReadLong();
@@ -477,12 +479,12 @@ static void StreamIn_player_t(player_t *str)
     // mobj_t *poisoner;
     // Pointer value is reset.
     str->poisoner = SV_ReadPtr();
-    str->poisoner = NULL;
+    str->poisoner = nullptr;
 
     // mobj_t *attacker;
     // Pointer value is reset.
     str->attacker = SV_ReadPtr();
-    str->attacker = NULL;
+    str->attacker = nullptr;
 
     // int extralight;
     str->extralight = SV_ReadLong();
@@ -523,7 +525,7 @@ static void StreamOut_player_t(player_t *str)
     StreamOut_ticcmd_t(&str->cmd);
 
     // pclass_t class;
-    SV_WriteLong(str->class);
+    SV_WriteLong(str->pclass);
 
     // fixed_t viewz;
     SV_WriteLong(str->viewz);
@@ -684,14 +686,14 @@ static void StreamIn_thinker_t(thinker_t *str)
     // struct thinker_s *prev, *next;
     // Pointers are discarded:
     str->prev = SV_ReadPtr();
-    str->prev = NULL;
+    str->prev = nullptr;
     str->next = SV_ReadPtr();
-    str->next = NULL;
+    str->next = nullptr;
 
     // think_t function;
     // Function pointer is discarded:
     str->function = SV_ReadPtr();
-    str->function = NULL;
+    str->function = nullptr;
 }
 
 static void StreamOut_thinker_t(thinker_t *str)
@@ -765,9 +767,9 @@ static void StreamIn_mobj_t(mobj_t *str)
     // struct mobj_s *snext, *sprev;
     // Pointer values are discarded:
     str->snext = SV_ReadPtr();
-    str->snext = NULL;
+    str->snext = nullptr;
     str->sprev = SV_ReadPtr();
-    str->sprev = NULL;
+    str->sprev = nullptr;
 
     // angle_t angle;
     str->angle = SV_ReadLong();
@@ -782,14 +784,14 @@ static void StreamIn_mobj_t(mobj_t *str)
     // Values are read but discarded; this will be restored when the thing's
     // position is set.
     str->bnext = SV_ReadPtr();
-    str->bnext = NULL;
+    str->bnext = nullptr;
     str->bprev = SV_ReadPtr();
-    str->bprev = NULL;
+    str->bprev = nullptr;
 
     // struct subsector_s *subsector;
     // Read but discard: pointer will be restored when thing position is set.
     str->subsector = SV_ReadPtr();
-    str->subsector = NULL;
+    str->subsector = nullptr;
 
     // fixed_t floorz, ceilingz;
     str->floorz = SV_ReadLong();
@@ -816,7 +818,7 @@ static void StreamIn_mobj_t(mobj_t *str)
     // mobjinfo_t *info;
     // Pointer value is read but discarded.
     str->info = SV_ReadPtr();
-    str->info = NULL;
+    str->info = nullptr;
 
     // int tics;
     str->tics = SV_ReadLong();
@@ -865,7 +867,7 @@ static void StreamIn_mobj_t(mobj_t *str)
     i = SV_ReadLong();
     if (i == 0)
     {
-        str->player = NULL;
+        str->player = nullptr;
     }
     else
     {
@@ -1073,7 +1075,7 @@ static void StreamOut_mobj_t(mobj_t *str)
 
     // struct player_s *player;
     // Stored as index into players[] array, if there is a player pointer.
-    if (str->player != NULL)
+    if (str->player != nullptr)
     {
         SV_WriteLong(str->player - players + 1);
     }
@@ -1562,7 +1564,7 @@ static void StreamIn_acs_t(acs_t *str)
     }
     else
     {
-        str->line = NULL;
+        str->line = nullptr;
     }
 
     // int side;
@@ -1607,7 +1609,7 @@ static void StreamOut_acs_t(acs_t *str)
     SV_WriteLong(GetMobjNum(str->activator));
 
     // line_t *line;
-    if (str->line != NULL)
+    if (str->line != nullptr)
     {
         SV_WriteLong(str->line - lines);
     }
@@ -2183,7 +2185,7 @@ void SV_MapTeleport(int map, int position)
 
     // Only SV_LoadMap() uses TargetPlayerAddrs, so it's NULLed here
     // for the following check (player mobj redirection)
-    TargetPlayerAddrs = NULL;
+    TargetPlayerAddrs = nullptr;
 
     gamemap = map;
     M_snprintf(fileName, sizeof(fileName), "%shex6%02d.hxs", SavePath, gamemap);
@@ -2206,7 +2208,7 @@ void SV_MapTeleport(int map, int position)
     }
 
     // Restore player structs
-    targetPlayerMobj = NULL;
+    targetPlayerMobj = nullptr;
     for (i = 0; i < maxplayers; i++)
     {
         if (!playeringame[i])
@@ -2215,8 +2217,8 @@ void SV_MapTeleport(int map, int position)
         }
         players[i] = playerBackup[i];
         P_ClearMessage(&players[i]);
-        players[i].attacker = NULL;
-        players[i].poisoner = NULL;
+        players[i].attacker = nullptr;
+        players[i].poisoner = nullptr;
 
         if (netgame)
         {
@@ -2270,7 +2272,7 @@ void SV_MapTeleport(int map, int position)
             }
         }
 
-        if (targetPlayerMobj == NULL)
+        if (targetPlayerMobj == nullptr)
         {                       // The poor sap
             targetPlayerMobj = players[i].mo;
         }
@@ -2626,14 +2628,14 @@ static void UnarchiveMobjs(void)
     mobj_t *mobj;
 
     AssertSegment(ASEG_MOBJS);
-    TargetPlayerAddrs = Z_Malloc(MAX_TARGET_PLAYERS * sizeof(mobj_t **),
-                                 PU_STATIC, NULL);
+    TargetPlayerAddrs = zmalloc<mobj_t***>(MAX_TARGET_PLAYERS * sizeof(mobj_t **),
+                                 PU_STATIC, nullptr);
     TargetPlayerCount = 0;
     MobjCount = SV_ReadLong();
-    MobjList = Z_Malloc(MobjCount * sizeof(mobj_t *), PU_STATIC, NULL);
+    MobjList = zmalloc<mobj_t**>(MobjCount * sizeof(mobj_t *), PU_STATIC, nullptr);
     for (i = 0; i < MobjCount; i++)
     {
-        MobjList[i] = Z_Malloc(sizeof(mobj_t), PU_LEVEL, NULL);
+        MobjList[i] = zmalloc<mobj_t*>(sizeof(mobj_t), PU_LEVEL, nullptr);
     }
     for (i = 0; i < MobjCount; i++)
     {
@@ -2661,7 +2663,7 @@ static void UnarchiveMobjs(void)
 
 static int GetMobjNum(mobj_t * mobj)
 {
-    if (mobj == NULL)
+    if (mobj == nullptr)
     {
         return MOBJ_NULL;
     }
@@ -2682,7 +2684,7 @@ static void SetMobjPtr(mobj_t **ptr, unsigned int archiveNum)
 {
     if (archiveNum == MOBJ_NULL)
     {
-        *ptr = NULL;
+        *ptr = nullptr;
     }
     else if (archiveNum == MOBJ_XX_PLAYER)
     {
@@ -2691,7 +2693,7 @@ static void SetMobjPtr(mobj_t **ptr, unsigned int archiveNum)
             I_Error("RestoreMobj: exceeded MAX_TARGET_PLAYERS");
         }
         TargetPlayerAddrs[TargetPlayerCount++] = ptr;
-        *ptr = NULL;
+        *ptr = nullptr;
     }
     else
     {
@@ -2740,7 +2742,7 @@ static thinkInfo_t ThinkerInfo[] = {
      T_Light,
      StreamOut_light_t,
      StreamIn_light_t,
-     NULL,
+     nullptr,
      sizeof(light_t)
     },
     {
@@ -2756,7 +2758,7 @@ static thinkInfo_t ThinkerInfo[] = {
      T_Phase,
      StreamOut_phase_t,
      StreamIn_phase_t,
-     NULL,
+     nullptr,
      sizeof(phase_t)
     },
     {
@@ -2764,7 +2766,7 @@ static thinkInfo_t ThinkerInfo[] = {
      T_InterpretACS,
      StreamOut_acs_t,
      StreamIn_acs_t,
-     NULL,
+     nullptr,
      sizeof(acs_t)
     },
     {
@@ -2772,7 +2774,7 @@ static thinkInfo_t ThinkerInfo[] = {
      T_RotatePoly,
      StreamOut_polyevent_t,
      StreamIn_polyevent_t,
-     NULL,
+     nullptr,
      sizeof(polyevent_t)
     },
     {
@@ -2788,7 +2790,7 @@ static thinkInfo_t ThinkerInfo[] = {
      T_MovePoly,
      StreamOut_polyevent_t,
      StreamIn_polyevent_t,
-     NULL,
+     nullptr,
      sizeof(polyevent_t)
     },
     {
@@ -2796,7 +2798,7 @@ static thinkInfo_t ThinkerInfo[] = {
      T_PolyDoor,
      StreamOut_polydoor_t,
      StreamIn_polydoor_t,
-     NULL,
+     nullptr,
      sizeof(polydoor_t)
     },
     {
@@ -2807,7 +2809,7 @@ static thinkInfo_t ThinkerInfo[] = {
      RestoreSSThinker,
      sizeof(floorWaggle_t)
     },
-    { TC_NULL, NULL, NULL, NULL, NULL, 0},
+    { TC_NULL, nullptr, nullptr, nullptr, nullptr, 0},
 };
 
 //==========================================================================
@@ -2858,7 +2860,7 @@ static void UnarchiveThinkers(void)
         {
             if (tClass == info->tClass)
             {
-                thinker = Z_Malloc(info->size, PU_LEVEL, NULL);
+                thinker = zmalloc<thinker_t*>(info->size, PU_LEVEL, nullptr);
                 info->readFunc(thinker);
                 thinker->function = info->thinkerFunc;
                 if (info->restoreFunc)
@@ -3263,7 +3265,7 @@ static void CopyFile(char *source_name, char *dest_name)
     int buf_count, read_count, write_count;
 
     read_handle = fopen(source_name, "rb");
-    if (read_handle == NULL)
+    if (read_handle == nullptr)
     {
         I_Error ("Couldn't read file %s", source_name);
     }
@@ -3277,17 +3279,17 @@ static void CopyFile(char *source_name, char *dest_name)
 
     if (vanilla_savegame_limit)
     {
-        buffer = Z_Malloc(file_length, PU_STATIC, NULL);
+        buffer = zmalloc<byte*>(file_length, PU_STATIC, nullptr);
         Z_Free(buffer);
     }
 
     write_handle = fopen(dest_name, "wb");
-    if (write_handle == NULL)
+    if (write_handle == nullptr)
     {
         I_Error ("Couldn't read file %s", dest_name);
     }
 
-    buffer = Z_Malloc (BUFFER_CHUNK_SIZE, PU_STATIC, NULL);
+    buffer = zmalloc<byte*>(BUFFER_CHUNK_SIZE, PU_STATIC, nullptr);
 
     do
     {
@@ -3327,7 +3329,7 @@ static boolean ExistingFile(char *name)
 {
     FILE *fp;
 
-    if ((fp = fopen(name, "rb")) != NULL)
+    if ((fp = fopen(name, "rb")) != nullptr)
     {
         fclose(fp);
         return true;
@@ -3349,7 +3351,7 @@ static void SV_OpenRead(char *fileName)
     SavingFP = fopen(fileName, "rb");
 
     // Should never happen, only if hex6.hxs cannot ever be created.
-    if (SavingFP == NULL)
+    if (SavingFP == nullptr)
     {
         I_Error("Could not load savegame %s", fileName);
     }

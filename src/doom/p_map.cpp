@@ -17,8 +17,8 @@
 //	Shooting and aiming.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "deh_misc.h"
 
@@ -156,7 +156,7 @@ P_TeleportMove
     tmbbox[BOXLEFT] = x - tmthing->radius;
 
     newsubsec = R_PointInSubsector (x,y);
-    ceilingline = NULL;
+    ceilingline = nullptr;
     
     // The base floor/ceiling is from the subsector
     // that contains the point.
@@ -265,7 +265,7 @@ boolean PIT_CheckLine (line_t* ld)
         if (numspechit >= spechit_max)
         {
             spechit_max = spechit_max ? spechit_max * 2 : MAXSPECIALCROSS;
-            spechit = I_Realloc(spechit, sizeof(*spechit) * spechit_max);
+            spechit = static_cast<line_t**>(I_Realloc(spechit, sizeof(*spechit) * spechit_max));
         }
         spechit[numspechit] = ld;
 	numspechit++;
@@ -328,7 +328,7 @@ boolean PIT_CheckThing (mobj_t* thing)
 	tmthing->flags &= ~MF_SKULLFLY;
 	tmthing->momx = tmthing->momy = tmthing->momz = 0;
 	
-	P_SetMobjState (tmthing, tmthing->info->spawnstate);
+	P_SetMobjState(tmthing, static_cast<statenum_t>(tmthing->info->spawnstate));
 	
 	return false;		// stop moving
     }
@@ -523,7 +523,7 @@ P_CheckPosition
     tmbbox[BOXLEFT] = x - tmthing->radius;
 
     newsubsec = R_PointInSubsector (x,y);
-    ceilingline = NULL;
+    ceilingline = nullptr;
     
     // The base floor / ceiling is from the subsector
     // that contains the point.
@@ -917,7 +917,7 @@ void P_SlideMove (mobj_t* mo)
 //
 // P_LineAttack
 //
-mobj_t*		linetarget;	// who got hit (or NULL)
+mobj_t*		linetarget;	// who got hit (or nullptr)
 mobj_t*		shootthing;
 
 // Height if not aiming up or down
@@ -966,7 +966,7 @@ PTR_AimTraverse (intercept_t* in)
 	
 	dist = FixedMul (attackrange, in->frac);
 
-        if (li->backsector == NULL
+        if (li->backsector == nullptr
          || li->frontsector->floorheight != li->backsector->floorheight)
 	{
 	    slope = FixedDiv (openbottom - shootz , dist);
@@ -974,7 +974,7 @@ PTR_AimTraverse (intercept_t* in)
 		bottomslope = slope;
 	}
 		
-	if (li->backsector == NULL
+	if (li->backsector == nullptr
          || li->frontsector->ceilingheight != li->backsector->ceilingheight)
 	{
 	    slope = FixedDiv (opentop - shootz , dist);
@@ -1060,9 +1060,9 @@ boolean PTR_ShootTraverse (intercept_t* in)
 	dist = FixedMul (attackrange, in->frac);
 
         // e6y: emulation of missed back side on two-sided lines.
-        // backsector can be NULL when emulating missing back side.
+        // backsector can be nullptr when emulating missing back side.
 
-        if (li->backsector == NULL)
+        if (li->backsector == nullptr)
         {
             slope = FixedDiv (openbottom - shootz , dist);
             if (slope > aimslope)
@@ -1246,7 +1246,7 @@ P_AimLineAttack
     bottomslope = -(ORIGHEIGHT/2)*FRACUNIT/(ORIGWIDTH/2);
     
     attackrange = distance;
-    linetarget = NULL;
+    linetarget = nullptr;
 	
     P_PathTraverse ( t1->x, t1->y,
 		     x2, y2,
@@ -1576,7 +1576,7 @@ boolean PIT_ChangeSector (mobj_t*	thing)
 
     if (crushchange && !(leveltime&3) )
     {
-	P_DamageMobj(thing,NULL,NULL,10);
+	P_DamageMobj(thing,nullptr,nullptr,10);
 
 	// spray blood in a random direction
 	mo = P_SpawnMobj (thing->x,

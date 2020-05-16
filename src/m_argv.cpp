@@ -17,9 +17,9 @@
 
 
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "SDL_stdinc.h"
 
@@ -88,7 +88,7 @@ static void LoadResponseFile(int argv_index, const char *filename)
     // Read the response file into memory
     handle = fopen(filename, "rb");
 
-    if (handle == NULL)
+    if (handle == nullptr)
     {
         printf ("\nNo such response file!");
         exit(1);
@@ -103,7 +103,7 @@ static void LoadResponseFile(int argv_index, const char *filename)
     // at the end of the response file, in which case a '\0' will be
     // needed.
 
-    file = malloc(size + 1);
+    file = static_cast<char*>(malloc(size + 1));
 
     i = 0;
 
@@ -123,7 +123,7 @@ static void LoadResponseFile(int argv_index, const char *filename)
 
     // Create new arguments list array
 
-    newargv = malloc(sizeof(char *) * MAXARGVS);
+    newargv = static_cast<char**>(malloc(sizeof(char *) * MAXARGVS));
     newargc = 0;
     memset(newargv, 0, sizeof(char *) * MAXARGVS);
 
@@ -228,7 +228,7 @@ static void LoadResponseFile(int argv_index, const char *filename)
 // Find a Response File
 //
 
-void M_FindResponseFile(void)
+void M_FindResponseFile()
 {
     int i;
 
@@ -325,7 +325,7 @@ static int CompareByFileType(const void *a, const void *b)
     return ret ? ret : (arg_a->stable - arg_b->stable);
 }
 
-void M_AddLooseFiles(void)
+void M_AddLooseFiles()
 {
     int i, types = 0;
     char **newargv;
@@ -412,7 +412,7 @@ void M_AddLooseFiles(void)
 
 // Return the name of the executable used to start the program:
 
-const char *M_GetExecutableName(void)
+const char *M_GetExecutableName()
 {
     return M_BaseName(myargv[0]);
 }

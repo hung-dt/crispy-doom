@@ -18,7 +18,7 @@
 //
 
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <ctype.h>
 
 
@@ -61,6 +61,7 @@
 #include "m_menu.h"
 #include "p_dialog.h"
 
+#include "../../utils/lump.h"
 
 extern void M_QuitStrife(int);
 
@@ -247,7 +248,7 @@ menuitem_t MainMenu[]=
 menu_t  MainDef =
 {
     main_end,
-    NULL,
+    nullptr,
     MainMenu,
     M_DrawMainMenu,
     97,45, // haleyjd 08/28/10: [STRIFE] changed y coord
@@ -548,7 +549,7 @@ void M_ReadSaveStrings(void)
 {
     FILE *handle;
     int   i;
-    char *fname = NULL;
+    char *fname = nullptr;
 
     for(i = 0; i < load_end; i++)
     {
@@ -558,7 +559,7 @@ void M_ReadSaveStrings(void)
         fname = M_SafeFilePath(savegamedir, M_MakeStrifeSaveDir(i, "\\name"));
 
         handle = fopen(fname, "rb");
-        if(handle == NULL)
+        if(handle == nullptr)
         {
             M_StringCopy(savegamestrings[i], DEH_String(EMPTYSTRING),
                          sizeof(savegamestrings[i]));
@@ -637,7 +638,7 @@ void M_DrawLoad(void)
     int             i;
 
     V_DrawPatchDirect(72, 28, 
-                      W_CacheLumpName(DEH_String("M_LOADG"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_LOADG"), PU_CACHE));
 
     for (i = 0;i < load_end; i++)
     {
@@ -656,17 +657,17 @@ void M_DrawSaveLoadBorder(int x,int y)
     int             i;
 
     V_DrawPatchDirect(x - 8, y + 7,
-                      W_CacheLumpName(DEH_String("M_LSLEFT"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_LSLEFT"), PU_CACHE));
 
     for (i = 0;i < 24;i++)
     {
         V_DrawPatchDirect(x, y + 7,
-                          W_CacheLumpName(DEH_String("M_LSCNTR"), PU_CACHE));
+                          cacheLumpName<patch_t*>(DEH_String("M_LSCNTR"), PU_CACHE));
         x += 8;
     }
 
     V_DrawPatchDirect(x, y + 7, 
-                      W_CacheLumpName(DEH_String("M_LSRGHT"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_LSRGHT"), PU_CACHE));
 }
 
 
@@ -677,7 +678,7 @@ void M_DrawSaveLoadBorder(int x,int y)
 void M_LoadSelect(int choice)
 {
     // [STRIFE]: completely rewritten
-    char *name = NULL;
+    char *name = nullptr;
 
     G_WriteSaveName(choice, savegamestrings[choice]);
     ToCurr();
@@ -701,7 +702,7 @@ void M_LoadGame (int choice)
 {
     if (netgame)
     {
-        M_StartMessage(DEH_String(LOADNET), NULL, false);
+        M_StartMessage(DEH_String(LOADNET), nullptr, false);
         return;
     }
 
@@ -717,7 +718,7 @@ void M_DrawSave(void)
 {
     int             i;
 
-    V_DrawPatchDirect(72, 28, W_CacheLumpName(DEH_String("M_SAVEG"), PU_CACHE));
+    V_DrawPatchDirect(72, 28, cacheLumpName<patch_t*>(DEH_String("M_SAVEG"), PU_CACHE));
     for (i = 0;i < load_end; i++)
     {
         M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
@@ -751,7 +752,7 @@ void M_DoSave(int slot)
         FromCurr();
     }
     else
-        M_StartMessage(DEH_String(QSAVESPOT), NULL, false);
+        M_StartMessage(DEH_String(QSAVESPOT), nullptr, false);
 }
 
 //
@@ -788,12 +789,12 @@ void M_SaveGame (int choice)
     if (netgame)
     {
         // haleyjd 20110211: Hooray for Rogue's awesome multiplayer support...
-        M_StartMessage(DEH_String("You can't save a netgame"), NULL, false);
+        M_StartMessage(DEH_String("You can't save a netgame"), nullptr, false);
         return;
     }
     if (!usergame)
     {
-        M_StartMessage(DEH_String(SAVEDEAD),NULL,false);
+        M_StartMessage(DEH_String(SAVEDEAD),nullptr,false);
         return;
     }
 
@@ -827,7 +828,7 @@ void M_QuickSaveResponse(int key)
     if (key == key_menu_confirm)
     {
         M_DoSave(quickSaveSlot);
-        S_StartSound(NULL, sfx_mtalht); // [STRIFE] sound
+        S_StartSound(nullptr, sfx_mtalht); // [STRIFE] sound
     }
 }
 
@@ -836,13 +837,13 @@ void M_QuickSave(void)
     if (netgame)
     {
         // haleyjd 20110211 [STRIFE]: More fun...
-        M_StartMessage(DEH_String("You can't save a netgame"), NULL, false);
+        M_StartMessage(DEH_String("You can't save a netgame"), nullptr, false);
         return;
     }
 
     if (!usergame)
     {
-        S_StartSound(NULL, sfx_oof);
+        S_StartSound(nullptr, sfx_oof);
         return;
     }
 
@@ -871,7 +872,7 @@ void M_QuickLoadResponse(int key)
     if (key == key_menu_confirm)
     {
         M_LoadSelect(quickSaveSlot);
-        S_StartSound(NULL, sfx_mtalht); // [STRIFE] sound
+        S_StartSound(nullptr, sfx_mtalht); // [STRIFE] sound
     }
 }
 
@@ -884,13 +885,13 @@ void M_QuickLoad(void)
 {
     if (netgame)
     {
-        M_StartMessage(DEH_String(QLOADNET),NULL,false);
+        M_StartMessage(DEH_String(QLOADNET),nullptr,false);
         return;
     }
 
     if (quickSaveSlot < 0)
     {
-        M_StartMessage(DEH_String(QSAVESPOT),NULL,false);
+        M_StartMessage(DEH_String(QSAVESPOT),nullptr,false);
         return;
     }
     DEH_snprintf(tempstring, 80, QLPROMPT, savegamestrings[quickSaveSlot]);
@@ -909,7 +910,7 @@ void M_DrawReadThis1(void)
 {
     inhelpscreens = true;
 
-    V_DrawPatchDirect (0, 0, W_CacheLumpName(DEH_String("HELP1"), PU_CACHE));
+    V_DrawPatchDirect (0, 0, cacheLumpName<patch_t*>(DEH_String("HELP1"), PU_CACHE));
 }
 
 
@@ -922,7 +923,7 @@ void M_DrawReadThis2(void)
 {
     inhelpscreens = true;
 
-    V_DrawPatchDirect(0, 0, W_CacheLumpName(DEH_String("HELP2"), PU_CACHE));
+    V_DrawPatchDirect(0, 0, cacheLumpName<patch_t*>(DEH_String("HELP2"), PU_CACHE));
 }
 
 
@@ -934,7 +935,7 @@ void M_DrawReadThis3(void)
 {
     inhelpscreens = true;
     
-    V_DrawPatchDirect(0, 0, W_CacheLumpName(DEH_String("HELP3"), PU_CACHE));
+    V_DrawPatchDirect(0, 0, cacheLumpName<patch_t*>(DEH_String("HELP3"), PU_CACHE));
 }
 
 //
@@ -946,7 +947,7 @@ void M_DrawReadThis3(void)
 //
 void M_DrawSound(void)
 {
-    V_DrawPatchDirect (100, 10, W_CacheLumpName(DEH_String("M_SVOL"), PU_CACHE));
+    V_DrawPatchDirect (100, 10, cacheLumpName<patch_t*>(DEH_String("M_SVOL"), PU_CACHE));
 
     M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),
                  16,sfxVolume);
@@ -1034,7 +1035,7 @@ void M_MusicVol(int choice)
 void M_DrawMainMenu(void)
 {
     V_DrawPatchDirect(84, 2,
-                      W_CacheLumpName(DEH_String("M_STRIFE"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_STRIFE"), PU_CACHE));
 }
 
 
@@ -1047,15 +1048,15 @@ void M_DrawMainMenu(void)
 //
 void M_DrawNewGame(void)
 {
-    V_DrawPatchDirect(96, 14, W_CacheLumpName(DEH_String("M_NGAME"), PU_CACHE));
-    V_DrawPatchDirect(54, 38, W_CacheLumpName(DEH_String("M_SKILL"), PU_CACHE));
+    V_DrawPatchDirect(96, 14, cacheLumpName<patch_t*>(DEH_String("M_NGAME"), PU_CACHE));
+    V_DrawPatchDirect(54, 38, cacheLumpName<patch_t*>(DEH_String("M_SKILL"), PU_CACHE));
 }
 
 void M_NewGame(int choice)
 {
     if (netgame && !demoplayback)
     {
-        M_StartMessage(DEH_String(NEWGAME),NULL,false);
+        M_StartMessage(DEH_String(NEWGAME),nullptr,false);
         return;
     }
     // haleyjd 09/07/10: [STRIFE] Removed Chex Quest and DOOM gamemodes
@@ -1075,7 +1076,7 @@ int     epi;
 
 void M_DrawEpisode(void)
 {
-    V_DrawPatchDirect(54, 38, W_CacheLumpName(DEH_String("M_EPISOD"), PU_CACHE));
+    V_DrawPatchDirect(54, 38, cacheLumpName<patch_t*>(DEH_String("M_EPISOD"), PU_CACHE));
 }
 
 void M_VerifyNightmare(int key)
@@ -1105,7 +1106,7 @@ void M_Episode(int choice)
     if ( (gamemode == shareware)
 	 && choice)
     {
-	M_StartMessage(DEH_String(SWSTRING),NULL,false);
+	M_StartMessage(DEH_String(SWSTRING),nullptr,false);
 	M_SetupNextMenu(&ReadDef1);
 	return;
     }
@@ -1136,7 +1137,7 @@ void M_DrawOptions(void)
 {
     // haleyjd 08/27/10: [STRIFE] M_OPTTTL -> M_OPTION
     V_DrawPatchDirect(108, 15, 
-                      W_CacheLumpName(DEH_String("M_OPTION"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_OPTION"), PU_CACHE));
 
     // haleyjd 08/26/10: [STRIFE] Removed messages, sensitivity, detail.
 
@@ -1222,13 +1223,13 @@ void M_EndGame(int choice)
     choice = 0;
     if (!usergame)
     {
-        S_StartSound(NULL,sfx_oof);
+        S_StartSound(nullptr,sfx_oof);
         return;
     }
 
     if (netgame)
     {
-        M_StartMessage(DEH_String(NETEND),NULL,false);
+        M_StartMessage(DEH_String(NETEND),nullptr,false);
         return;
     }
 
@@ -1292,7 +1293,7 @@ void M_CheckStartCast()
 {
     if(usergame)
     {
-        M_StartMessage(DEH_String("You have to end your game first."), NULL, false);
+        M_StartMessage(DEH_String("You have to end your game first."), nullptr, false);
         return;
     }
 
@@ -1429,18 +1430,18 @@ M_DrawThermo
 
     xx = x;
     yy = y + 6; // [STRIFE] +6 to y coordinate
-    V_DrawPatchDirect(xx, yy, W_CacheLumpName(DEH_String("M_THERML"), PU_CACHE));
+    V_DrawPatchDirect(xx, yy, cacheLumpName<patch_t*>(DEH_String("M_THERML"), PU_CACHE));
     xx += 8;
     for (i=0;i<thermWidth;i++)
     {
-        V_DrawPatchDirect(xx, yy, W_CacheLumpName(DEH_String("M_THERMM"), PU_CACHE));
+        V_DrawPatchDirect(xx, yy, cacheLumpName<patch_t*>(DEH_String("M_THERMM"), PU_CACHE));
         xx += 8;
     }
-    V_DrawPatchDirect(xx, yy, W_CacheLumpName(DEH_String("M_THERMR"), PU_CACHE));
+    V_DrawPatchDirect(xx, yy, cacheLumpName<patch_t*>(DEH_String("M_THERMR"), PU_CACHE));
 
     // [STRIFE] +2 to initial y coordinate
     V_DrawPatchDirect((x + 8) + thermDot * 8, y + 2,
-                      W_CacheLumpName(DEH_String("M_THERMO"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_THERMO"), PU_CACHE));
 }
 
 
@@ -1452,7 +1453,7 @@ M_DrawEmptyCell
   int		item )
 {
     V_DrawPatchDirect(menu->x - 10, menu->y + item * LINEHEIGHT - 1, 
-                      W_CacheLumpName(DEH_String("M_CELL1"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_CELL1"), PU_CACHE));
 }
 
 void
@@ -1461,7 +1462,7 @@ M_DrawSelCell
   int		item )
 {
     V_DrawPatchDirect(menu->x - 10, menu->y + item * LINEHEIGHT - 1,
-                      W_CacheLumpName(DEH_String("M_CELL2"), PU_CACHE));
+                      cacheLumpName<patch_t*>(DEH_String("M_CELL2"), PU_CACHE));
 }
 
 
@@ -1738,7 +1739,7 @@ boolean M_Responder (event_t* ev)
         }
         else
         {
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             M_QuitStrife(0);
         }
 
@@ -1947,7 +1948,7 @@ boolean M_Responder (event_t* ev)
 
         menupause = false;                // [STRIFE] unpause
         menuactive = false;
-        S_StartSound(NULL, sfx_mtalht);   // [STRIFE] sound
+        S_StartSound(nullptr, sfx_mtalht);   // [STRIFE] sound
         return true;
     }
 
@@ -1971,7 +1972,7 @@ boolean M_Responder (event_t* ev)
             if (automapactive || chat_on)
                 return false;
             M_SizeDisplay(0);
-            S_StartSound(NULL, sfx_stnmov);
+            S_StartSound(nullptr, sfx_stnmov);
             return true;
         }
         else if (key == key_menu_incscreen) // Screen size up
@@ -1979,7 +1980,7 @@ boolean M_Responder (event_t* ev)
             if (automapactive || chat_on)
                 return false;
             M_SizeDisplay(1);
-            S_StartSound(NULL, sfx_stnmov);
+            S_StartSound(nullptr, sfx_stnmov);
             return true;
         }
         else if (key == key_menu_help)     // Help key
@@ -1989,7 +1990,7 @@ boolean M_Responder (event_t* ev)
             currentMenu = &ReadDef1; 
 
             itemOn = 0;
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             return true;
         }
         else if (key == key_menu_save)     // Save
@@ -2001,12 +2002,12 @@ boolean M_Responder (event_t* ev)
             if(netgame || players[consoleplayer].health <= 0 ||
                 players[consoleplayer].cheats & CF_ONFIRE)
             {
-                S_StartSound(NULL, sfx_oof);
+                S_StartSound(nullptr, sfx_oof);
             }
             else
             {
                 M_StartControlPanel();
-                S_StartSound(NULL, sfx_swtchn);
+                S_StartSound(nullptr, sfx_swtchn);
                 M_SaveGame(0);
             }
             return true;
@@ -2020,12 +2021,12 @@ boolean M_Responder (event_t* ev)
                 namingCharacter = false;
                 M_StartControlPanel();
                 M_LoadGame(0);
-                S_StartSound(NULL, sfx_swtchn);
+                S_StartSound(nullptr, sfx_swtchn);
             }
             else
             {
                 // Pre 1.31: quickload only
-                S_StartSound(NULL, sfx_swtchn);
+                S_StartSound(nullptr, sfx_swtchn);
                 M_QuickLoad();
             }
             return true;
@@ -2035,14 +2036,14 @@ boolean M_Responder (event_t* ev)
             M_StartControlPanel ();
             currentMenu = &SoundDef;
             itemOn = sfx_vol;
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             return true;
         }
         else if (key == key_menu_detail)   // Detail toggle
         {
             //M_ChangeDetail(0);
             M_AutoUseHealth(); // [STRIFE]
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             return true;
         }
         else if (key == key_menu_qsave)    // Quicksave
@@ -2054,18 +2055,18 @@ boolean M_Responder (event_t* ev)
             if(netgame || players[consoleplayer].health <= 0 ||
                players[consoleplayer].cheats & CF_ONFIRE)
             {
-                S_StartSound(NULL, sfx_oof);
+                S_StartSound(nullptr, sfx_oof);
             }
             else
             {
-                S_StartSound(NULL, sfx_swtchn);
+                S_StartSound(nullptr, sfx_swtchn);
                 M_QuickSave();
             }
             return true;
         }
         else if (key == key_menu_endgame)  // End game
         {
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             M_EndGame(0);
             return true;
         }
@@ -2073,7 +2074,7 @@ boolean M_Responder (event_t* ev)
         {
             //M_ChangeMessages(0);
             M_ChangeShowText(); // [STRIFE]
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             return true;
         }
         else if (key == key_menu_qload)    // Quickload
@@ -2084,7 +2085,7 @@ boolean M_Responder (event_t* ev)
             if(gameversion == exe_strife_1_31)
             {
                 namingCharacter = false;
-                S_StartSound(NULL, sfx_swtchn);
+                S_StartSound(nullptr, sfx_swtchn);
                 M_QuickLoad();
             }
             else
@@ -2093,7 +2094,7 @@ boolean M_Responder (event_t* ev)
         }
         else if (key == key_menu_quit)     // Quit DOOM
         {
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             M_QuitStrife(0);
             return true;
         }
@@ -2103,7 +2104,7 @@ boolean M_Responder (event_t* ev)
             if (usegamma > 4+4) // [crispy] intermediate gamma levels
                 usegamma = 0;
             players[consoleplayer].message = DEH_String(gammamsg[usegamma]);
-            I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+            I_SetPalette (cacheLumpName<byte*> (DEH_String("PLAYPAL"),PU_CACHE));
             return true;
         }
         else if(gameversion == exe_strife_1_31 && key == key_spy)
@@ -2125,7 +2126,7 @@ boolean M_Responder (event_t* ev)
         if (key == key_menu_activate)
         {
             M_StartControlPanel ();
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
             return true;
         }
         return false;
@@ -2143,7 +2144,7 @@ boolean M_Responder (event_t* ev)
             if (itemOn+1 > currentMenu->numitems-1)
                 itemOn = 0;
             else itemOn++;
-            S_StartSound(NULL, sfx_pstop);
+            S_StartSound(nullptr, sfx_pstop);
         } while(currentMenu->menuitems[itemOn].status==-1);
 
         return true;
@@ -2157,7 +2158,7 @@ boolean M_Responder (event_t* ev)
             if (!itemOn)
                 itemOn = currentMenu->numitems-1;
             else itemOn--;
-            S_StartSound(NULL, sfx_pstop);
+            S_StartSound(nullptr, sfx_pstop);
         } while(currentMenu->menuitems[itemOn].status==-1);
 
         return true;
@@ -2169,7 +2170,7 @@ boolean M_Responder (event_t* ev)
         if (currentMenu->menuitems[itemOn].routine &&
             currentMenu->menuitems[itemOn].status == 2)
         {
-            S_StartSound(NULL, sfx_stnmov);
+            S_StartSound(nullptr, sfx_stnmov);
             currentMenu->menuitems[itemOn].routine(0);
         }
         return true;
@@ -2181,7 +2182,7 @@ boolean M_Responder (event_t* ev)
         if (currentMenu->menuitems[itemOn].routine &&
             currentMenu->menuitems[itemOn].status == 2)
         {
-            S_StartSound(NULL, sfx_stnmov);
+            S_StartSound(nullptr, sfx_stnmov);
             currentMenu->menuitems[itemOn].routine(1);
         }
         return true;
@@ -2197,12 +2198,12 @@ boolean M_Responder (event_t* ev)
             if (currentMenu->menuitems[itemOn].status == 2)
             {
                 currentMenu->menuitems[itemOn].routine(1);      // right arrow
-                S_StartSound(NULL, sfx_stnmov);
+                S_StartSound(nullptr, sfx_stnmov);
             }
             else
             {
                 currentMenu->menuitems[itemOn].routine(itemOn);
-                //S_StartSound(NULL, sfx_swish); [STRIFE] No sound is played here.
+                //S_StartSound(nullptr, sfx_swish); [STRIFE] No sound is played here.
             }
         }
         return true;
@@ -2218,7 +2219,7 @@ boolean M_Responder (event_t* ev)
 
         currentMenu->lastOn = itemOn;
         M_ClearMenus (0);
-        S_StartSound(NULL, sfx_mtalht); // villsa [STRIFE]: sounds
+        S_StartSound(nullptr, sfx_mtalht); // villsa [STRIFE]: sounds
         return true;
     }
     else if (key == key_menu_back)
@@ -2230,7 +2231,7 @@ boolean M_Responder (event_t* ev)
         {
             currentMenu = currentMenu->prevMenu;
             itemOn = currentMenu->lastOn;
-            S_StartSound(NULL, sfx_swtchn);
+            S_StartSound(nullptr, sfx_swtchn);
         }
         return true;
     }
@@ -2248,7 +2249,7 @@ boolean M_Responder (event_t* ev)
             if (currentMenu->menuitems[i].alphaKey == ch)
             {
                 itemOn = i;
-                S_StartSound(NULL, sfx_pstop);
+                S_StartSound(nullptr, sfx_pstop);
                 return true;
             }
         }
@@ -2258,7 +2259,7 @@ boolean M_Responder (event_t* ev)
             if (currentMenu->menuitems[i].alphaKey == ch)
             {
                 itemOn = i;
-                S_StartSound(NULL, sfx_pstop);
+                S_StartSound(nullptr, sfx_pstop);
                 return true;
             }
         }
@@ -2360,7 +2361,7 @@ void M_Drawer (void)
 
         if (name[0])
         {
-            V_DrawPatchDirect (x, y, W_CacheLumpName(name, PU_CACHE));
+            V_DrawPatchDirect (x, y, cacheLumpName<patch_t*>(name, PU_CACHE));
         }
         y += LINEHEIGHT;
     }
@@ -2369,7 +2370,7 @@ void M_Drawer (void)
     // haleyjd 08/27/10: [STRIFE] Adjust to draw spinning Sigil
     // DRAW SIGIL
     V_DrawPatchDirect(x + CURSORXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,
-                      W_CacheLumpName(DEH_String(cursorName[whichCursor]),
+                      cacheLumpName<patch_t*>(DEH_String(cursorName[whichCursor]),
                                       PU_CACHE));
 
 }
@@ -2430,7 +2431,7 @@ void M_Init (void)
     cursorAnimCounter = 10;
     screenSize = screenblocks - 3;
     messageToPrint = 0;
-    messageString = NULL;
+    messageString = nullptr;
     messageLastMenuActive = menuactive; // STRIFE-FIXME: assigns 0 here...
     quickSaveSlot = -1;
 

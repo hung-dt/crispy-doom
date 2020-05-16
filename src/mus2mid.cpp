@@ -16,7 +16,7 @@
 // mus2mid.c - Ben Ryves 2006 - http://benryves.com - benryves@benryves.com
 // Use to convert a MUS file into a single track, type 0 MIDI file.
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "doomtype.h"
 #include "i_swap.h"
@@ -30,7 +30,7 @@
 #define MUS_PERCUSSION_CHAN 15
 
 // MUS event codes
-typedef enum
+enum musevent
 {
     mus_releasekey = 0x00,
     mus_presskey = 0x10,
@@ -38,7 +38,7 @@ typedef enum
     mus_systemevent = 0x30,
     mus_changecontroller = 0x40,
     mus_scoreend = 0x60
-} musevent;
+};
 
 // MIDI event codes
 typedef enum
@@ -346,7 +346,7 @@ static boolean WriteChangeController_Valueless(byte channel,
 
 // Allocate a free MIDI channel.
 
-static int AllocateMIDIChannel(void)
+static int AllocateMIDIChannel()
 {
     int result;
     int max;
@@ -523,7 +523,7 @@ boolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
             }
 
             channel = GetMIDIChannel(eventdescriptor & 0x0F, midioutput);
-            event = eventdescriptor & 0x70;
+            event = static_cast<musevent>(eventdescriptor & 0x70u);
 
             switch (event)
             {

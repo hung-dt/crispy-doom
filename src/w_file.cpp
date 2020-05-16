@@ -16,7 +16,7 @@
 //	WAD I/O functions.
 //
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "config.h"
 
@@ -65,13 +65,13 @@ wad_file_t *W_OpenFile(const char *path)
 
     // Try all classes in order until we find one that works
 
-    result = NULL;
+    result = nullptr;
 
     for (i=0; i<arrlen(wad_file_classes); ++i)
     {
         result = wad_file_classes[i]->OpenFile(path);
 
-        if (result != NULL)
+        if (result != nullptr)
         {
             break;
         }

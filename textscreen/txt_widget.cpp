@@ -12,13 +12,18 @@
 // GNU General Public License for more details.
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "txt_io.h"
 #include "txt_widget.h"
 #include "txt_gui.h"
 #include "txt_desktop.h"
+
+#include "../utils/memory.h"
+
+#include <vector>
+#include <memory>
 
 typedef struct
 {
@@ -29,46 +34,20 @@ typedef struct
 
 struct txt_callback_table_s
 {
-    int refcount;
-    txt_callback_t *callbacks;
-    int num_callbacks;
+    std::vector<txt_callback_t> callbacks;
+
+    ~txt_callback_table_s()
+    {
+        for (auto& cb : callbacks)
+        {
+            free(cb.signal_name);
+        }
+    }
 };
 
-txt_callback_table_t *TXT_NewCallbackTable(void)
+std::shared_ptr<txt_callback_table_t> TXT_NewCallbackTable()
 {
-    txt_callback_table_t *table;
-
-    table = malloc(sizeof(txt_callback_table_t));
-    table->callbacks = NULL;
-    table->num_callbacks = 0;
-    table->refcount = 1;
-
-    return table;
-}
-
-void TXT_RefCallbackTable(txt_callback_table_t *table)
-{
-    ++table->refcount;
-}
-
-void TXT_UnrefCallbackTable(txt_callback_table_t *table)
-{
-    int i;
-
-    --table->refcount;
-
-    if (table->refcount == 0)
-    {
-        // No more references to this table
-
-        for (i=0; i<table->num_callbacks; ++i)
-        {
-            free(table->callbacks[i].signal_name);
-        }
-    
-        free(table->callbacks);
-        free(table);
-    }
+    return std::make_shared<txt_callback_table_t>();
 }
 
 void TXT_InitWidget(TXT_UNCAST_ARG(widget), txt_widget_class_t *widget_class)
@@ -77,7 +56,7 @@ void TXT_InitWidget(TXT_UNCAST_ARG(widget), txt_widget_class_t *widget_class)
 
     widget->widget_class = widget_class;
     widget->callback_table = TXT_NewCallbackTable();
-    widget->parent = NULL;
+    widget->parent = nullptr;
 
     // Not focused until we hear otherwise.
 
@@ -98,51 +77,33 @@ void TXT_SignalConnect(TXT_UNCAST_ARG(widget),
                        void *user_data)
 {
     TXT_CAST_ARG(txt_widget_t, widget);
-    txt_callback_table_t *table;
-    txt_callback_t *callback;
 
-    table = widget->callback_table;
+    auto& table = widget->callback_table;
 
     // Add a new callback to the table
+    auto& callback = table->callbacks.emplace_back();
 
-    table->callbacks 
-            = realloc(table->callbacks,
-                      sizeof(txt_callback_t) * (table->num_callbacks + 1));
-    callback = &table->callbacks[table->num_callbacks];
-    ++table->num_callbacks;
-
-    callback->signal_name = strdup(signal_name);
-    callback->func = func;
-    callback->user_data = user_data;
+    callback.signal_name = strdup(signal_name);
+    callback.func = func;
+    callback.user_data = user_data;
 }
 
 void TXT_EmitSignal(TXT_UNCAST_ARG(widget), const char *signal_name)
 {
     TXT_CAST_ARG(txt_widget_t, widget);
-    txt_callback_table_t *table;
-    int i;
 
-    table = widget->callback_table;
-
-    // Don't destroy the table while we're searching through it
-    // (one of the callbacks may destroy this window)
-
-    TXT_RefCallbackTable(table);
+    auto& table = widget->callback_table;
 
     // Search the table for all callbacks with this name and invoke
     // the functions.
 
-    for (i=0; i<table->num_callbacks; ++i)
+    for ( auto& cb : table->callbacks )
     {
-        if (!strcmp(table->callbacks[i].signal_name, signal_name))
+        if (!strcmp(cb.signal_name, signal_name))
         {
-            table->callbacks[i].func(widget, table->callbacks[i].user_data);
+            cb.func(widget, cb.user_data);
         }
     }
-
-    // Finished using the table
-
-    TXT_UnrefCallbackTable(table);
 }
 
 void TXT_CalcWidgetSize(TXT_UNCAST_ARG(widget))
@@ -178,7 +139,6 @@ void TXT_DestroyWidget(TXT_UNCAST_ARG(widget))
     TXT_CAST_ARG(txt_widget_t, widget);
 
     widget->widget_class->destructor(widget);
-    TXT_UnrefCallbackTable(widget->callback_table);
     free(widget);
 }
 
@@ -186,7 +146,7 @@ int TXT_WidgetKeyPress(TXT_UNCAST_ARG(widget), int key)
 {
     TXT_CAST_ARG(txt_widget_t, widget);
 
-    if (widget->widget_class->key_press != NULL)
+    if (widget->widget_class->key_press != nullptr)
     {
         return widget->widget_class->key_press(widget, key);
     }
@@ -198,7 +158,7 @@ void TXT_SetWidgetFocus(TXT_UNCAST_ARG(widget), int focused)
 {
     TXT_CAST_ARG(txt_widget_t, widget);
 
-    if (widget == NULL)
+    if (widget == nullptr)
     {
         return;
     }
@@ -207,7 +167,7 @@ void TXT_SetWidgetFocus(TXT_UNCAST_ARG(widget), int focused)
     {
         widget->focused = focused;
 
-        if (widget->widget_class->focus_change != NULL)
+        if (widget->widget_class->focus_change != nullptr)
         {
             widget->widget_class->focus_change(widget, focused);
         }
@@ -225,7 +185,7 @@ void TXT_WidgetMousePress(TXT_UNCAST_ARG(widget), int x, int y, int b)
 {
     TXT_CAST_ARG(txt_widget_t, widget);
 
-    if (widget->widget_class->mouse_press != NULL)
+    if (widget->widget_class->mouse_press != nullptr)
     {
         widget->widget_class->mouse_press(widget, x, y, b);
     }
@@ -235,7 +195,7 @@ void TXT_LayoutWidget(TXT_UNCAST_ARG(widget))
 {
     TXT_CAST_ARG(txt_widget_t, widget);
 
-    if (widget->widget_class->layout != NULL)
+    if (widget->widget_class->layout != nullptr)
     {
         widget->widget_class->layout(widget);
     }
@@ -255,7 +215,7 @@ int TXT_SelectableWidget(TXT_UNCAST_ARG(widget))
 {
     TXT_CAST_ARG(txt_widget_t, widget);
 
-    if (widget->widget_class->selectable != NULL)
+    if (widget->widget_class->selectable != nullptr)
     {
         return widget->widget_class->selectable(widget);
     }
@@ -270,7 +230,7 @@ int TXT_ContainsWidget(TXT_UNCAST_ARG(haystack), TXT_UNCAST_ARG(needle))
     TXT_CAST_ARG(txt_widget_t, haystack);
     TXT_CAST_ARG(txt_widget_t, needle);
 
-    while (needle != NULL)
+    while (needle != nullptr)
     {
         if (needle == haystack)
         {
@@ -293,7 +253,7 @@ int TXT_HoveringOverWidget(TXT_UNCAST_ARG(widget))
 
     active_window = TXT_GetActiveWindow();
 
-    if (active_window == NULL || !TXT_ContainsWidget(active_window, widget))
+    if (active_window == nullptr || !TXT_ContainsWidget(active_window, widget))
     {
         return 0;
     }

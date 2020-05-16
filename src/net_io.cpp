@@ -16,12 +16,13 @@
 //     through the network module system
 //
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "i_system.h"
 #include "net_defs.h"
 #include "net_io.h"
 #include "z_zone.h"
+#include "../utils/memory.h"
 
 #define MAX_MODULES 16
 
@@ -33,11 +34,9 @@ struct _net_context_s
 
 net_addr_t net_broadcast_addr;
 
-net_context_t *NET_NewContext(void)
+net_context_t *NET_NewContext()
 {
-    net_context_t *context;
-
-    context = Z_Malloc(sizeof(net_context_t), PU_STATIC, 0);
+    auto* context = zmalloc<net_context_t*>(sizeof(net_context_t), PU_STATIC, 0);
     context->num_modules = 0;
 
     return context;
@@ -63,14 +62,14 @@ net_addr_t *NET_ResolveAddress(net_context_t *context, const char *addr)
     {
         result = context->modules[i]->ResolveAddress(addr);
 
-        if (result != NULL)
+        if (result != nullptr)
         {
             NET_ReferenceAddress(result);
             return result;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void NET_SendPacket(net_addr_t *addr, net_packet_t *packet)
@@ -122,7 +121,7 @@ char *NET_AddrToString(net_addr_t *addr)
 
 void NET_ReferenceAddress(net_addr_t *addr)
 {
-    if (addr == NULL)
+    if (addr == nullptr)
     {
         return;
     }
@@ -132,7 +131,7 @@ void NET_ReferenceAddress(net_addr_t *addr)
 
 void NET_ReleaseAddress(net_addr_t *addr)
 {
-    if (addr == NULL)
+    if (addr == nullptr)
     {
         return;
     }

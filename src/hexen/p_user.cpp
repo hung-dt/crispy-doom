@@ -21,6 +21,8 @@
 #include "p_local.h"
 #include "s_sound.h"
 
+#include "../../utils/lump.h"
+
 void P_PlayerNextArtifact(player_t * player);
 
 // Macros
@@ -229,9 +231,9 @@ void P_MovePlayer(player_t * player)
     }
     if (cmd->forwardmove || cmd->sidemove)
     {
-        if (player->mo->state == &states[PStateNormal[player->class]])
+        if (player->mo->state == &states[PStateNormal[player->pclass]])
         {
-            P_SetMobjState(player->mo, PStateRun[player->class]);
+            P_SetMobjState(player->mo, static_cast<statenum_t>(PStateRun[player->pclass]));
         }
     }
 
@@ -418,14 +420,14 @@ void P_DeathThink(player_t * player)
     {
         if (player == &players[consoleplayer])
         {
-            I_SetPalette((byte *) W_CacheLumpName("PLAYPAL", PU_CACHE));
+            I_SetPalette((byte *) cacheLumpName<byte*>("PLAYPAL", PU_CACHE));
             inv_ptr = 0;
             curpos = 0;
             newtorch = 0;
             newtorchdelta = 0;
         }
         player->playerstate = PST_REBORN;
-        player->mo->special1.i = player->class;
+        player->mo->special1.i = player->pclass;
         if (player->mo->special1.i > 2)
         {
             player->mo->special1.i = 0;
@@ -535,7 +537,7 @@ boolean P_UndoPlayerMorph(player_t * player)
             break;
         default:
             I_Error("P_UndoPlayerMorph:  Unknown player class %d\n",
-                    player->class);
+                    player->pclass);
             return false;
     }
     if (P_TestMobjLocation(mo) == false)
@@ -552,7 +554,7 @@ boolean P_UndoPlayerMorph(player_t * player)
         player->morphTics = 2 * 35;
         return (false);
     }
-    if (player->class == PCLASS_FIGHTER)
+    if (player->pclass == PCLASS_FIGHTER)
     {
         // The first type should be blue, and the third should be the
         // Fighter's original gold color
@@ -580,7 +582,7 @@ boolean P_UndoPlayerMorph(player_t * player)
     player->morphTics = 0;
     player->health = mo->health = MAXHEALTH;
     player->mo = mo;
-    player->class = PlayerClass[playerNum];
+    player->pclass = PlayerClass[playerNum];
     angle >>= ANGLETOFINESHIFT;
     fog = P_SpawnMobj(x + 20 * finecosine[angle],
                       y + 20 * finesine[angle], z + TELEFOGHEIGHT, MT_TFOG);
@@ -666,7 +668,7 @@ void P_PlayerThink(player_t * player)
             {
                 speedMo->angle = pmo->angle;
                 playerNum = P_GetPlayerNum(player);
-                if (player->class == PCLASS_FIGHTER)
+                if (player->pclass == PCLASS_FIGHTER)
                 {
                     // The first type should be blue, and the 
                     // third should be the Fighter's original gold color
@@ -684,7 +686,7 @@ void P_PlayerThink(player_t * player)
                     speedMo->flags |= playerNum << MF_TRANSSHIFT;
                 }
                 speedMo->target = pmo;
-                speedMo->special1.i = player->class;
+                speedMo->special1.i = player->pclass;
                 if (speedMo->special1.i > 2)
                 {
                     speedMo->special1.i = 0;
@@ -707,7 +709,7 @@ void P_PlayerThink(player_t * player)
     {
         P_PlayerOnSpecialFlat(player, floorType);
     }
-    switch (player->class)
+    switch (player->pclass)
     {
         case PCLASS_FIGHTER:
             if (player->mo->momz <= -35 * FRACUNIT
@@ -756,7 +758,7 @@ void P_PlayerThink(player_t * player)
         }
         else if (cmd->arti & AFLAG_SUICIDE)
         {
-            P_DamageMobj(player->mo, NULL, NULL, 10000);
+            P_DamageMobj(player->mo, nullptr, nullptr, 10000);
         }
         if (cmd->arti == NUMARTIFACTS)
         {                       // use one of each artifact (except puzzle artifacts)
@@ -815,7 +817,7 @@ void P_PlayerThink(player_t * player)
     // Other Counters
     if (player->powers[pw_invulnerability])
     {
-        if (player->class == PCLASS_CLERIC)
+        if (player->pclass == PCLASS_CLERIC)
         {
             if (!(leveltime & 7) && player->mo->flags & MF_SHADOW
                 && !(player->mo->flags2 & MF2_DONTDRAW))
@@ -850,7 +852,7 @@ void P_PlayerThink(player_t * player)
         if (!(--player->powers[pw_invulnerability]))
         {
             player->mo->flags2 &= ~(MF2_INVULNERABLE | MF2_REFLECTIVE);
-            if (player->class == PCLASS_CLERIC)
+            if (player->pclass == PCLASS_CLERIC)
             {
                 player->mo->flags2 &= ~(MF2_DONTDRAW | MF2_NONSHOOTABLE);
                 player->mo->flags &= ~(MF_SHADOW | MF_ALTSHADOW);
@@ -989,7 +991,7 @@ void P_ArtiTele(player_t * player)
     {                           // Teleporting away will undo any morph effects (pig)
         P_UndoPlayerMorph(player);
     }
-    //S_StartSound(NULL, sfx_wpnup); // Full volume laugh
+    //S_StartSound(nullptr, sfx_wpnup); // Full volume laugh
 }
 
 
@@ -1028,7 +1030,7 @@ void P_TeleportToPlayerStarts(mobj_t * victim)
     destY = playerstarts[0][i].y << FRACBITS;
     destAngle = ANG45 * (playerstarts[0][i].angle / 45);
     P_Teleport(victim, destX, destY, destAngle, true);
-    //S_StartSound(NULL, sfx_wpnup); // Full volume laugh
+    //S_StartSound(nullptr, sfx_wpnup); // Full volume laugh
 }
 
 void P_TeleportToDeathmatchStarts(mobj_t * victim)
@@ -1045,7 +1047,7 @@ void P_TeleportToDeathmatchStarts(mobj_t * victim)
         destY = deathmatchstarts[i].y << FRACBITS;
         destAngle = ANG45 * (deathmatchstarts[i].angle / 45);
         P_Teleport(victim, destX, destY, destAngle, true);
-        //S_StartSound(NULL, sfx_wpnup); // Full volume laugh
+        //S_StartSound(nullptr, sfx_wpnup); // Full volume laugh
     }
     else
     {
@@ -1076,7 +1078,7 @@ void P_TeleportOther(mobj_t * victim)
         {
             P_RemoveMobjFromTIDList(victim);
             P_ExecuteLineSpecial(victim->special, victim->args,
-                                 NULL, 0, victim);
+                                 nullptr, 0, victim);
             victim->special = 0;
         }
 
@@ -1280,7 +1282,7 @@ boolean P_HealRadius(player_t * player)
             continue;
         }
 
-        switch (player->class)
+        switch (player->pclass)
         {
             case PCLASS_FIGHTER:       // Radius armor boost
                 if ((P_GiveArmor(mo->player, ARMOR_ARMOR, 1)) ||
@@ -1418,11 +1420,11 @@ void P_PlayerUseArtifact(player_t * player, artitype_t arti)
                 {
                     if (arti < arti_firstpuzzitem)
                     {
-                        S_StartSound(NULL, SFX_ARTIFACT_USE);
+                        S_StartSound(nullptr, SFX_ARTIFACT_USE);
                     }
                     else
                     {
-                        S_StartSound(NULL, SFX_PUZZLE_SUCCESS);
+                        S_StartSound(nullptr, SFX_PUZZLE_SUCCESS);
                     }
                     ArtifactFlash = 4;
                 }
@@ -1518,7 +1520,7 @@ boolean P_UseArtifact(player_t * player, artitype_t arti)
             break;
         case arti_poisonbag:
             angle = player->mo->angle >> ANGLETOFINESHIFT;
-            if (player->class == PCLASS_CLERIC)
+            if (player->pclass == PCLASS_CLERIC)
             {
                 mo = P_SpawnMobj(player->mo->x + 16 * finecosine[angle],
                                  player->mo->y + 24 * finesine[angle],
@@ -1529,7 +1531,7 @@ boolean P_UseArtifact(player_t * player, artitype_t arti)
                     mo->target = player->mo;
                 }
             }
-            else if (player->class == PCLASS_MAGE)
+            else if (player->pclass == PCLASS_MAGE)
             {
                 mo = P_SpawnMobj(player->mo->x + 16 * finecosine[angle],
                                  player->mo->y + 24 * finesine[angle],

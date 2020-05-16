@@ -20,8 +20,8 @@
 #ifndef __DOOMDEF__
 #define __DOOMDEF__
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "doomtype.h"
 #include "i_timer.h"
@@ -46,14 +46,15 @@
 
 // The current state of the game: whether we are
 // playing, gazing at the intermission screen,
-// the game final animation, or a demo. 
-typedef enum
+// the game final animation, or a demo.
+enum gamestate_t
 {
     GS_LEVEL,
     GS_INTERMISSION,
     GS_FINALE,
     GS_DEMOSCREEN,
-} gamestate_t;
+    GS_INVALID = -1
+};
 
 typedef enum
 {

@@ -18,9 +18,7 @@
 //	Does palette indicators as well (red pain/berserk, bright pickup)
 //
 
-
-
-#include <stdio.h>
+#include <cstdio>
 #include <ctype.h>
 
 #include "i_swap.h" // [crispy] SHORT()
@@ -62,6 +60,9 @@
 #include "sounds.h"
 
 #include "v_trans.h" // [crispy] colored cheat messages
+
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 extern int screenblocks; // [crispy] for the Crispy HUD
 extern boolean inhelpscreens; // [crispy] prevent palette changes
@@ -490,7 +491,7 @@ void ST_refreshBackground(boolean force)
 		pixel_t *dest;
 		const char *name = (gamemode == commercial) ? DEH_String("GRNROCK") : DEH_String("FLOOR7_2");
 
-		src = W_CacheLumpName(name, PU_CACHE);
+		src = cacheLumpName<byte*>(name, PU_CACHE);
 		dest = st_backing_screen;
 
 		for (y = SCREENHEIGHT-(ST_HEIGHT<<crispy->hires); y < SCREENHEIGHT; y++)
@@ -543,7 +544,7 @@ static int ST_cheat_massacre()
 	    {
 		if (mo->health > 0)
 		{
-		    P_DamageMobj(mo, NULL, NULL, 10000);
+		    P_DamageMobj(mo, nullptr, nullptr, 10000);
 		    killcount++;
 		}
 		if (mo->type == MT_PAIN)
@@ -988,12 +989,12 @@ ST_Responder (event_t* ev)
 
 				if (mo->target && mo->target->player)
 				{
-					mo->target = NULL;
+					mo->target = nullptr;
 				}
 
 				if (mo->tracer && mo->tracer->player)
 				{
-					mo->tracer = NULL;
+					mo->tracer = nullptr;
 				}
 			}
 		}
@@ -1002,7 +1003,7 @@ ST_Responder (event_t* ev)
 		{
 			sector_t *const sector = &sectors[i];
 
-			sector->soundtarget = NULL;
+			sector->soundtarget = nullptr;
 		}
 	}
 
@@ -1079,7 +1080,7 @@ ST_Responder (event_t* ev)
 	    if (!plyr->powers[pw_strength])
 	    {
 		P_GivePower(plyr, pw_strength);
-		S_StartSound(NULL, sfx_getpow);
+		S_StartSound(nullptr, sfx_getpow);
 		plyr->message = DEH_String(GOTBERSERK);
 	    }
 	    else
@@ -1095,8 +1096,8 @@ ST_Responder (event_t* ev)
 		extern boolean P_GiveWeapon (player_t* player, weapontype_t weapon, boolean dropped);
 		extern const char *const WeaponPickupMessages[NUMWEAPONS];
 
-		P_GiveWeapon(plyr, w, false);
-		S_StartSound(NULL, sfx_wpnup);
+		P_GiveWeapon(plyr, static_cast<weapontype_t>(w), false);
+		S_StartSound(nullptr, sfx_wpnup);
 
 		if (w > 1)
 		{
@@ -1581,7 +1582,7 @@ void ST_updateWidgets(void)
 #if defined(CRISPY_KEYBLINK_WITH_SOUND)
 		if (!(plyr->tryopen[i] & (2*KEYBLINKMASK-1)))
 		{
-			S_StartSound(NULL, sfx_itemup);
+			S_StartSound(nullptr, sfx_itemup);
 		}
 #endif
 #if defined(CRISPY_KEYBLINK_IN_CLASSIC_HUD)
@@ -1590,7 +1591,7 @@ void ST_updateWidgets(void)
 			st_firsttime = true;
 		}
 #endif
-		plyr->tryopen[i]--;
+		plyr->tryopen[i] = false;
 #if !defined(CRISPY_KEYBLINK_IN_CLASSIC_HUD)
 		if (st_crispyhud)
 #endif
@@ -1718,7 +1719,7 @@ void ST_doPaletteStuff(void)
     {
 	st_palette = palette;
 #ifndef CRISPY_TRUECOLOR
-	pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+palette*768;
+	pal = cacheLumpNum<byte*> (lu_palette, PU_CACHE)+palette*768;
 	I_SetPalette (pal);
 #else
 	I_SetPalette (palette);
@@ -1739,7 +1740,7 @@ enum
 static byte* ST_WidgetColor(int i)
 {
     if (!(crispy->coloredhud & COLOREDHUD_BAR))
-        return NULL;
+        return nullptr;
 
     switch (i)
     {
@@ -1747,7 +1748,7 @@ static byte* ST_WidgetColor(int i)
         {
             if (weaponinfo[plyr->readyweapon].ammo == am_noammo)
             {
-                return NULL;
+                return nullptr;
             }
             else
             {
@@ -1827,7 +1828,7 @@ static byte* ST_WidgetColor(int i)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 // [crispy] draw the gibbed death state frames in the Health widget
@@ -1848,7 +1849,7 @@ static inline void ST_DrawGibbedPlayerSprites (void)
 	}
 
 	sprframe = &sprdef->spriteframes[state->frame & FF_FRAMEMASK];
-	patch = W_CacheLumpNum(sprframe->lump[0] + firstspritelump, PU_CACHE);
+	patch = cacheLumpNum<patch_t*>(sprframe->lump[0] + firstspritelump, PU_CACHE);
 
 	if (plyr->mo->flags & MF_TRANSLATION)
 	{
@@ -1857,7 +1858,7 @@ static inline void ST_DrawGibbedPlayerSprites (void)
 	}
 
 	V_DrawPatch(ST_HEALTHX - 17, 186, patch);
-	dp_translation = NULL;
+	dp_translation = nullptr;
 }
 
 void ST_drawWidgets(boolean refresh)
@@ -1873,7 +1874,7 @@ void ST_drawWidgets(boolean refresh)
 
     dp_translation = ST_WidgetColor(hudcolor_ammo);
     STlib_updateNum(&w_ready, refresh);
-    dp_translation = NULL;
+    dp_translation = nullptr;
 
     // [crispy] draw "special widgets" in the Crispy HUD
     if (st_crispyhud)
@@ -1894,7 +1895,7 @@ void ST_drawWidgets(boolean refresh)
 			}
 		}
 
-		patch = W_CacheLumpNum(lump, PU_CACHE);
+		patch = cacheLumpNum<patch_t*>(lump, PU_CACHE);
 
 		// [crispy] (23,179) is the center of the Ammo widget
 		V_DrawPatch(ST_AMMOX - 21 - SHORT(patch->width)/2 + SHORT(patch->leftoffset),
@@ -1927,7 +1928,7 @@ void ST_drawWidgets(boolean refresh)
     }
     dp_translation = ST_WidgetColor(hudcolor_armor);
     STlib_updatePercent(&w_armor, refresh);
-    dp_translation = NULL;
+    dp_translation = nullptr;
 
     STlib_updateBinIcon(&w_armsbg, refresh);
 
@@ -1951,7 +1952,7 @@ void ST_drawWidgets(boolean refresh)
     dp_translation = ST_WidgetColor(hudcolor_frags);
     STlib_updateNum(&w_frags, refresh);
 
-    dp_translation = NULL;
+    dp_translation = nullptr;
 }
 
 void ST_doRefresh(void)
@@ -2069,7 +2070,7 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
     if (W_CheckNumForName("STBAR") >= 0)
     {
         callback(DEH_String("STBAR"), &sbar);
-        sbarr = NULL;
+        sbarr = nullptr;
     }
     else
     {
@@ -2112,7 +2113,7 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
 
 static void ST_loadCallback(const char *lumpname, patch_t **variable)
 {
-    *variable = W_CacheLumpName(lumpname, PU_STATIC);
+    *variable = cacheLumpName<patch_t*>(lumpname, PU_STATIC);
 }
 
 void ST_loadGraphics(void)
@@ -2137,14 +2138,14 @@ void ST_loadData(void)
 	DEH_snprintf(lumpname, 9, "STKEYS%d", i);
 	lumpnum = W_CheckNumForName(lumpname);
 
-	keys[i] = (lumpnum != -1) ? W_CacheLumpNum(lumpnum, PU_STATIC) : keys[i-3];
+	keys[i] = (lumpnum != -1) ? cacheLumpNum<patch_t*>(lumpnum, PU_STATIC) : keys[i-3];
     }
 }
 
 static void ST_unloadCallback(const char *lumpname, patch_t **variable)
 {
     W_ReleaseLumpName(lumpname);
-    *variable = NULL;
+    *variable = nullptr;
 }
 
 void ST_unloadGraphics(void)
@@ -2377,7 +2378,7 @@ void ST_Start (void)
 	char namebuf[8];
 
 	DEH_snprintf(namebuf, 7, "STFB%d", consoleplayer);
-	faceback = W_CacheLumpName(namebuf, PU_STATIC);
+	faceback = cacheLumpName<patch_t*>(namebuf, PU_STATIC);
     }
 }
 
@@ -2387,7 +2388,7 @@ void ST_Stop (void)
 	return;
 
 #ifndef CRISPY_TRUECOLOR
-    I_SetPalette (W_CacheLumpNum (lu_palette, PU_CACHE));
+    I_SetPalette (cacheLumpNum<byte*> (lu_palette, PU_CACHE));
 #else
     I_SetPalette (0);
 #endif
@@ -2414,7 +2415,7 @@ void ST_Init (void)
     }
 
     ST_loadData();
-    st_backing_screen = (pixel_t *) Z_Malloc(MAXWIDTH * (ST_HEIGHT << 1) * sizeof(*st_backing_screen), PU_STATIC, 0);
+    st_backing_screen = zmalloc<pixel_t *>(MAXWIDTH * (ST_HEIGHT << 1) * sizeof(*st_backing_screen), PU_STATIC, 0);
 }
 
 // [crispy] Demo Timer widget
@@ -2446,7 +2447,7 @@ void ST_DrawDemoTimer (const int time)
 		}
 	}
 
-	dp_translation = NULL;
+	dp_translation = nullptr;
 	dp_translucent = false;
 }
 

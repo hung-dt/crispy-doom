@@ -17,7 +17,7 @@
 //
 
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "z_zone.h"
 
@@ -46,6 +46,9 @@
 
 #include "st_stuff.h" // [crispy] ST_DrawDemoTimer()
 #include "wi_stuff.h"
+
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 //
 // Data needed to add patches to full screen intermission pics.
@@ -223,7 +226,7 @@ static point_t lnodes[NUMEPISODES][NUMMAPS] =
 
 #define ANIM(type, period, nanims, x, y, nexttic)            \
    { (type), (period), (nanims), { (x), (y) }, (nexttic),    \
-     0, { NULL, NULL, NULL }, 0, 0, 0, 0 }
+     0, { nullptr, nullptr, nullptr }, 0, 0, 0, 0 }
 
 
 static anim_t epsd0animinfo[] =
@@ -340,10 +343,10 @@ static int		NUMCMAPS = 32;
 //
 
 // You Are Here graphic
-static patch_t*		yah[3] = { NULL, NULL, NULL }; 
+static patch_t*		yah[3] = { nullptr, nullptr, nullptr }; 
 
 // splat
-static patch_t*		splat[2] = { NULL, NULL };
+static patch_t*		splat[2] = { nullptr, nullptr };
 
 // %, : graphics
 static patch_t*		percent;
@@ -422,7 +425,7 @@ void WI_drawLF(void)
     int y = WI_TITLEY;
 
     // [crispy] prevent crashes with maps without map title graphics lump
-    if (wbs->last >= num_lnames || lnames[wbs->last] == NULL)
+    if (wbs->last >= num_lnames || lnames[wbs->last] == nullptr)
     {
         V_DrawPatch((ORIGWIDTH - SHORT(finished->width)) / 2, y, finished);
         return;
@@ -466,7 +469,7 @@ void WI_drawEL(void)
     int y = WI_TITLEY;
 
     // [crispy] prevent crashes with maps without map title graphics lump
-    if (wbs->next >= num_lnames || lnames[wbs->next] == NULL)
+    if (wbs->next >= num_lnames || lnames[wbs->next] == nullptr)
     {
         return;
     }
@@ -517,7 +520,7 @@ WI_drawOnLnode
 	{
 	    i++;
 	}
-    } while (!fits && i!=2 && c[i] != NULL);
+    } while (!fits && i!=2 && c[i] != nullptr);
 
     if (fits && i<2)
     {
@@ -1777,7 +1780,7 @@ static void WI_loadUnloadData(load_callback_t callback)
     if (W_CheckNumForName(DEH_String("WIMINUS")) > 0)
         callback(DEH_String("WIMINUS"), &wiminus);
     else
-        wiminus = NULL;
+        wiminus = nullptr;
 
     for (i=0;i<10;i++)
     {
@@ -1885,9 +1888,9 @@ static void WI_loadCallback(const char *name, patch_t **variable)
 {
   // [crispy] prevent crashes with maps without map title graphics lump
   if (W_CheckNumForName(name) != -1)
-    *variable = W_CacheLumpName(name, PU_STATIC);
+    *variable = cacheLumpName<patch_t*>(name, PU_STATIC);
   else
-    *variable = NULL;
+    *variable = nullptr;
 }
 
 void WI_loadData(void)
@@ -1895,16 +1898,16 @@ void WI_loadData(void)
     if (gamemode == commercial)
     {
 	NUMCMAPS = (crispy->havemap33) ? 33 : 32;
-	lnames = (patch_t **) Z_Malloc(sizeof(patch_t*) * NUMCMAPS,
-				       PU_STATIC, NULL);
+	lnames = zmalloc<patch_t**>(sizeof(patch_t*) * NUMCMAPS,
+				       PU_STATIC, nullptr);
 	num_lnames = NUMCMAPS;
     }
     else
     {
 	// [crispy] support E1M10 "Sewers"
 	int nummaps = crispy->havee1m10 ? NUMMAPS + 1 : NUMMAPS;
-	lnames = (patch_t **) Z_Malloc(sizeof(patch_t*) * nummaps,
-				       PU_STATIC, NULL);
+	lnames = zmalloc<patch_t **>(sizeof(patch_t*) * nummaps,
+				       PU_STATIC, nullptr);
 	num_lnames = nummaps;
     }
 
@@ -1914,16 +1917,16 @@ void WI_loadData(void)
     // them with the status bar code
 
     // your face
-    star = W_CacheLumpName(DEH_String("STFST01"), PU_STATIC);
+    star = cacheLumpName<patch_t*>(DEH_String("STFST01"), PU_STATIC);
 
     // dead face
-    bstar = W_CacheLumpName(DEH_String("STFDEAD0"), PU_STATIC);
+    bstar = cacheLumpName<patch_t*>(DEH_String("STFDEAD0"), PU_STATIC);
 }
 
 static void WI_unloadCallback(const char *name, patch_t **variable)
 {
     W_ReleaseLumpName(name);
-    *variable = NULL;
+    *variable = nullptr;
 }
 
 void WI_unloadData(void)

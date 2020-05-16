@@ -16,14 +16,21 @@
 // Parses [CODEPTR] sections in BEX files
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "info.h"
 
 #include "deh_io.h"
 #include "deh_main.h"
+
+#include <variant>
+
+// Forwared declares
+struct mobj_t;
+struct player_t;
+struct pspdef_t;
 
 extern void A_Light0();
 extern void A_WeaponReady();
@@ -112,12 +119,13 @@ extern void A_Turn();
 extern void A_Face();
 extern void A_Scratch();
 extern void A_PlaySound();
-extern void A_RandomJump();
+extern void A_RandomJump(mobj_t *mo, player_t *player, pspdef_t *psp);
 extern void A_LineEffect();
 
 typedef struct {
     const char *mnemonic;
-    const actionf_t pointer;
+    std::variant<std::monostate, actionf_v, actionf_p1, actionf_p2, actionf_p3> pointer;
+    // const actionf_t pointer;
 } bex_codeptr_t;
 
 static const bex_codeptr_t bex_codeptrtable[] = {
@@ -210,7 +218,7 @@ static const bex_codeptr_t bex_codeptrtable[] = {
     {"PlaySound", {A_PlaySound}},
     {"RandomJump", {A_RandomJump}},
     {"LineEffect", {A_LineEffect}},
-    {"NULL", {NULL}},
+    {"nullptr", std::monostate{}},
 };
 
 extern actionf_t codeptrs[NUMSTATES];
@@ -224,7 +232,7 @@ static void *DEH_BEXPtrStart(deh_context_t *context, char *line)
 	DEH_Warning(context, "Parse error on section start");
     }
 
-    return NULL;
+    return nullptr;
 }
 
 static void DEH_BEXPtrParseLine(deh_context_t *context, char *line, void *tag)
@@ -272,9 +280,9 @@ static void DEH_BEXPtrParseLine(deh_context_t *context, char *line, void *tag)
 deh_section_t deh_section_bexptr =
 {
     "[CODEPTR]",
-    NULL,
+    nullptr,
     DEH_BEXPtrStart,
     DEH_BEXPtrParseLine,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 };

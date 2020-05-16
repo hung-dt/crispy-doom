@@ -19,8 +19,8 @@
 //
 
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "i_system.h"
 #include "z_zone.h"
@@ -32,7 +32,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
-
+#include "../../utils/lump.h"
 
 planefunction_t		floorfunc;
 planefunction_t		ceilingfunc;
@@ -416,7 +416,7 @@ void R_DrawPlanes (void)
 	
 	// regular flat
         lumpnum = firstflat + flattranslation[pl->picnum];
-	ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
+	ds_source = cacheLumpNum<byte*>(lumpnum, PU_STATIC);
 	
 	planeheight = abs(pl->height-viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+extralight;

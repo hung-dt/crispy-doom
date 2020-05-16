@@ -146,7 +146,7 @@ typedef struct
     side_t *sidedef;
     line_t *linedef;
     sector_t *frontsector;
-    sector_t *backsector;       // NULL for one sided lines
+    sector_t *backsector;       // nullptr for one sided lines
 } seg_t;
 
 // ===== Polyobj data =====
@@ -254,7 +254,7 @@ typedef struct vissprite_s
     lighttable_t *colormap;
     int mobjflags;              // for color translation and shadow draw
     boolean psprite;            // true if psprite
-    int class;                  // player class (used in translation)
+    int pclass;                  // player class (used in translation)
     fixed_t floorclip;
 } vissprite_t;
 

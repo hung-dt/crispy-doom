@@ -12,8 +12,8 @@
 // GNU General Public License for more details.
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <ctype.h>
 
 #include "doomkeys.h"
@@ -24,6 +24,8 @@
 #include "txt_main.h"
 #include "txt_utf8.h"
 #include "txt_window.h"
+
+#include "../utils/memory.h"
 
 static void TXT_WindowActionSizeCalc(TXT_UNCAST_ARG(action))
 {
@@ -103,14 +105,12 @@ txt_widget_class_t txt_window_action_class =
     TXT_WindowActionKeyPress,
     TXT_WindowActionDestructor,
     TXT_WindowActionMousePress,
-    NULL,
+    nullptr,
 };
 
 txt_window_action_t *TXT_NewWindowAction(int key, const char *label)
 {
-    txt_window_action_t *action;
-
-    action = malloc(sizeof(txt_window_action_t));
+    auto* action = createStruct<txt_window_action_t>();
 
     TXT_InitWidget(action, &txt_window_action_class);
     action->key = key;

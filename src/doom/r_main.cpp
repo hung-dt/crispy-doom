@@ -18,13 +18,8 @@
 //	See tables.c, too.
 //
 
-
-
-
-
-#include <stdlib.h>
-#include <math.h>
-
+#include <cstdlib>
+#include <cmath>
 
 #include "doomdef.h"
 #include "doomstat.h" // [AM] leveltime, paused, menuactive
@@ -38,10 +33,6 @@
 #include "r_local.h"
 #include "r_sky.h"
 #include "st_stuff.h" // [crispy] ST_refreshBackground()
-
-
-
-
 
 // Fineangles in the SCREENWIDTH wide window.
 #define FIELDOFVIEW		2048	
@@ -102,9 +93,9 @@ int			viewangletox[FINEANGLES/2];
 angle_t			xtoviewangle[MAXWIDTH+1];
 
 // [crispy] parameterized for smooth diminishing lighting
-lighttable_t***		scalelight = NULL;
-lighttable_t**		scalelightfixed = NULL;
-lighttable_t***		zlight = NULL;
+lighttable_t***		scalelight = nullptr;
+lighttable_t**		scalelightfixed = nullptr;
+lighttable_t***		zlight = nullptr;
 
 // bumped light from gun blasts
 int			extralight;			
@@ -738,15 +729,15 @@ void R_InitLightTables (void)
 	LIGHTZSHIFT = 20;
     }
 
-    scalelight = malloc(LIGHTLEVELS * sizeof(*scalelight));
-    scalelightfixed = malloc(MAXLIGHTSCALE * sizeof(*scalelightfixed));
-    zlight = malloc(LIGHTLEVELS * sizeof(*zlight));
+    scalelight = static_cast<lighttable_t***>(malloc(LIGHTLEVELS * sizeof(*scalelight)));
+    scalelightfixed = static_cast<lighttable_t**>(malloc(MAXLIGHTSCALE * sizeof(*scalelightfixed)));
+    zlight = static_cast<lighttable_t***>(malloc(LIGHTLEVELS * sizeof(*zlight)));
 
     // Calculate the light levels to use
     //  for each level / distance combination.
     for (i=0 ; i< LIGHTLEVELS ; i++)
     {
-	zlight[i] = malloc(MAXLIGHTZ * sizeof(**zlight));
+	zlight[i] = static_cast<lighttable_t**>(malloc(MAXLIGHTZ * sizeof(**zlight)));
 
 	startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
 	for (j=0 ; j<MAXLIGHTZ ; j++)
@@ -906,7 +897,7 @@ void R_ExecuteSetViewSize (void)
     //  for each level / scale combination.
     for (i=0 ; i< LIGHTLEVELS ; i++)
     {
-	scalelight[i] = malloc(MAXLIGHTSCALE * sizeof(**scalelight));
+	scalelight[i] = static_cast<lighttable_t**>(malloc(MAXLIGHTSCALE * sizeof(**scalelight)));
 
 	startmap = ((LIGHTLEVELS-LIGHTBRIGHT-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
 	for (j=0 ; j<MAXLIGHTSCALE ; j++)

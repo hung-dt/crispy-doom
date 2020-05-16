@@ -16,8 +16,6 @@
 //	Floor animation: raising stairs.
 //
 
-
-
 #include "z_zone.h"
 #include "doomdef.h"
 #include "p_local.h"
@@ -30,6 +28,7 @@
 // Data.
 #include "sounds.h"
 
+#include "../../utils/memory.h"
 
 //
 // FLOORS
@@ -224,7 +223,7 @@ void T_MoveFloor(floormove_t* floor)
     
     if (res == pastdest)
     {
-	floor->sector->specialdata = NULL;
+	floor->sector->specialdata = nullptr;
 
 	if (floor->direction == 1)
 	{
@@ -286,7 +285,7 @@ EV_DoFloor
 
         // new floor thinker
         rtn = 1;
-        floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+        floor = zmalloc<floormove_t*>(sizeof(*floor), PU_LEVSPEC, 0);
         P_AddThinker (&floor->thinker);
         sec->specialdata = floor;
         floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
@@ -520,7 +519,7 @@ EV_BuildStairs
 
         // new floor thinker
         rtn = 1;
-        floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+        floor = zmalloc<floormove_t*>(sizeof(*floor), PU_LEVSPEC, 0);
         P_AddThinker (&floor->thinker);
         sec->tag = 0; // haleyjd 20140919: [STRIFE] clears tag of first stair sector
         sec->specialdata = floor;
@@ -563,7 +562,7 @@ EV_BuildStairs
 
                 sec = tsec;
                 secnum = newsecnum;
-                floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+                floor = zmalloc<floormove_t*>(sizeof(*floor), PU_LEVSPEC, 0);
 
                 P_AddThinker (&floor->thinker);
 

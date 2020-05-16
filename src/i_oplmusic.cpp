@@ -17,9 +17,9 @@
 //
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "memio.h"
 #include "mus2mid.h"
@@ -33,6 +33,9 @@
 
 #include "opl.h"
 #include "midifile.h"
+
+#include "../utils/lump.h"
+#include "../utils/memory.h"
 
 // #define OPL_MIDI_DEBUG
 
@@ -360,11 +363,9 @@ static boolean opl_stereo_correct = false;
 
 // Load instrument table from GENMIDI lump:
 
-static boolean LoadInstrumentTable(void)
+static boolean LoadInstrumentTable()
 {
-    byte *lump;
-
-    lump = W_CacheLumpName(DEH_String("genmidi"), PU_STATIC);
+    auto* lump = cacheLumpName<byte*>(DEH_String("genmidi"), PU_STATIC);
 
     // DMX does not check header
 
@@ -379,7 +380,7 @@ static boolean LoadInstrumentTable(void)
 
 // Get the next available voice from the freelist.
 
-static opl_voice_t *GetFreeVoice(void)
+static opl_voice_t *GetFreeVoice()
 {
     opl_voice_t *result;
     int i;
@@ -388,7 +389,7 @@ static opl_voice_t *GetFreeVoice(void)
 
     if (voice_free_num == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     // Remove from free list
@@ -432,7 +433,7 @@ static void ReleaseVoice(int index)
 
     VoiceKeyOff(voice);
 
-    voice->channel = NULL;
+    voice->channel = nullptr;
     voice->note = 0;
 
     double_voice = voice->current_instr_voice != 0;
@@ -458,7 +459,7 @@ static void ReleaseVoice(int index)
 
 // Load data to the specified operator
 
-static void LoadOperatorData(int operator, genmidi_op_t *data,
+static void LoadOperatorData(int op, genmidi_op_t *data,
                              boolean max_level, unsigned int *volume)
 {
     int level;
@@ -479,11 +480,11 @@ static void LoadOperatorData(int operator, genmidi_op_t *data,
 
     *volume = level;
 
-    OPL_WriteRegister(OPL_REGS_LEVEL + operator, level);
-    OPL_WriteRegister(OPL_REGS_TREMOLO + operator, data->tremolo);
-    OPL_WriteRegister(OPL_REGS_ATTACK + operator, data->attack);
-    OPL_WriteRegister(OPL_REGS_SUSTAIN + operator, data->sustain);
-    OPL_WriteRegister(OPL_REGS_WAVEFORM + operator, data->waveform);
+    OPL_WriteRegister(OPL_REGS_LEVEL + op, level);
+    OPL_WriteRegister(OPL_REGS_TREMOLO + op, data->tremolo);
+    OPL_WriteRegister(OPL_REGS_ATTACK + op, data->attack);
+    OPL_WriteRegister(OPL_REGS_SUSTAIN + op, data->sustain);
+    OPL_WriteRegister(OPL_REGS_WAVEFORM + op, data->waveform);
 }
 
 // Set the instrument for a particular voice.
@@ -604,7 +605,7 @@ static void SetVoicePan(opl_voice_t *voice, unsigned int pan)
 
 // Initialize the voice table and freelist
 
-static void InitVoices(void)
+static void InitVoices()
 {
     int i;
 
@@ -621,7 +622,7 @@ static void InitVoices(void)
         voices[i].op1 = voice_operators[0][i % OPL_NUM_VOICES];
         voices[i].op2 = voice_operators[1][i % OPL_NUM_VOICES];
         voices[i].array = (i / OPL_NUM_VOICES) << 8;
-        voices[i].current_instr = NULL;
+        voices[i].current_instr = nullptr;
 
         // Add this voice to the freelist.
 
@@ -728,7 +729,7 @@ static void KeyOffEvent(opl_track_data_t *track, midi_event_t *event)
 // passed to the function is the channel for the new note to be
 // played.
 
-static void ReplaceExistingVoice(void)
+static void ReplaceExistingVoice()
 {
     int i;
     int result;
@@ -759,7 +760,7 @@ static void ReplaceExistingVoice(void)
 // Alternate versions of ReplaceExistingVoice() used when emulating old
 // versions of the DMX library used in Doom 1.666, Heretic and Hexen.
 
-static void ReplaceExistingVoiceDoom1(void)
+static void ReplaceExistingVoiceDoom1()
 {
     int i;
     int result;
@@ -922,7 +923,7 @@ static void VoiceKeyOn(opl_channel_data_t *channel,
 
     voice = GetFreeVoice();
 
-    if (voice == NULL)
+    if (voice == nullptr)
     {
         return;
     }
@@ -1385,7 +1386,7 @@ static void RestartSong(void *unused)
 
 static void TrackTimerCallback(void *arg)
 {
-    opl_track_data_t *track = arg;
+    auto *track = static_cast<opl_track_data_t*>(arg);
     midi_event_t *event;
 
     // Get the next event and process it.
@@ -1413,7 +1414,7 @@ static void TrackTimerCallback(void *arg)
 
         if (running_tracks <= 0 && song_looping)
         {
-            OPL_SetCallback(5000, RestartSong, NULL);
+            OPL_SetCallback(5000, RestartSong, nullptr);
         }
 
         return;
@@ -1475,19 +1476,18 @@ static void StartTrack(midi_file_t *file, unsigned int track_num)
 
 static void I_OPL_PlaySong(void *handle, boolean looping)
 {
-    midi_file_t *file;
     unsigned int i;
 
-    if (!music_initialized || handle == NULL)
+    if (!music_initialized || handle == nullptr)
     {
         return;
     }
 
-    file = handle;
+    auto* file = static_cast<midi_file_t*>(handle);
 
     // Allocate track data.
 
-    tracks = malloc(MIDI_NumTracks(file) * sizeof(opl_track_data_t));
+    tracks = createStruct<opl_track_data_t>(MIDI_NumTracks(file));
 
     num_tracks = MIDI_NumTracks(file);
     running_tracks = num_tracks;
@@ -1519,7 +1519,7 @@ static void I_OPL_PlaySong(void *handle, boolean looping)
     OPL_SetPaused(0);
 }
 
-static void I_OPL_PauseSong(void)
+static void I_OPL_PauseSong()
 {
     unsigned int i;
 
@@ -1537,7 +1537,7 @@ static void I_OPL_PauseSong(void)
 
     for (i = 0; i < num_opl_voices; ++i)
     {
-        if (voices[i].channel != NULL
+        if (voices[i].channel != nullptr
          && voices[i].current_instr < percussion_instrs)
         {
             VoiceKeyOff(&voices[i]);
@@ -1545,7 +1545,7 @@ static void I_OPL_PauseSong(void)
     }
 }
 
-static void I_OPL_ResumeSong(void)
+static void I_OPL_ResumeSong()
 {
     if (!music_initialized)
     {
@@ -1555,7 +1555,7 @@ static void I_OPL_ResumeSong(void)
     OPL_SetPaused(0);
 }
 
-static void I_OPL_StopSong(void)
+static void I_OPL_StopSong()
 {
     unsigned int i;
 
@@ -1586,7 +1586,7 @@ static void I_OPL_StopSong(void)
 
     free(tracks);
 
-    tracks = NULL;
+    tracks = nullptr;
     num_tracks = 0;
 
     OPL_Unlock();
@@ -1599,9 +1599,9 @@ static void I_OPL_UnRegisterSong(void *handle)
         return;
     }
 
-    if (handle != NULL)
+    if (handle != nullptr)
     {
-        MIDI_FreeFile(handle);
+        MIDI_FreeFile(static_cast<midi_file_t*>(handle));
     }
 }
 
@@ -1645,7 +1645,7 @@ static void *I_OPL_RegisterSong(void *data, int len)
 
     if (!music_initialized)
     {
-        return NULL;
+        return nullptr;
     }
 
     // MUS files begin with "MUS"
@@ -1654,7 +1654,7 @@ static void *I_OPL_RegisterSong(void *data, int len)
     filename = M_TempFile("doom.mid");
 
     // [crispy] remove MID file size limit
-    if (IsMid(data, len) /* && len < MAXMIDLENGTH */)
+    if (IsMid(static_cast<byte*>(data), len) /* && len < MAXMIDLENGTH */)
     {
         M_WriteFile(filename, data, len);
     }
@@ -1662,12 +1662,12 @@ static void *I_OPL_RegisterSong(void *data, int len)
     {
         // Assume a MUS file and try to convert
 
-        ConvertMus(data, len, filename);
+        ConvertMus(static_cast<byte*>(data), len, filename);
     }
 
     result = MIDI_LoadFile(filename);
 
-    if (result == NULL)
+    if (result == nullptr)
     {
         fprintf(stderr, "I_OPL_RegisterSong: Failed to load MID.\n");
     }
@@ -1682,7 +1682,7 @@ static void *I_OPL_RegisterSong(void *data, int len)
 
 // Is the song playing?
 
-static boolean I_OPL_MusicIsPlaying(void)
+static boolean I_OPL_MusicIsPlaying()
 {
     if (!music_initialized)
     {
@@ -1694,7 +1694,7 @@ static boolean I_OPL_MusicIsPlaying(void)
 
 // Shutdown music
 
-static void I_OPL_ShutdownMusic(void)
+static void I_OPL_ShutdownMusic()
 {
     if (music_initialized)
     {
@@ -1714,9 +1714,8 @@ static void I_OPL_ShutdownMusic(void)
 
 // Initialize music subsystem
 
-static boolean I_OPL_InitMusic(void)
+static boolean I_OPL_InitMusic()
 {
-    char *dmxoption;
     opl_init_result_t chip_type;
 
     OPL_SetSampleRate(snd_samplerate);
@@ -1730,13 +1729,13 @@ static boolean I_OPL_InitMusic(void)
 
     // The DMXOPTION variable must be set to enable OPL3 support.
     // As an extension, we also allow it to be set from the config file.
-    dmxoption = getenv("DMXOPTION");
-    if (dmxoption == NULL)
+    const char* dmxoption = getenv("DMXOPTION");
+    if (dmxoption == nullptr)
     {
-        dmxoption = snd_dmxoption != NULL ? snd_dmxoption : "";
+        dmxoption = snd_dmxoption != nullptr ? snd_dmxoption : "";
     }
 
-    if (chip_type == OPL_INIT_OPL3 && strstr(dmxoption, "-opl3") != NULL)
+    if (chip_type == OPL_INIT_OPL3 && strstr(dmxoption, "-opl3") != nullptr)
     {
         opl_opl3mode = 1;
         num_opl_voices = OPL_NUM_VOICES * 2;
@@ -1749,7 +1748,7 @@ static boolean I_OPL_InitMusic(void)
 
     // Secret, undocumented DMXOPTION that reverses the stereo channels
     // into their correct orientation.
-    opl_stereo_correct = strstr(dmxoption, "-reverse") != NULL;
+    opl_stereo_correct = strstr(dmxoption, "-reverse") != nullptr;
 
     // Initialize all registers.
 
@@ -1765,7 +1764,7 @@ static boolean I_OPL_InitMusic(void)
 
     InitVoices();
 
-    tracks = NULL;
+    tracks = nullptr;
     num_tracks = 0;
     music_initialized = true;
 
@@ -1792,7 +1791,7 @@ music_module_t music_opl_module =
     I_OPL_PlaySong,
     I_OPL_StopSong,
     I_OPL_MusicIsPlaying,
-    NULL,  // Poll
+    nullptr,  // Poll
 };
 
 void I_SetOPLDriverVer(opl_driver_ver_t ver)
@@ -1807,7 +1806,7 @@ void I_SetOPLDriverVer(opl_driver_ver_t ver)
 //
 //----------------------------------------------------------------------
 
-static int NumActiveChannels(void)
+static int NumActiveChannels()
 {
     int i;
 
@@ -1855,7 +1854,7 @@ void I_OPL_DevMessages(char *result, size_t result_len)
 
     for (i = 0; i < NumActiveChannels(); ++i)
     {
-        if (channels[i].instrument == NULL)
+        if (channels[i].instrument == nullptr)
         {
             continue;
         }

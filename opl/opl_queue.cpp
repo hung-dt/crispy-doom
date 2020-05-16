@@ -16,11 +16,13 @@
 //     can always get the first callback.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "opl_queue.h"
+
+#include "../utils/memory.h"
 
 #define MAX_OPL_QUEUE 64
 
@@ -39,9 +41,7 @@ struct opl_callback_queue_s
 
 opl_callback_queue_t *OPL_Queue_Create(void)
 {
-    opl_callback_queue_t *queue;
-
-    queue = malloc(sizeof(opl_callback_queue_t));
+    auto* queue = createStruct<opl_callback_queue_t>();
     queue->num_entries = 0;
 
     return queue;
@@ -261,7 +261,7 @@ int main()
         for (i=0; i<MAX_OPL_QUEUE; ++i)
         {
             time = rand() % 0x10000;
-            OPL_Queue_Push(queue, NULL, NULL, time);
+            OPL_Queue_Push(queue, nullptr, nullptr, time);
         }
 
         time = 0;

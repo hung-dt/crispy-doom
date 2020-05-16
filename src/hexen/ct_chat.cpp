@@ -15,7 +15,7 @@
 //
 
 
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 #include "h2def.h"
 #include "i_input.h"
@@ -25,6 +25,8 @@
 #include "m_misc.h"
 #include "p_local.h"
 #include "v_video.h"
+
+#include "../../utils/lump.h"
 
 #define NUMKEYS 256
 
@@ -338,7 +340,7 @@ void CT_Ticker(void)
                 {
                     P_SetMessage(&players[consoleplayer], plr_lastmsg[i],
                                  true);
-                    S_StartSound(NULL, SFX_CHAT);
+                    S_StartSound(nullptr, SFX_CHAT);
                 }
                 else if (i == consoleplayer && (*chat_msg[i]))
                 {
@@ -347,7 +349,7 @@ void CT_Ticker(void)
                         P_SetMessage(&players[consoleplayer],
                                      "THERE ARE NO OTHER PLAYERS IN THE GAME!",
                                      true);
-                        S_StartSound(NULL, SFX_CHAT);
+                        S_StartSound(nullptr, SFX_CHAT);
                     }
                 }
                 CT_ClearChatMessage(i);
@@ -388,14 +390,14 @@ void CT_Drawer(void)
             }
             else
             {
-                patch = W_CacheLumpNum(FontABaseLump +
+                patch = cacheLumpNum<patch_t*>(FontABaseLump +
                                        chat_msg[consoleplayer][i] - 33,
                                        PU_CACHE);
                 V_DrawPatch(x, 10, patch);
                 x += patch->width;
             }
         }
-        V_DrawPatch(x, 10, W_CacheLumpName("FONTA59", PU_CACHE));
+        V_DrawPatch(x, 10, cacheLumpName<patch_t*>("FONTA59", PU_CACHE));
         BorderTopRefresh = true;
         UpdateState |= I_MESSAGES;
     }
@@ -458,7 +460,7 @@ void CT_AddChar(int player, char c)
     }
     else
     {
-        patch = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+        patch = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
         msglen[player] += patch->width;
     }
 }
@@ -487,7 +489,7 @@ void CT_BackSpace(int player)
     }
     else
     {
-        patch = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+        patch = cacheLumpNum<patch_t*>(FontABaseLump + c - 33, PU_CACHE);
         msglen[player] -= patch->width;
     }
     chat_msg[player][msgptr[player]] = 0;

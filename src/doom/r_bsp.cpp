@@ -43,7 +43,7 @@ line_t*		linedef;
 sector_t*	frontsector;
 sector_t*	backsector;
 
-drawseg_t*	drawsegs = NULL;
+drawseg_t*	drawsegs = nullptr;
 drawseg_t*	ds_p;
 int		numdrawsegs = 0;
 
@@ -557,7 +557,7 @@ void R_Subsector (int num)
 				  frontsector->lightlevel);
     }
     else
-	floorplane = NULL;
+	floorplane = nullptr;
     
     if (frontsector->interpceilingheight > viewz
 	|| frontsector->ceilingpic == skyflatnum)
@@ -570,7 +570,7 @@ void R_Subsector (int num)
 				    frontsector->lightlevel);
     }
     else
-	ceilingplane = NULL;
+	ceilingplane = nullptr;
 		
     R_AddSprites (frontsector);	
 

@@ -12,9 +12,9 @@
 // GNU General Public License for more details.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomkeys.h"
 #include "m_misc.h"
@@ -56,7 +56,7 @@ static void OpenPromptWindow(txt_mouse_input_t *mouse_input)
     // Silently update when the shift key is held down.
     mouse_input->check_conflicts = !TXT_GetModifierState(TXT_MOD_SHIFT);
 
-    window = TXT_MessageBox(NULL, "Press the new mouse button...");
+    window = TXT_MessageBox(nullptr, "Press the new mouse button...");
 
     TXT_SetMouseListener(window, MousePressCallback, mouse_input);
 }
@@ -161,7 +161,7 @@ txt_widget_class_t txt_mouse_input_class =
     TXT_MouseInputKeyPress,
     TXT_MouseInputDestructor,
     TXT_MouseInputMousePress,
-    NULL,
+    nullptr,
 };
 
 txt_mouse_input_t *TXT_NewMouseInput(int *variable)

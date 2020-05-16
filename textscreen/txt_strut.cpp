@@ -12,8 +12,8 @@
 // GNU General Public License for more details.
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomkeys.h"
 
@@ -21,6 +21,8 @@
 #include "txt_io.h"
 #include "txt_main.h"
 #include "txt_window.h"
+
+#include "../utils/memory.h"
 
 static void TXT_StrutSizeCalc(TXT_UNCAST_ARG(strut))
 {
@@ -53,15 +55,13 @@ txt_widget_class_t txt_strut_class =
     TXT_StrutDrawer,
     TXT_StrutKeyPress,
     TXT_StrutDestructor,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 };
 
 txt_strut_t *TXT_NewStrut(int width, int height)
 {
-    txt_strut_t *strut;
-
-    strut = malloc(sizeof(txt_strut_t));
+    auto* strut = createStruct<txt_strut_t>();
 
     TXT_InitWidget(strut, &txt_strut_class);
     strut->width = width;

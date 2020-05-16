@@ -18,6 +18,8 @@
 #include "h2def.h"
 #include "p_local.h"
 
+#include "../../utils/memory.h"
+
 //==================================================================
 //==================================================================
 //
@@ -79,7 +81,7 @@ void T_VerticalDoor(vldoor_t * door)
                 {
                     case DREV_NORMAL:
                     case DREV_CLOSE:
-                        door->sector->specialdata = NULL;
+                        door->sector->specialdata = nullptr;
                         P_TagFinished(door->sector->tag);
                         P_RemoveThinker(&door->thinker);        // unlink and free
                         break;
@@ -117,7 +119,7 @@ void T_VerticalDoor(vldoor_t * door)
                         break;
                     case DREV_CLOSE30THENOPEN:
                     case DREV_OPEN:
-                        door->sector->specialdata = NULL;
+                        door->sector->specialdata = nullptr;
                         P_TagFinished(door->sector->tag);
                         P_RemoveThinker(&door->thinker);        // unlink and free
                         break;
@@ -157,7 +159,7 @@ int EV_DoDoor(line_t * line, byte * args, vldoor_e type)
         }
         // Add new door thinker
         retcode = 1;
-        door = Z_Malloc(sizeof(*door), PU_LEVSPEC, 0);
+        door = zmalloc<vldoor_t*>(sizeof(*door), PU_LEVSPEC, 0);
         P_AddThinker(&door->thinker);
         sec->specialdata = door;
         door->thinker.function = T_VerticalDoor;
@@ -233,7 +235,7 @@ boolean EV_VerticalDoor(line_t * line, mobj_t * thing)
     //
     // new door thinker
     //
-    door = Z_Malloc(sizeof(*door), PU_LEVSPEC, 0);
+    door = zmalloc<vldoor_t*>(sizeof(*door), PU_LEVSPEC, 0);
     P_AddThinker(&door->thinker);
     sec->specialdata = door;
     door->thinker.function = T_VerticalDoor;
@@ -277,7 +279,7 @@ void P_SpawnDoorCloseIn30(sector_t *sec)
 {
 	vldoor_t *door;
 
-	door = Z_Malloc(sizeof(*door), PU_LEVSPEC, 0);
+	door = zmalloc<vldoor_t*>(sizeof(*door), PU_LEVSPEC, 0);
 	P_AddThinker(&door->thinker);
 	sec->specialdata = door;
 	sec->special = 0;
@@ -301,7 +303,7 @@ void P_SpawnDoorRaiseIn5Mins(sector_t *sec, int secnum)
 {
 	vldoor_t *door;
 
-	door = Z_Malloc(sizeof(*door), PU_LEVSPEC, 0);
+	door = zmalloc<vldoor_t*>(sizeof(*door), PU_LEVSPEC, 0);
 	P_AddThinker(&door->thinker);
 	sec->specialdata = door;
 	sec->special = 0;

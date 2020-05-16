@@ -17,7 +17,7 @@
 //	all OS independend parts.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "m_argv.h"
 #include "i_system.h"
@@ -55,7 +55,7 @@ static void PlayerQuitGame(player_t *player)
     M_StringCopy(exitmsg, "PLAYER 1 LEFT THE GAME", sizeof(exitmsg));
     exitmsg[7] += player_num;
     P_SetMessage(&players[consoleplayer], exitmsg, true);
-    S_StartSound(NULL, SFX_CHAT);
+    S_StartSound(nullptr, SFX_CHAT);
 
     playeringame[player_num] = false;
 

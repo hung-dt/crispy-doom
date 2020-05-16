@@ -22,7 +22,7 @@
 //**
 //**************************************************************************
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "doomdef.h"
 #include "i_system.h" // [crispy] I_Realloc()
@@ -348,7 +348,7 @@ void R_StoreWallRange(int start, int stop)
 	int numdrawsegs_old = numdrawsegs;
 
 	numdrawsegs = numdrawsegs ? 2 * numdrawsegs : MAXDRAWSEGS;
-	drawsegs = I_Realloc(drawsegs, numdrawsegs * sizeof(*drawsegs));
+	drawsegs = static_cast<drawseg_t*>(I_Realloc(drawsegs, numdrawsegs * sizeof(*drawsegs)));
 	memset(drawsegs + numdrawsegs_old, 0, (numdrawsegs - numdrawsegs_old) * sizeof(*drawsegs));
 
 	ds_p = drawsegs + numdrawsegs_old;
@@ -428,7 +428,7 @@ void R_StoreWallRange(int start, int stop)
     worldbottom = frontsector->interpfloorheight - viewz;
 
     midtexture = toptexture = bottomtexture = maskedtexture = 0;
-    ds_p->maskedtexturecol = NULL;
+    ds_p->maskedtexturecol = nullptr;
 
     if (!backsector)
     {
@@ -458,7 +458,7 @@ void R_StoreWallRange(int start, int stop)
 //
 // two sided line
 //
-        ds_p->sprtopclip = ds_p->sprbottomclip = NULL;
+        ds_p->sprtopclip = ds_p->sprbottomclip = nullptr;
         ds_p->silhouette = 0;
         if (frontsector->interpfloorheight > backsector->interpfloorheight)
         {

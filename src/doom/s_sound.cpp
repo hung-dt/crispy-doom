@@ -15,8 +15,8 @@
 // DESCRIPTION:  none
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "i_sound.h"
 #include "i_system.h"
@@ -37,6 +37,8 @@
 #include "p_local.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include "../../utils/lump.h"
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -102,7 +104,7 @@ static boolean mus_paused;
 
 // Music currently being played
 
-static musicinfo_t *mus_playing = NULL;
+static musicinfo_t *mus_playing = nullptr;
 
 // Number of channels to use
 
@@ -150,7 +152,7 @@ static const altmusic_t altmusic_tnt[] =
 	{"openin", "beast"},  // MAP30
 //	{"evil",   "evil"},   // MAP31
 	{"ultima", "in_cit"}, // MAP32
-	{NULL,     NULL},
+	{nullptr,     nullptr},
 };
 
 // Plutonia music is completely taken from Doom 1 and 2, but re-arranged.
@@ -191,7 +193,7 @@ static const altmusic_t altmusic_plut[] =
 //	{"openin", "openin"}, // MAP30 (d_victor has no instumental cover in Doom Metal)
 	{"evil",   "e3m4"},   // MAP31
 	{"ultima", "e2m8"},   // MAP32
-	{NULL,     NULL},
+	{nullptr,     nullptr},
 };
 
 static void S_RegisterAltMusic()
@@ -266,8 +268,8 @@ void S_Init(int sfxVolume, int musicVolume)
     // (the maximum numer of sounds rendered
     // simultaneously) within zone memory.
     // [crispy] variable number of sound channels
-    channels = I_Realloc(NULL, snd_channels*sizeof(channel_t));
-    sobjs = I_Realloc(NULL, snd_channels*sizeof(degenmobj_t));
+    channels = static_cast<channel_t*>(I_Realloc(nullptr, snd_channels*sizeof(channel_t)));
+    sobjs = static_cast<degenmobj_t*>(I_Realloc(nullptr, snd_channels*sizeof(degenmobj_t)));
 
     // Free all channels for use
     for (i=0 ; i<snd_channels ; i++)
@@ -345,8 +347,8 @@ static void S_StopChannel(int cnum)
         // degrade usefulness of sound data
 
         c->sfxinfo->usefulness--;
-        c->sfxinfo = NULL;
-        c->origin = NULL;
+        c->sfxinfo = nullptr;
+        c->origin = nullptr;
     }
 }
 
@@ -909,7 +911,7 @@ void S_StartMusic(int m_id)
 
 void S_ChangeMusic(int musicnum, int looping)
 {
-    musicinfo_t *music = NULL;
+    musicinfo_t *music = nullptr;
     char namebuf[9];
     void *handle;
 
@@ -988,7 +990,7 @@ void S_ChangeMusic(int musicnum, int looping)
         music->lumpnum = W_GetNumForName(namebuf);
     }
 
-    music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
+    music->data = cacheLumpNum<void*>(music->lumpnum, PU_STATIC);
 
     handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
     music->handle = handle;
@@ -1043,7 +1045,7 @@ void S_ChangeMusInfoMusic (int lumpnum, int looping)
 
     music->lumpnum = lumpnum;
 
-    music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
+    music->data = cacheLumpNum<void*>(music->lumpnum, PU_STATIC);
     music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
 
     I_PlaySong(music->handle, looping);
@@ -1077,8 +1079,8 @@ void S_StopMusic(void)
         I_StopSong();
         I_UnRegisterSong(mus_playing->handle);
         W_ReleaseLumpNum(mus_playing->lumpnum);
-        mus_playing->data = NULL;
-        mus_playing = NULL;
+        mus_playing->data = nullptr;
+        mus_playing = nullptr;
     }
 }
 
@@ -1101,8 +1103,8 @@ void S_UpdateSndChannels (void)
 		snd_channels = 8;
 	}
 
-	channels = I_Realloc(channels, snd_channels * sizeof(channel_t));
-	sobjs = I_Realloc(sobjs, snd_channels * sizeof(degenmobj_t));
+	channels = static_cast<channel_t*>(I_Realloc(channels, snd_channels * sizeof(channel_t)));
+	sobjs = static_cast<degenmobj_t*>(I_Realloc(sobjs, snd_channels * sizeof(degenmobj_t)));
 
 	for (i = 0; i < snd_channels; i++)
 	{

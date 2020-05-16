@@ -15,8 +15,6 @@
 // DESCRIPTION: Door animation code (opening/closing)
 //
 
-
-
 #include "z_zone.h"
 #include "doomdef.h"
 #include "deh_main.h"
@@ -25,7 +23,6 @@
 
 #include "s_sound.h"
 
-
 // State.
 #include "doomstat.h"
 #include "r_state.h"
@@ -33,6 +30,8 @@
 // Data.
 #include "dstrings.h"
 #include "sounds.h"
+
+#include "../../utils/memory.h"
 
 #if 0
 //
@@ -118,7 +117,7 @@ void T_VerticalDoor (vldoor_t* door)
 	    {
 	      case vld_blazeRaise:
 	      case vld_blazeClose:
-		door->sector->specialdata = NULL;
+		door->sector->specialdata = nullptr;
 		P_RemoveThinker (&door->thinker);  // unlink and free
 		// [crispy] fix "fast doors make two closing sounds"
 		if (!crispy->soundfix)
@@ -127,7 +126,7 @@ void T_VerticalDoor (vldoor_t* door)
 		
 	      case vld_normal:
 	      case vld_close:
-		door->sector->specialdata = NULL;
+		door->sector->specialdata = nullptr;
 		P_RemoveThinker (&door->thinker);  // unlink and free
 		break;
 		
@@ -185,7 +184,7 @@ void T_VerticalDoor (vldoor_t* door)
 	      case vld_close30ThenOpen:
 	      case vld_blazeOpen:
 	      case vld_open:
-		door->sector->specialdata = NULL;
+		door->sector->specialdata = nullptr;
 		P_RemoveThinker (&door->thinker);  // unlink and free
 		break;
 		
@@ -223,7 +222,7 @@ EV_DoLockedDoor
 	if (!p->cards[it_bluecard] && !p->cards[it_blueskull])
 	{
 	    p->message = DEH_String(PD_BLUEO);
-	    S_StartSound(crispy->soundfix ? p->mo : NULL,sfx_oof);
+	    S_StartSound(crispy->soundfix ? p->mo : nullptr,sfx_oof);
 	    // [crispy] blinking key or skull in the status bar
 	    p->tryopen[it_bluecard] = KEYBLINKTICS;
 	    return 0;
@@ -235,7 +234,7 @@ EV_DoLockedDoor
 	if (!p->cards[it_redcard] && !p->cards[it_redskull])
 	{
 	    p->message = DEH_String(PD_REDO);
-	    S_StartSound(crispy->soundfix ? p->mo : NULL,sfx_oof);
+	    S_StartSound(crispy->soundfix ? p->mo : nullptr,sfx_oof);
 	    // [crispy] blinking key or skull in the status bar
 	    p->tryopen[it_redcard] = KEYBLINKTICS;
 	    return 0;
@@ -248,7 +247,7 @@ EV_DoLockedDoor
 	    !p->cards[it_yellowskull])
 	{
 	    p->message = DEH_String(PD_YELLOWO);
-	    S_StartSound(crispy->soundfix ? p->mo : NULL,sfx_oof);
+	    S_StartSound(crispy->soundfix ? p->mo : nullptr,sfx_oof);
 	    // [crispy] blinking key or skull in the status bar
 	    p->tryopen[it_yellowcard] = KEYBLINKTICS;
 	    return 0;
@@ -281,7 +280,7 @@ EV_DoDoor
 	
 	// new door thinker
 	rtn = 1;
-	door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+	door = zmalloc<vldoor_t*>(sizeof(*door), PU_LEVSPEC, 0);
 	P_AddThinker (&door->thinker);
 	sec->specialdata = door;
 
@@ -376,7 +375,7 @@ EV_VerticalDoor
 	if (!player->cards[it_bluecard] && !player->cards[it_blueskull])
 	{
 	    player->message = DEH_String(PD_BLUEK);
-	    S_StartSound(crispy->soundfix ? player->mo : NULL,sfx_oof);
+	    S_StartSound(crispy->soundfix ? player->mo : nullptr,sfx_oof);
 	    // [crispy] blinking key or skull in the status bar
 	    player->tryopen[it_bluecard] = KEYBLINKTICS;
 	    return;
@@ -392,7 +391,7 @@ EV_VerticalDoor
 	    !player->cards[it_yellowskull])
 	{
 	    player->message = DEH_String(PD_YELLOWK);
-	    S_StartSound(crispy->soundfix ? player->mo : NULL,sfx_oof);
+	    S_StartSound(crispy->soundfix ? player->mo : nullptr,sfx_oof);
 	    // [crispy] blinking key or skull in the status bar
 	    player->tryopen[it_yellowcard] = KEYBLINKTICS;
 	    return;
@@ -407,7 +406,7 @@ EV_VerticalDoor
 	if (!player->cards[it_redcard] && !player->cards[it_redskull])
 	{
 	    player->message = DEH_String(PD_REDK);
-	    S_StartSound(crispy->soundfix ? player->mo : NULL,sfx_oof);
+	    S_StartSound(crispy->soundfix ? player->mo : nullptr,sfx_oof);
 	    // [crispy] blinking key or skull in the status bar
 	    player->tryopen[it_redcard] = KEYBLINKTICS;
 	    return;
@@ -428,7 +427,7 @@ EV_VerticalDoor
 
     if (sec->specialdata)
     {
-	door = sec->specialdata;
+	door = static_cast<vldoor_t*>(sec->specialdata);
 	switch(line->special)
 	{
 	  case	1: // ONLY FOR "RAISE" DOORS, NOT "OPEN"s
@@ -510,7 +509,7 @@ EV_VerticalDoor
 	
     
     // new door thinker
-    door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+    door = zmalloc<vldoor_t*>(sizeof(*door), PU_LEVSPEC, 0);
     P_AddThinker (&door->thinker);
     sec->specialdata = door;
     door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
@@ -558,9 +557,7 @@ EV_VerticalDoor
 //
 void P_SpawnDoorCloseIn30 (sector_t* sec)
 {
-    vldoor_t*	door;
-	
-    door = Z_Malloc ( sizeof(*door), PU_LEVSPEC, 0);
+    vldoor_t*	door = zmalloc<vldoor_t*>( sizeof(*door), PU_LEVSPEC, 0);
 
     P_AddThinker (&door->thinker);
 
@@ -583,9 +580,7 @@ P_SpawnDoorRaiseIn5Mins
 ( sector_t*	sec,
   int		secnum )
 {
-    vldoor_t*	door;
-	
-    door = Z_Malloc ( sizeof(*door), PU_LEVSPEC, 0);
+    vldoor_t*	door = zmalloc<vldoor_t*>( sizeof(*door), PU_LEVSPEC, 0);
     
     P_AddThinker (&door->thinker);
 
@@ -692,7 +687,7 @@ void T_SlidingDoor (slidedoor_t*	door)
 					
 		if (door->type == sdt_openOnly)
 		{
-		    door->frontsector->specialdata = NULL;
+		    door->frontsector->specialdata = nullptr;
 		    P_RemoveThinker (&door->thinker);
 		    break;
 		}
@@ -720,8 +715,8 @@ void T_SlidingDoor (slidedoor_t*	door)
 	if (!door->timer--)
 	{
 	    // CAN DOOR CLOSE?
-	    if (door->frontsector->thinglist != NULL ||
-		door->backsector->thinglist != NULL)
+	    if (door->frontsector->thinglist != nullptr ||
+		door->backsector->thinglist != nullptr)
 	    {
 		door->timer = SDOORWAIT;
 		break;
@@ -740,7 +735,7 @@ void T_SlidingDoor (slidedoor_t*	door)
 	    {
 		// IF DOOR IS DONE CLOSING...
 		door->line->flags |= ML_BLOCKING;
-		door->frontsector->specialdata = NULL;
+		door->frontsector->specialdata = nullptr;
 		P_RemoveThinker (&door->thinker);
 		break;
 	    }
@@ -777,7 +772,7 @@ EV_SlidingDoor
     
     // Make sure door isn't already being animated
     sec = line->frontsector;
-    door = NULL;
+    door = nullptr;
     if (sec->specialdata)
     {
 	if (!thing->player)
@@ -796,7 +791,7 @@ EV_SlidingDoor
     // Init sliding door vars
     if (!door)
     {
-	door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+	door = zmalloc<vldoor_t*>(sizeof(*door), PU_LEVSPEC, 0);
 	P_AddThinker (&door->thinker);
 	sec->specialdata = door;
 		

@@ -18,8 +18,8 @@
 // HEADER FILES ------------------------------------------------------------
 
 // haleyjd: removed WATCOMC
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <time.h>
 
 #include "config.h"
@@ -187,7 +187,7 @@ static void D_SetDefaultSavePath(void)
     {
         // only get hexen.cfg path if one is not already found
 
-        if (SavePathConfig == NULL || !strcmp(SavePathConfig, ""))
+        if (SavePathConfig == nullptr || !strcmp(SavePathConfig, ""))
         {
             // If we are not using a savegame path (probably because we are on
             // Windows and not using a config dir), behave like Vanilla Hexen
@@ -388,7 +388,7 @@ void D_DoomMain(void)
     }
     else
     {
-        M_SetConfigDir(NULL);
+        M_SetConfigDir(nullptr);
     }
 
     M_SetConfigFilenames("hexen.cfg", PROGRAM_PREFIX "hexen.cfg");
@@ -410,7 +410,7 @@ void D_DoomMain(void)
 
     iwadfile = D_FindIWAD(IWAD_MASK_HEXEN, &gamemission);
 
-    if (iwadfile == NULL)
+    if (iwadfile == nullptr)
     {
         I_Error("Game mode indeterminate. No IWAD was found. Try specifying\n"
                 "one with the '-iwad' command line parameter.");
@@ -713,7 +713,7 @@ static void HandleArgs(void)
 
         free(uc_filename);
 
-        if (W_AddFile(file) != NULL)
+        if (W_AddFile(file) != nullptr)
         {
             M_StringCopy(demolumpname, lumpinfo[numlumps - 1]->name,
                          sizeof(demolumpname));
@@ -842,7 +842,7 @@ void H2_ProcessEvents(void)
     {
         ev = D_PopEvent();
 
-        if (ev == NULL)
+        if (ev == nullptr)
         {
             break;
         }
@@ -913,12 +913,12 @@ static void DrawAndBlit(void)
     {
         if (!netgame)
         {
-            V_DrawPatch(160, (viewwindowy >> crispy->hires) + 5, W_CacheLumpName("PAUSED",
+            V_DrawPatch(160, (viewwindowy >> crispy->hires) + 5, cacheLumpName<patch_t*>("PAUSED",
                                                               PU_CACHE));
         }
         else
         {
-            V_DrawPatch(160, 70, W_CacheLumpName("PAUSED", PU_CACHE));
+            V_DrawPatch(160, 70, cacheLumpName<patch_t*>("PAUSED", PU_CACHE));
         }
     }
 
@@ -984,10 +984,10 @@ void H2_PageTicker(void)
 
 static void PageDrawer(void)
 {
-    V_DrawRawScreen(W_CacheLumpName(pagename, PU_CACHE));
+    V_DrawRawScreen(cacheLumpName<pixel_t*>(pagename, PU_CACHE));
     if (demosequence == 1)
     {
-        V_DrawPatch(4, 160, W_CacheLumpName("ADVISOR", PU_CACHE));
+        V_DrawPatch(4, 160, cacheLumpName<patch_t*>("ADVISOR", PU_CACHE));
     }
     UpdateState |= I_FULLSCRN;
 }

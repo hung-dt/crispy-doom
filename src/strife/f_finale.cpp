@@ -20,7 +20,7 @@
 //
 
 
-#include <stdio.h>
+#include <cstdio>
 #include <ctype.h>
 
 // Functions.
@@ -41,6 +41,8 @@
 #include "r_state.h"
 
 #include "p_dialog.h" // [STRIFE]
+
+#include "../../utils/lump.h"
 
 typedef enum
 {
@@ -178,7 +180,7 @@ void F_StartFinale (void)
     gamestate = GS_FINALE;
     viewactive = false;
     automapactive = false;
-    wipegamestate = -1; // [STRIFE]
+    wipegamestate = GS_INVALID; // [STRIFE]
 
     // [STRIFE] Setup the slide show
     slideshow_panel = DEH_String("PANEL0");
@@ -190,7 +192,7 @@ void F_StartFinale (void)
     // system in place, this only manages to fuck up the fade-out that is
     // supposed to happen at the beginning of all finales. So, don't do it!
 #if 0
-    panel = (patch_t *)W_CacheLumpName(slideshow_panel, PU_CACHE);
+    panel = cacheLumpName<patch_t*>(slideshow_panel, PU_CACHE);
     V_DrawPatch(0, 0, panel);
 #endif
 
@@ -426,13 +428,13 @@ static void F_DoSlideShow(void)
         P_DialogStartP1();
         break;
     case SLIDE_HACKHACK: // state -9: unknown bizarre unused state
-        S_StartSound(NULL, sfx_rifle);
+        S_StartSound(nullptr, sfx_rifle);
         slideshow_tics = 3150;
         break;
     case SLIDE_EXIT: // state -1: proceed to next finale stage
         finalecount = 0;
         finalestage = F_STAGE_ARTSCREEN;
-        wipegamestate = -1;
+        wipegamestate = GS_INVALID;
         S_StartMusic(mus_fast);
         // haleyjd 20130301: The ONLY glitch fixed in 1.31 of Strife
         // *would* be something this insignificant, of course!
@@ -452,7 +454,7 @@ static void F_DoSlideShow(void)
         finalecount = 0;
         finalestage = F_STAGE_ARTSCREEN;
         if(menuactive)
-            wipegamestate = -1;
+            wipegamestate = GS_INVALID;
         S_StartMusic(mus_fast);
         slideshow_state = SLIDE_CHOCO; // remain here.
         break;
@@ -463,7 +465,7 @@ static void F_DoSlideShow(void)
     finalecount = 0;
     if(gameversion != exe_strife_1_31) // See above. This was removed in 1.31.
     {
-       patch = (patch_t *)W_CacheLumpName(DEH_String("PANEL0"), PU_CACHE);
+       patch = cacheLumpName<patch_t*>(DEH_String("PANEL0"), PU_CACHE);
        V_DrawPatch(0, 0, patch);
     }
 }
@@ -537,7 +539,7 @@ void F_TextWrite (void)
     int		cy;
     
     // erase the entire screen to a tiled background
-    src = W_CacheLumpName ( finaleflat , PU_CACHE);
+    src = cacheLumpName<byte*> ( finaleflat , PU_CACHE);
     dest = I_VideoBuffer;
 	
     for (y=0 ; y<SCREENHEIGHT ; y++)
@@ -654,7 +656,7 @@ void F_StartCast (void)
     casttics = caststate->tics;
     if(casttics > 50)
         casttics = 50;
-    wipegamestate = -1;             // force a screen wipe
+    wipegamestate = GS_INVALID;             // force a screen wipe
     castdeath = false;
     finalestage = F_STAGE_CAST;
     castframes = 0;
@@ -690,11 +692,11 @@ void F_CastTicker (void)
             if(!castorder[castnum].isindemo)
                 castnum = 0;
         }
-        // [STRIFE] Break on type == NUMMOBJTYPES rather than name == NULL
+        // [STRIFE] Break on type == NUMMOBJTYPES rather than name == nullptr
         if (castorder[castnum].type == NUMMOBJTYPES)
             castnum = 0;
         if (mobjinfo[castorder[castnum].type].seesound)
-            S_StartSound (NULL, mobjinfo[castorder[castnum].type].seesound);
+            S_StartSound (nullptr, mobjinfo[castorder[castnum].type].seesound);
         caststate = &states[mobjinfo[castorder[castnum].type].seestate];
         castframes = 0;
     }
@@ -721,7 +723,7 @@ void F_CastTicker (void)
             sfx = mobjinfo[castorder[castnum].type].attacksound;
 
         if (sfx)
-            S_StartSound (NULL, sfx);
+            S_StartSound (nullptr, sfx);
     }
 
     if (!castdeath && castframes == 12)
@@ -786,7 +788,7 @@ boolean F_CastResponder (event_t* ev)
     castframes = 0;
     castattacking = false;
     if (mobjinfo[castorder[castnum].type].deathsound)
-        S_StartSound (NULL, mobjinfo[castorder[castnum].type].deathsound);
+        S_StartSound (nullptr, mobjinfo[castorder[castnum].type].deathsound);
 
     return true;
 }
@@ -863,7 +865,7 @@ void F_CastDrawer (void)
     patch_t*		patch;
     
     // erase the entire screen to a background
-    V_DrawPatch (0, 0, W_CacheLumpName (DEH_String("BOSSBACK"), PU_CACHE));
+    V_DrawPatch (0, 0, cacheLumpName<patch_t*> (DEH_String("BOSSBACK"), PU_CACHE));
 
     F_CastPrint (DEH_String(castorder[castnum].name));
     
@@ -873,7 +875,7 @@ void F_CastDrawer (void)
     lump = sprframe->lump[0];
     flip = (boolean)sprframe->flip[0];
 			
-    patch = W_CacheLumpNum (lump+firstspritelump, PU_CACHE);
+    patch = cacheLumpNum<patch_t*> (lump+firstspritelump, PU_CACHE);
     if (flip)
 	V_DrawPatchFlipped(160, 170, patch);
     else
@@ -937,8 +939,8 @@ void F_DrawMap34End (void)
 //    patch_t*    p1;
 //    patch_t*    p2;
 
-//    p1 = W_CacheLumpName (DEH_String("credit"),  PU_LEVEL);
-//    p2 = W_CacheLumpName (DEH_String("vellogo"), PU_LEVEL);
+//    p1 = cacheLumpName<patch_t*> (DEH_String("credit"),  PU_LEVEL);
+//    p2 = cacheLumpName<patch_t*> (DEH_String("vellogo"), PU_LEVEL);
 
     V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
 
@@ -1004,7 +1006,7 @@ static void F_ArtScreenDrawer(void)
 
         lumpname = DEH_String(lumpname);
 
-        V_DrawPatch (0, 0, W_CacheLumpName(lumpname, PU_CACHE));
+        V_DrawPatch (0, 0, cacheLumpName<patch_t*>(lumpname, PU_CACHE));
     }
 }
 */
@@ -1026,7 +1028,7 @@ void F_Drawer (void)
     case F_STAGE_TEXT:
         // Draw slideshow panel
         {
-            patch_t *slide = W_CacheLumpName(slideshow_panel, PU_CACHE);
+            patch_t *slide = cacheLumpName<patch_t*>(slideshow_panel, PU_CACHE);
             V_DrawPatch(0, 0, slide);
         }
         break;
@@ -1034,7 +1036,7 @@ void F_Drawer (void)
         if(gamemap <= 29)
         {
             // draw credits
-            patch_t *credits = W_CacheLumpName(DEH_String("CREDIT"), PU_CACHE);
+            patch_t *credits = cacheLumpName<patch_t*>(DEH_String("CREDIT"), PU_CACHE);
             V_DrawPatch(0, 0, credits);
         }
         else if(gamemap == 34)

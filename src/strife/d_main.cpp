@@ -21,9 +21,9 @@
 
 
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "config.h"
 #include "deh_main.h"
@@ -79,6 +79,9 @@
 #include "r_local.h"
 
 #include "d_main.h"
+
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 //
 // D-DoomLoop()
@@ -159,7 +162,7 @@ static boolean main_loop_started = false;
 static int comport = 0;
 
 // fraggle 06/03/11 [STRIFE]: Multiplayer nickname?
-char *nickname = NULL;
+char *nickname = nullptr;
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -180,7 +183,7 @@ void D_ProcessEvents (void)
     //if (storedemo)
     //    return;
 
-    while ((ev = D_PopEvent()) != NULL)
+    while ((ev = D_PopEvent()) != nullptr)
     {
         if (M_Responder (ev))
             continue;               // menu ate the event
@@ -214,7 +217,7 @@ void D_Display (void)
     static  boolean             inhelpscreensstate = false;
     static  boolean             popupactivestate = false; // [STRIFE]
     static  boolean             fullscreen = false;
-    static  gamestate_t         oldgamestate = -1;
+    static  gamestate_t         oldgamestate = GS_INVALID;
     static  int                 borderdrawcount;
     int                         nowtime;
     int                         tics;
@@ -233,7 +236,7 @@ void D_Display (void)
     if (setsizeneeded)
     {
         R_ExecuteSetViewSize ();
-        oldgamestate = -1;                      // force background redraw
+        oldgamestate = GS_INVALID;                      // force background redraw
         borderdrawcount = 3;
     }
 
@@ -294,7 +297,7 @@ void D_Display (void)
 
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-        I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+        I_SetPalette (cacheLumpName<byte*> (DEH_String("PLAYPAL"),PU_CACHE));
 
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
@@ -352,7 +355,7 @@ void D_Display (void)
         else
             y = (viewwindowy >> crispy->hires)+4;
         V_DrawPatchDirect((viewwindowx >> crispy->hires) + ((scaledviewwidth >> crispy->hires) - 68) / 2, y,
-                          W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
+                          cacheLumpName<patch_t*> (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
 
@@ -577,7 +580,7 @@ void D_PageTicker (void)
 //
 void D_PageDrawer (void)
 {
-    V_DrawPatch (0, 0, W_CacheLumpName(pagename, PU_CACHE));
+    V_DrawPatch (0, 0, cacheLumpName<patch_t*>(pagename, PU_CACHE));
 }
 
 
@@ -641,14 +644,14 @@ void D_DoAdvanceDemo (void)
         pagetic = 10;
         gamestate = GS_DEMOSCREEN;
         pagename = DEH_String("PANEL0");
-        S_StartSound(NULL, sfx_rb2act);
-        wipegamestate = -1;
+        S_StartSound(nullptr, sfx_rb2act);
+        wipegamestate = GS_INVALID;
         break;
     case 0: // Rogue logo
         pagetic = 4*TICRATE;
         gamestate = GS_DEMOSCREEN;
         pagename = DEH_String("RGELOGO");
-        wipegamestate = -1;
+        wipegamestate = GS_INVALID;
         break;
     case 1:
         pagetic = 7*TICRATE;              // The comet struck our planet without
@@ -691,7 +694,7 @@ void D_DoAdvanceDemo (void)
         pagetic = 9*TICRATE;
         gamestate = GS_DEMOSCREEN;
         pagename = DEH_String("TITLEPIC");
-        wipegamestate = -1;
+        wipegamestate = GS_INVALID;
         break;
     case 8: // demo
         ClearTmp();
@@ -702,13 +705,13 @@ void D_DoAdvanceDemo (void)
         pagetic = 6*TICRATE;
         gamestate = GS_DEMOSCREEN;
         pagename = DEH_String("vellogo");
-        wipegamestate = -1;
+        wipegamestate = GS_INVALID;
         break;
     case 10: // credits
         gamestate = GS_DEMOSCREEN;
         pagetic = 12*TICRATE;
         pagename = DEH_String("CREDIT");
-        wipegamestate = -1;
+        wipegamestate = GS_INVALID;
         break;
     default:
         break;
@@ -784,27 +787,25 @@ static char *GetGameName(char *gamename)
         
         if (deh_sub != banners[i])
         {
-            size_t gamename_size;
-
             // Has been replaced
             // We need to expand via printf to include the Doom version 
             // number
             // We also need to cut off spaces to get the basic name
 
-            gamename_size = strlen(deh_sub) + 10;
-            gamename = Z_Malloc(gamename_size, PU_STATIC, 0);
-            M_snprintf(gamename, gamename_size, deh_sub,
+            const auto gamename_size = strlen(deh_sub) + 10;
+            auto* t_gamename = zmalloc<char*>(gamename_size, PU_STATIC, 0);
+            M_snprintf(t_gamename, gamename_size, deh_sub,
                        STRIFE_VERSION / 100, STRIFE_VERSION % 100);
 
-            while (gamename[0] != '\0' && isspace(gamename[0]))
+            while (t_gamename[0] != '\0' && isspace(t_gamename[0]))
             {
-                memmove(gamename, gamename + 1, gamename_size - 1);
+                memmove(t_gamename, t_gamename + 1, gamename_size - 1);
             }
 
-            while (gamename[0] != '\0' && isspace(gamename[strlen(gamename)-1]))
-                gamename[strlen(gamename) - 1] = '\0';
+            while (t_gamename[0] != '\0' && isspace(t_gamename[strlen(t_gamename) - 1]))
+                t_gamename[strlen(t_gamename) - 1] = '\0';
 
-            return gamename;
+            return t_gamename;
         }
     }
 
@@ -836,7 +837,7 @@ void D_IdentifyVersion(void)
     // Load voices.wad 
     if(isregistered)
     {
-        char *name = NULL;
+        char *name = nullptr;
         int p;
 
         // If -iwad was used, check and see if voices.wad exists on the same
@@ -845,7 +846,7 @@ void D_IdentifyVersion(void)
         {
             char   *iwad     = myargv[p + 1];
             size_t  len      = strlen(iwad) + 1;
-            char   *iwadpath = Z_Malloc(len, PU_STATIC, NULL);
+            char   *iwadpath = zmalloc<char*>(len, PU_STATIC, nullptr);
             char   *voiceswad;
 
             // extract base path of IWAD parameter
@@ -896,7 +897,7 @@ void DoTimeBomb(void)
     int serial_year;
     int serial_month;
 
-    serial = W_CacheLumpName("serial", PU_CACHE);
+    serial = cacheLumpName<char*>("serial", PU_CACHE);
     serialnum = atoi(serial);
 
     // Rogue, much like Governor Mourel, were lousy liars. These deceptive
@@ -950,7 +951,7 @@ static boolean D_AddFile(char *filename)
     printf(" adding %s\n", filename);
     handle = W_AddFile(filename);
 
-    return handle != NULL;
+    return handle != nullptr;
 }
 
 // Copyright message banners
@@ -1009,7 +1010,7 @@ static struct
 } gameversions[] = {
     { "Strife 1.2",          "1.2",       exe_strife_1_2  },
     { "Strife 1.31",         "1.31",      exe_strife_1_31 },
-    { NULL,                  NULL,        0               }
+    { nullptr,                  nullptr,        0               }
 };
 
 // Initialize the game version
@@ -1036,7 +1037,7 @@ static void InitGameVersion(void)
 
     if (p)
     {
-        for (i=0; gameversions[i].description != NULL; ++i)
+        for (i=0; gameversions[i].description != nullptr; ++i)
         {
             if (!strcmp(myargv[p+1], gameversions[i].cmdline))
             {
@@ -1045,11 +1046,11 @@ static void InitGameVersion(void)
             }
         }
 
-        if (gameversions[i].description == NULL) 
+        if (gameversions[i].description == nullptr) 
         {
             printf("Supported game versions:\n");
 
-            for (i=0; gameversions[i].description != NULL; ++i)
+            for (i=0; gameversions[i].description != nullptr; ++i)
             {
                 printf("\t%s (%s)\n", gameversions[i].cmdline,
                         gameversions[i].description);
@@ -1068,7 +1069,7 @@ void PrintGameVersion(void)
 {
     int i;
 
-    for (i=0; gameversions[i].description != NULL; ++i)
+    for (i=0; gameversions[i].description != nullptr; ++i)
     {
         if (gameversions[i].version == gameversion)
         {
@@ -1096,7 +1097,7 @@ static void D_Endoom(void)
     }
 
     // haleyjd 08/27/10: [STRIFE] ENDOOM -> ENDSTRF
-    endoom = W_CacheLumpName(DEH_String("ENDSTRF"), PU_STATIC);
+    endoom = cacheLumpName<byte*>(DEH_String("ENDSTRF"), PU_STATIC);
 
     I_Endoom(endoom);
 }
@@ -1286,14 +1287,14 @@ static void D_InitIntroSequence(void)
         V_RestoreBuffer(); // make the V_ routines work
 
         // Load all graphics
-        rawgfx_startup0   = W_CacheLumpName("STARTUP0", PU_STATIC);
-        rawgfx_startp[0]  = W_CacheLumpName("STRTPA1",  PU_STATIC);
-        rawgfx_startp[1]  = W_CacheLumpName("STRTPB1",  PU_STATIC);
-        rawgfx_startp[2]  = W_CacheLumpName("STRTPC1",  PU_STATIC);
-        rawgfx_startp[3]  = W_CacheLumpName("STRTPD1",  PU_STATIC);
-        rawgfx_startlz[0] = W_CacheLumpName("STRTLZ1",  PU_STATIC);
-        rawgfx_startlz[1] = W_CacheLumpName("STRTLZ2",  PU_STATIC);
-        rawgfx_startbot   = W_CacheLumpName("STRTBOT",  PU_STATIC);
+        rawgfx_startup0   = cacheLumpName<byte*>("STARTUP0", PU_STATIC);
+        rawgfx_startp[0]  = cacheLumpName<byte*>("STRTPA1",  PU_STATIC);
+        rawgfx_startp[1]  = cacheLumpName<byte*>("STRTPB1",  PU_STATIC);
+        rawgfx_startp[2]  = cacheLumpName<byte*>("STRTPC1",  PU_STATIC);
+        rawgfx_startp[3]  = cacheLumpName<byte*>("STRTPD1",  PU_STATIC);
+        rawgfx_startlz[0] = cacheLumpName<byte*>("STRTLZ1",  PU_STATIC);
+        rawgfx_startlz[1] = cacheLumpName<byte*>("STRTLZ2",  PU_STATIC);
+        rawgfx_startbot   = cacheLumpName<byte*>("STRTBOT",  PU_STATIC);
 
         // Draw the background
         D_IntroBackground();
@@ -1447,7 +1448,7 @@ void D_IntroTick(void)
         // that without this one-time limitation, the sound is far too loud.
         if(!didsound)
         {
-            S_StartSound(NULL, sfx_psdtha);
+            S_StartSound(nullptr, sfx_psdtha);
             didsound = true;
         }
     }
@@ -1672,7 +1673,7 @@ void D_DoomMain (void)
     {
         // Auto-detect the configuration dir.
 
-        M_SetConfigDir(NULL);
+        M_SetConfigDir(nullptr);
     }
     
     //!
@@ -1721,7 +1722,7 @@ void D_DoomMain (void)
     iwadfile = D_FindIWAD(IWAD_MASK_STRIFE, &gamemission);
 
     // None found?
-    if (iwadfile == NULL)
+    if (iwadfile == nullptr)
     {
         I_Error("Game mode indeterminate.  No IWAD file was found.  Try\n"
                 "specifying one with the '-iwad' command line parameter.\n");
@@ -1759,7 +1760,7 @@ void D_DoomMain (void)
     if(devparm)
     {
         char msgbuf[80];
-        char *serial  = W_CacheLumpName("SERIAL", PU_CACHE);
+        char *serial  = cacheLumpName<char*>("SERIAL", PU_CACHE);
         int serialnum = atoi(serial);
 
         DEH_snprintf(msgbuf, sizeof(msgbuf), "Wad Serial Number: %d:", serialnum);

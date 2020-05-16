@@ -15,11 +15,13 @@
 //
 // R_planes.c
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "doomdef.h"
 #include "deh_str.h"
 #include "i_system.h"
 #include "r_local.h"
+
+#include "../../utils/lump.h"
 
 planefunction_t floorfunc, ceilingfunc;
 
@@ -35,7 +37,7 @@ fixed_t skyiscale;
 // opening
 //
 
-visplane_t *visplanes = NULL, *lastvisplane;
+visplane_t *visplanes = nullptr, *lastvisplane;
 visplane_t *floorplane, *ceilingplane;
 static int numvisplanes;
 
@@ -219,7 +221,7 @@ static void R_RaiseVisplanes (visplane_t** vp)
 	visplane_t* visplanes_old = visplanes;
 
 	numvisplanes = numvisplanes ? 2 * numvisplanes : MAXVISPLANES;
-	visplanes = I_Realloc(visplanes, numvisplanes * sizeof(*visplanes));
+	visplanes = static_cast<visplane_t*>(I_Realloc(visplanes, numvisplanes * sizeof(*visplanes)));
 	memset(visplanes + numvisplanes_old, 0, (numvisplanes - numvisplanes_old) * sizeof(*visplanes));
 
 	lastvisplane = visplanes + numvisplanes_old;
@@ -476,7 +478,7 @@ void R_DrawPlanes(void)
         //
         lumpnum = firstflat + flattranslation[pl->picnum];
 
-        tempSource = W_CacheLumpNum(lumpnum, PU_STATIC);
+        tempSource = cacheLumpNum<byte*>(lumpnum, PU_STATIC);
 
         switch (pl->special)
         {

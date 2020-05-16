@@ -16,9 +16,6 @@
 //	Handling interactions (i.e., collisions).
 //
 
-
-
-
 // Data.
 #include "doomdef.h"
 #include "dstrings.h"
@@ -164,8 +161,8 @@ P_GiveAmmo
 // [crispy] show weapon pickup messages in multiplayer games
 const char *const WeaponPickupMessages[NUMWEAPONS] =
 {
-	NULL, // wp_fist
-	NULL, // wp_pistol
+	nullptr, // wp_fist
+	nullptr, // wp_pistol
 	GOTSHOTGUN,
 	GOTCHAINGUN,
 	GOTLAUNCHER,
@@ -208,7 +205,7 @@ P_GiveWeapon
 	player->message = DEH_String(WeaponPickupMessages[weapon]);
 
 	if (player == &players[consoleplayer])
-	    S_StartSound (NULL, sfx_wpnup);
+	    S_StartSound (nullptr, sfx_wpnup);
 	return false;
     }
 	
@@ -634,7 +631,7 @@ P_TouchSpecialThing
 	    player->backpack = true;
 	}
 	for (i=0 ; i<NUMAMMO ; i++)
-	    P_GiveAmmo (player, i, 1, false);
+	    P_GiveAmmo (player, static_cast<ammotype_t>(i), 1, false);
 	player->message = DEH_String(GOTBACKPACK);
 	break;
 	
@@ -701,7 +698,7 @@ P_TouchSpecialThing
     P_RemoveMobj (special);
     player->bonuscount += BONUSADD;
     if (player == &players[consoleplayer])
-	S_StartSound (NULL, sound);
+	S_StartSound (nullptr, sound);
 }
 
 
@@ -775,11 +772,11 @@ P_KillMobj
     if (target->health < -target->info->spawnhealth 
 	&& target->info->xdeathstate)
     {
-	P_SetMobjState (target, target->info->xdeathstate);
+	P_SetMobjState (target, static_cast<statenum_t>(target->info->xdeathstate));
     }
     else
-	P_SetMobjState (target, target->info->deathstate);
-    target->tics -= P_Random()&3;
+			P_SetMobjState(target, static_cast<statenum_t>(target->info->deathstate));
+		target->tics -= P_Random()&3;
 
     // [crispy] randomly flip corpse, blood and death animation sprites
     if (target->flags & MF_FLIPPABLE)
@@ -832,11 +829,11 @@ P_KillMobj
 // P_DamageMobj
 // Damages both enemies and players
 // "inflictor" is the thing that caused the damage
-//  creature or missile, can be NULL (slime, etc)
+//  creature or missile, can be nullptr (slime, etc)
 // "source" is the thing to target after taking damage
-//  creature or NULL
+//  creature or nullptr
 // Source and inflictor are the same for melee attacks.
-// Source can be NULL for slime, barrel explosions
+// Source can be nullptr for slime, barrel explosions
 // and other environmental stuff.
 //
 void
@@ -967,9 +964,9 @@ P_DamageMobj
 	 && !(target->flags&MF_SKULLFLY) )
     {
 	target->flags |= MF_JUSTHIT;	// fight back!
-	
-	P_SetMobjState (target, target->info->painstate);
-    }
+
+	P_SetMobjState(target, static_cast<statenum_t>(target->info->painstate));
+		}
 			
     target->reactiontime = 0;		// we're awake now...	
 
@@ -983,8 +980,8 @@ P_DamageMobj
 	target->threshold = BASETHRESHOLD;
 	if (target->state == &states[target->info->spawnstate]
 	    && target->info->seestate != S_NULL)
-	    P_SetMobjState (target, target->info->seestate);
-    }
+		P_SetMobjState(target, static_cast<statenum_t>(target->info->seestate));
+		}
 			
 }
 

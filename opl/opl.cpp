@@ -17,9 +17,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "SDL.h"
 
@@ -51,10 +51,10 @@ static opl_driver_t *drivers[] =
     &opl_win32_driver,
 #endif
     &opl_sdl_driver,
-    NULL
+    nullptr
 };
 
-static opl_driver_t *driver = NULL;
+static opl_driver_t *driver = nullptr;
 static int init_stage_reg_writes = 1;
 
 unsigned int opl_sample_rate = 22050;
@@ -92,7 +92,7 @@ static opl_init_result_t InitDriver(opl_driver_t *_driver,
     {
         printf("OPL_Init: No OPL detected using '%s' driver.\n", _driver->name);
         _driver->shutdown_func();
-        driver = NULL;
+        driver = nullptr;
         return OPL_INIT_NONE;
     }
 
@@ -110,7 +110,7 @@ static opl_init_result_t AutoSelectDriver(unsigned int port_base)
     int i;
     opl_init_result_t result;
 
-    for (i=0; drivers[i] != NULL; ++i)
+    for (i=0; drivers[i] != nullptr; ++i)
     {
         result = InitDriver(drivers[i], port_base);
         if (result != OPL_INIT_NONE)
@@ -131,20 +131,19 @@ opl_init_result_t OPL_Init(unsigned int port_base)
 {
     char *driver_name;
     int i;
-    int result;
 
     driver_name = getenv("OPL_DRIVER");
 
-    if (driver_name != NULL)
+    if (driver_name != nullptr)
     {
         // Search the list until we find the driver with this name.
 
-        for (i=0; drivers[i] != NULL; ++i)
+        for (i=0; drivers[i] != nullptr; ++i)
         {
             if (!strcmp(driver_name, drivers[i]->name))
             {
-                result = InitDriver(drivers[i], port_base);
-                if (result)
+                const auto result = InitDriver(drivers[i], port_base);
+                if (result != 0)
                 {
                     return result;
                 }
@@ -169,12 +168,12 @@ opl_init_result_t OPL_Init(unsigned int port_base)
 
 // Shut down the OPL library.
 
-void OPL_Shutdown(void)
+void OPL_Shutdown()
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         driver->shutdown_func();
-        driver = NULL;
+        driver = nullptr;
     }
 }
 
@@ -187,7 +186,7 @@ void OPL_SetSampleRate(unsigned int rate)
 
 void OPL_WritePort(opl_port_t port, unsigned int value)
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
 #ifdef OPL_DEBUG_TRACE
         printf("OPL_write: %i, %x\n", port, value);
@@ -199,7 +198,7 @@ void OPL_WritePort(opl_port_t port, unsigned int value)
 
 unsigned int OPL_ReadPort(opl_port_t port)
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         unsigned int result;
 
@@ -228,7 +227,7 @@ unsigned int OPL_ReadPort(opl_port_t port)
 // (register write, etc).
 //
 
-unsigned int OPL_ReadStatus(void)
+unsigned int OPL_ReadStatus()
 {
     return OPL_ReadPort(OPL_REGISTER_PORT);
 }
@@ -280,7 +279,7 @@ void OPL_WriteRegister(int reg, int value)
 
 // Detect the presence of an OPL chip
 
-opl_init_result_t OPL_Detect(void)
+opl_init_result_t OPL_Detect()
 {
     int result1, result2;
     int i;
@@ -421,48 +420,47 @@ void OPL_InitRegisters(int opl3)
 
 void OPL_SetCallback(uint64_t us, opl_callback_t callback, void *data)
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         driver->set_callback_func(us, callback, data);
     }
 }
 
-void OPL_ClearCallbacks(void)
+void OPL_ClearCallbacks()
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         driver->clear_callbacks_func();
     }
 }
 
-void OPL_Lock(void)
+void OPL_Lock()
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         driver->lock_func();
     }
 }
 
-void OPL_Unlock(void)
+void OPL_Unlock()
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         driver->unlock_func();
     }
 }
 
-typedef struct
+struct delay_data_t
 {
     int finished;
 
     SDL_mutex *mutex;
     SDL_cond *cond;
-} delay_data_t;
+};
 
 static void DelayCallback(void *_delay_data)
 {
-    delay_data_t *delay_data = _delay_data;
-
+    auto* delay_data = static_cast<delay_data_t*>(_delay_data);
     SDL_LockMutex(delay_data->mutex);
     delay_data->finished = 1;
 
@@ -475,7 +473,7 @@ void OPL_Delay(uint64_t us)
 {
     delay_data_t delay_data;
 
-    if (driver == NULL)
+    if (driver == nullptr)
     {
         return;
     }
@@ -508,7 +506,7 @@ void OPL_Delay(uint64_t us)
 
 void OPL_SetPaused(int paused)
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         driver->set_paused_func(paused);
     }
@@ -516,7 +514,7 @@ void OPL_SetPaused(int paused)
 
 void OPL_AdjustCallbacks(float value)
 {
-    if (driver != NULL)
+    if (driver != nullptr)
     {
         driver->adjust_callbacks_func(value);
     }

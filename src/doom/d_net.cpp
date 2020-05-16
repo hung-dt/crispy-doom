@@ -17,7 +17,7 @@
 //	all OS independend parts.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "d_main.h"
 #include "m_argv.h"
@@ -107,12 +107,10 @@ static loop_interface_t doom_loop_interface = {
 
 static void LoadGameSettings(net_gamesettings_t *settings)
 {
-    unsigned int i;
-
     deathmatch = settings->deathmatch;
     startepisode = settings->episode;
     startmap = settings->map;
-    startskill = settings->skill;
+    startskill = static_cast<skill_t>(settings->skill);
     startloadgame = settings->loadgame;
     lowres_turn = settings->lowres_turn;
     nomonsters = settings->nomonsters;
@@ -127,7 +125,7 @@ static void LoadGameSettings(net_gamesettings_t *settings)
                "because there is a client recording a Vanilla demo.\n");
     }
 
-    for (i = 0; i < MAXPLAYERS; ++i)
+    for (std::size_t i = 0; i < MAXPLAYERS; ++i)
     {
         playeringame[i] = i < settings->num_players;
     }
@@ -258,7 +256,7 @@ void D_CheckNetGame (void)
     D_RegisterLoopCallbacks(&doom_loop_interface);
 
     SaveGameSettings(&settings);
-    D_StartNetGame(&settings, NULL);
+    D_StartNetGame(&settings, nullptr);
     LoadGameSettings(&settings);
 
     DEH_printf("startskill %i  deathmatch: %i  startmap: %i  startepisode: %i\n",

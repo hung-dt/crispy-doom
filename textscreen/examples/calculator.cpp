@@ -15,9 +15,9 @@
 // Example program: desktop calculator
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "textscreen.h"
 
@@ -34,7 +34,7 @@ int starting_input = 0;
 int input_value = 0;
 txt_label_t *input_box;
 int first_operand;
-operator_t operator = OP_NONE;
+operator_t op = OP_NONE;
 
 void UpdateInputBox(void)
 {
@@ -77,7 +77,7 @@ void Operator(TXT_UNCAST_ARG(button), TXT_UNCAST_ARG(op))
     TXT_CAST_ARG(operator_t, op);
 
     first_operand = input_value;
-    operator = *op;
+    op = *op;
     starting_input = 1;
 }
 
@@ -96,7 +96,7 @@ void AddOperatorButton(txt_table_t *table, const char *label, operator_t op)
 
 void Calculate(TXT_UNCAST_ARG(button), void *unused)
 {
-    switch (operator)
+    switch (op)
     {
         case OP_PLUS:
             input_value = first_operand + input_value;
@@ -116,7 +116,7 @@ void Calculate(TXT_UNCAST_ARG(button), void *unused)
 
     UpdateInputBox();
 
-    operator = OP_NONE;
+    op = OP_NONE;
     starting_input = 1;
 }
 
@@ -130,7 +130,7 @@ void BuildGUI()
     input_box = TXT_NewLabel("asdf");
     TXT_SetBGColor(input_box, TXT_COLOR_BLACK);
     TXT_AddWidget(window, input_box);
-    TXT_AddWidget(window, TXT_NewSeparator(NULL));
+    TXT_AddWidget(window, TXT_NewSeparator(nullptr));
     TXT_AddWidget(window, TXT_NewStrut(0, 1));
 
     table = TXT_NewTable(4);
@@ -150,9 +150,9 @@ void BuildGUI()
     AddNumberButton(table, 3);
     AddOperatorButton(table, "+", OP_PLUS);
     AddNumberButton(table, 0);
-    TXT_AddWidget(table, NULL);
+    TXT_AddWidget(table, nullptr);
 
-    TXT_AddWidget(table, TXT_NewButton2("  =  ", Calculate, NULL));
+    TXT_AddWidget(table, TXT_NewButton2("  =  ", Calculate, nullptr));
     AddOperatorButton(table, "/", OP_DIV);
     
     TXT_AddWidget(window, TXT_NewStrut(0, 1));

@@ -20,10 +20,7 @@
 //	and some PIT_* functions to use for iteration.
 //
 
-
-
-#include <stdlib.h>
-
+#include <cstdlib>
 
 #include "i_system.h" // [crispy] I_Realloc()
 #include "m_bbox.h"
@@ -31,7 +28,6 @@
 #include "doomdef.h"
 #include "doomstat.h"
 #include "p_local.h"
-
 
 // State.
 #include "r_state.h"
@@ -407,7 +403,7 @@ P_SetThingPosition (mobj_t* thing)
 	// invisible things don't go into the sector links
 	sec = ss->sector;
 	
-	thing->sprev = NULL;
+	thing->sprev = nullptr;
 	thing->snext = sec->thinglist;
 
 	if (sec->thinglist)
@@ -430,7 +426,7 @@ P_SetThingPosition (mobj_t* thing)
 	    && blocky < bmapheight)
 	{
 	    link = &blocklinks[blocky*bmapwidth+blockx];
-	    thing->bprev = NULL;
+	    thing->bprev = nullptr;
 	    thing->bnext = *link;
 	    if (*link)
 		(*link)->bprev = thing;
@@ -440,7 +436,7 @@ P_SetThingPosition (mobj_t* thing)
 	else
 	{
 	    // thing is off the map
-	    thing->bnext = thing->bprev = NULL;
+	    thing->bnext = thing->bprev = nullptr;
 	}
     }
 }
@@ -550,7 +546,7 @@ static void check_intercept(void)
 	if (offset >= num_intercepts)
 	{
 		num_intercepts = num_intercepts ? num_intercepts * 2 : MAXINTERCEPTS_ORIGINAL;
-		intercepts = I_Realloc(intercepts, sizeof(*intercepts) * num_intercepts);
+		intercepts = static_cast<intercept_t*>(I_Realloc(intercepts, sizeof(*intercepts) * num_intercepts));
 		intercept_p = intercepts + offset;
 	}
 }
@@ -791,29 +787,29 @@ typedef struct
 
 static intercepts_overrun_t intercepts_overrun[] =
 {
-    {4,   NULL,                          false},
-    {4,   NULL, /* &earlyout, */         false},
-    {4,   NULL, /* &intercept_p, */      false},
+    {4,   nullptr,                          false},
+    {4,   nullptr, /* &earlyout, */         false},
+    {4,   nullptr, /* &intercept_p, */      false},
     {4,   &lowfloor,                     false},
     {4,   &openbottom,                   false},
     {4,   &opentop,                      false},
     {4,   &openrange,                    false},
-    {4,   NULL,                          false},
-    {120, NULL, /* &activeplats, */      false},
-    {8,   NULL,                          false},
+    {4,   nullptr,                          false},
+    {120, nullptr, /* &activeplats, */      false},
+    {8,   nullptr,                          false},
     {4,   &bulletslope,                  false},
-    {4,   NULL, /* &swingx, */           false},
-    {4,   NULL, /* &swingy, */           false},
-    {4,   NULL,                          false},
+    {4,   nullptr, /* &swingx, */           false},
+    {4,   nullptr, /* &swingy, */           false},
+    {4,   nullptr,                          false},
     {40,  &playerstarts,                 true},
-    {4,   NULL, /* &blocklinks, */       false},
+    {4,   nullptr, /* &blocklinks, */       false},
     {4,   &bmapwidth,                    false},
-    {4,   NULL, /* &blockmap, */         false},
+    {4,   nullptr, /* &blockmap, */         false},
     {4,   &bmaporgx,                     false},
     {4,   &bmaporgy,                     false},
-    {4,   NULL, /* &blockmaplump, */     false},
+    {4,   nullptr, /* &blockmaplump, */     false},
     {4,   &bmapheight,                   false},
-    {0,   NULL,                          false},
+    {0,   nullptr,                          false},
 };
 
 // Overwrite a specific memory location with a value.
@@ -838,7 +834,7 @@ static void InterceptsMemoryOverrun(int location, int value)
             // Write the value to the memory location.
             // 16-bit and 32-bit values are written differently.
 
-            if (addr != NULL)
+            if (addr != nullptr)
             {
                 if (intercepts_overrun[i].int16_array)
                 {

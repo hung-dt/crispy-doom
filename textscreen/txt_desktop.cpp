@@ -12,9 +12,9 @@
 // GNU General Public License for more details.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomkeys.h"
 
@@ -33,7 +33,7 @@ static txt_window_t *all_windows[MAXWINDOWS];
 static int num_windows = 0;
 static int main_loop_running = 0;
 
-static TxtIdleCallback periodic_callback = NULL;
+static TxtIdleCallback periodic_callback = nullptr;
 static void *periodic_callback_data;
 static unsigned int periodic_callback_period;
 
@@ -81,11 +81,11 @@ void TXT_RemoveDesktopWindow(txt_window_t *win)
     }
 }
 
-txt_window_t *TXT_GetActiveWindow(void)
+txt_window_t *TXT_GetActiveWindow()
 {
     if (num_windows == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     return all_windows[num_windows - 1];
@@ -189,10 +189,10 @@ static void DrawDesktopBackground(const char *title)
     TXT_Puts(title);
 }
 
-static void DrawHelpIndicator(void)
+static void DrawHelpIndicator()
 {
     char keybuf[10];
-    int fgcolor;
+    txt_color_t fgcolor;
     int x, y;
 
     TXT_GetKeyDescription(HELP_KEY, keybuf, sizeof(keybuf));
@@ -227,7 +227,7 @@ void TXT_SetDesktopTitle(const char *title)
     TXT_SetWindowTitle(title);
 }
 
-void TXT_DrawDesktop(void)
+void TXT_DrawDesktop()
 {
     txt_window_t *active_window;
     const char *title;
@@ -235,7 +235,7 @@ void TXT_DrawDesktop(void)
 
     TXT_InitClipArea();
 
-    if (desktop_title == NULL)
+    if (desktop_title == nullptr)
         title = "";
     else
         title = desktop_title;
@@ -243,7 +243,7 @@ void TXT_DrawDesktop(void)
     DrawDesktopBackground(title);
 
     active_window = TXT_GetActiveWindow();
-    if (active_window != NULL && active_window->help_url != NULL)
+    if (active_window != nullptr && active_window->help_url != nullptr)
     {
         DrawHelpIndicator();
     }
@@ -278,7 +278,7 @@ static void DesktopInputEvent(int c)
 
         case HELP_KEY:
             active_window = TXT_GetActiveWindow();
-            if (active_window != NULL)
+            if (active_window != nullptr)
             {
                 TXT_OpenWindowHelpURL(active_window);
             }
@@ -291,7 +291,7 @@ static void DesktopInputEvent(int c)
 
 }
 
-void TXT_DispatchEvents(void)
+void TXT_DispatchEvents()
 {
     txt_window_t *active_window;
     int c;
@@ -300,19 +300,19 @@ void TXT_DispatchEvents(void)
     {
         active_window = TXT_GetActiveWindow();
 
-        if (active_window != NULL && !TXT_WindowKeyPress(active_window, c))
+        if (active_window != nullptr && !TXT_WindowKeyPress(active_window, c))
         {
             DesktopInputEvent(c);
         }
     }
 }
 
-void TXT_ExitMainLoop(void)
+void TXT_ExitMainLoop()
 {
     main_loop_running = 0;
 }
 
-void TXT_DrawASCIITable(void)
+void TXT_DrawASCIITable()
 {
     unsigned char *screendata;
     char buf[10];
@@ -352,7 +352,7 @@ void TXT_SetPeriodicCallback(TxtIdleCallback callback,
     periodic_callback_period = period;
 }
 
-void TXT_GUIMainLoop(void)
+void TXT_GUIMainLoop()
 {
     main_loop_running = 1;
 
@@ -371,7 +371,7 @@ void TXT_GUIMainLoop(void)
         TXT_DrawDesktop();
 //        TXT_DrawASCIITable();
 
-        if (periodic_callback == NULL)
+        if (periodic_callback == nullptr)
         {
             TXT_Sleep(0);
         }

@@ -18,9 +18,6 @@
 //	 e.g. inline assembly, different algorithms.
 //
 
-
-
-
 #include "doomdef.h"
 #include "deh_main.h"
 
@@ -37,6 +34,8 @@
 // State.
 #include "doomstat.h"
 
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 // ?
 //#define MAXWIDTH			1120
@@ -73,7 +72,7 @@ byte		translations[3][256];
 // Backing buffer containing the bezel drawn around the screen and 
 // surrounding background.
 
-static pixel_t *background_buffer = NULL;
+static pixel_t *background_buffer = nullptr;
 
 
 //
@@ -741,7 +740,7 @@ void R_InitTranslationTables (void)
 {
     int		i;
 	
-    translationtables = Z_Malloc (256*3, PU_STATIC, 0);
+    translationtables = zmalloc<byte*>(256*3, PU_STATIC, 0);
     
     // translate just the 16 green colors
     for (i=0 ; i<256 ; i++)
@@ -1059,10 +1058,10 @@ void R_FillBackScreen (void)
 
     if (scaledviewwidth == SCREENWIDTH)
     {
-        if (background_buffer != NULL)
+        if (background_buffer != nullptr)
         {
             Z_Free(background_buffer);
-            background_buffer = NULL;
+            background_buffer = nullptr;
         }
 
 	return;
@@ -1070,10 +1069,10 @@ void R_FillBackScreen (void)
 
     // Allocate the background buffer if necessary
 	
-    if (background_buffer == NULL)
+    if (background_buffer == nullptr)
     {
-        background_buffer = Z_Malloc(MAXWIDTH * (MAXHEIGHT - SBARHEIGHT) * sizeof(*background_buffer),
-                                     PU_STATIC, NULL);
+        background_buffer = zmalloc<pixel_t*>(MAXWIDTH * (MAXHEIGHT - SBARHEIGHT) * sizeof(*background_buffer),
+                                     PU_STATIC, nullptr);
     }
 
     if (gamemode == commercial)
@@ -1081,7 +1080,7 @@ void R_FillBackScreen (void)
     else
 	name = name1;
     
-    src = W_CacheLumpName(name, PU_CACHE); 
+    src = cacheLumpName<byte*>(name, PU_CACHE); 
     dest = background_buffer;
 	 
     for (y=0 ; y<SCREENHEIGHT-SBARHEIGHT ; y++) 
@@ -1110,19 +1109,19 @@ void R_FillBackScreen (void)
 
     V_UseBuffer(background_buffer);
 
-    patch = W_CacheLumpName(DEH_String("brdr_t"),PU_CACHE);
+    patch = cacheLumpName<patch_t*>(DEH_String("brdr_t"),PU_CACHE);
 
     for (x=0 ; x<(scaledviewwidth >> crispy->hires) ; x+=8)
 	V_DrawPatch((viewwindowx >> crispy->hires)+x-WIDESCREENDELTA, (viewwindowy >> crispy->hires)-8, patch);
-    patch = W_CacheLumpName(DEH_String("brdr_b"),PU_CACHE);
+    patch = cacheLumpName<patch_t*>(DEH_String("brdr_b"),PU_CACHE);
 
     for (x=0 ; x<(scaledviewwidth >> crispy->hires) ; x+=8)
 	V_DrawPatch((viewwindowx >> crispy->hires)+x-WIDESCREENDELTA, (viewwindowy >> crispy->hires)+(viewheight >> crispy->hires), patch);
-    patch = W_CacheLumpName(DEH_String("brdr_l"),PU_CACHE);
+    patch = cacheLumpName<patch_t*>(DEH_String("brdr_l"),PU_CACHE);
 
     for (y=0 ; y<(viewheight >> crispy->hires) ; y+=8)
 	V_DrawPatch((viewwindowx >> crispy->hires)-8-WIDESCREENDELTA, (viewwindowy >> crispy->hires)+y, patch);
-    patch = W_CacheLumpName(DEH_String("brdr_r"),PU_CACHE);
+    patch = cacheLumpName<patch_t*>(DEH_String("brdr_r"),PU_CACHE);
 
     for (y=0 ; y<(viewheight >> crispy->hires) ; y+=8)
 	V_DrawPatch((viewwindowx >> crispy->hires)+(scaledviewwidth >> crispy->hires)-WIDESCREENDELTA, (viewwindowy >> crispy->hires)+y, patch);
@@ -1130,19 +1129,19 @@ void R_FillBackScreen (void)
     // Draw beveled edge. 
     V_DrawPatch((viewwindowx >> crispy->hires)-8-WIDESCREENDELTA,
                 (viewwindowy >> crispy->hires)-8,
-                W_CacheLumpName(DEH_String("brdr_tl"),PU_CACHE));
+                cacheLumpName<patch_t*>(DEH_String("brdr_tl"),PU_CACHE));
     
     V_DrawPatch((viewwindowx >> crispy->hires)+(scaledviewwidth >> crispy->hires)-WIDESCREENDELTA,
                 (viewwindowy >> crispy->hires)-8,
-                W_CacheLumpName(DEH_String("brdr_tr"),PU_CACHE));
+                cacheLumpName<patch_t*>(DEH_String("brdr_tr"),PU_CACHE));
     
     V_DrawPatch((viewwindowx >> crispy->hires)-8-WIDESCREENDELTA,
                 (viewwindowy >> crispy->hires)+(viewheight >> crispy->hires),
-                W_CacheLumpName(DEH_String("brdr_bl"),PU_CACHE));
+                cacheLumpName<patch_t*>(DEH_String("brdr_bl"),PU_CACHE));
     
     V_DrawPatch((viewwindowx >> crispy->hires)+(scaledviewwidth >> crispy->hires)-WIDESCREENDELTA,
                 (viewwindowy >> crispy->hires)+(viewheight >> crispy->hires),
-                W_CacheLumpName(DEH_String("brdr_br"),PU_CACHE));
+                cacheLumpName<patch_t*>(DEH_String("brdr_br"),PU_CACHE));
 
     V_RestoreBuffer();
 } 
@@ -1162,7 +1161,7 @@ R_VideoErase
   //  a 32bit CPU, as GNU GCC/Linux libc did
   //  at one point.
 
-    if (background_buffer != NULL)
+    if (background_buffer != nullptr)
     {
         memcpy(I_VideoBuffer + ofs, background_buffer + ofs, count * sizeof(*I_VideoBuffer));
     }

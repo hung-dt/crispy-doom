@@ -27,6 +27,9 @@
 
 #include "v_diskicon.h"
 
+#include "../utils/memory.h"
+#include "../utils/lump.h"
+
 // Only display the disk icon if more then this much bytes have been read
 // during the previous tic.
 
@@ -63,28 +66,25 @@ static void CopyRegion(pixel_t *dest, int dest_pitch,
 
 static void SaveDiskData(const char *disk_lump, int xoffs, int yoffs)
 {
-    pixel_t *tmpscreen;
-    patch_t *disk;
-
     // Allocate a complete temporary screen where we'll draw the patch.
-    tmpscreen = Z_Malloc(SCREENWIDTH * SCREENHEIGHT * sizeof(*tmpscreen),
-                         PU_STATIC, NULL);
+    pixel_t* tmpscreen = zmalloc<pixel_t*>(SCREENWIDTH * SCREENHEIGHT * sizeof(*tmpscreen),
+                         PU_STATIC, nullptr);
     memset(tmpscreen, 0, SCREENWIDTH * SCREENHEIGHT * sizeof(*tmpscreen));
     V_UseBuffer(tmpscreen);
 
     // Buffer where we'll save the disk data.
 
-    if (disk_data != NULL)
+    if (disk_data != nullptr)
     {
         Z_Free(disk_data);
-        disk_data = NULL;
+        disk_data = nullptr;
     }
 
-    disk_data = Z_Malloc(LOADING_DISK_W * LOADING_DISK_H * sizeof(*disk_data),
-                         PU_STATIC, NULL);
+    disk_data = zmalloc<pixel_t*>(LOADING_DISK_W * LOADING_DISK_H * sizeof(*disk_data),
+                         PU_STATIC, nullptr);
 
     // Draw the patch and save the result to disk_data.
-    disk = W_CacheLumpName(disk_lump, PU_STATIC);
+    auto* disk = cacheLumpName<patch_t*>(disk_lump, PU_STATIC);
     V_DrawPatch((loading_disk_xoffs >> crispy->hires) - WIDESCREENDELTA, loading_disk_yoffs >> crispy->hires, disk);
     CopyRegion(disk_data, LOADING_DISK_W,
                tmpscreen + yoffs * SCREENWIDTH + xoffs, SCREENWIDTH,
@@ -100,15 +100,15 @@ void V_EnableLoadingDisk(const char *lump_name, int xoffs, int yoffs)
     loading_disk_xoffs = xoffs;
     loading_disk_yoffs = yoffs;
 
-    if (saved_background != NULL)
+    if (saved_background != nullptr)
     {
         Z_Free(saved_background);
-        saved_background = NULL;
+        saved_background = nullptr;
     }
 
-    saved_background = Z_Malloc(LOADING_DISK_W * LOADING_DISK_H
+    saved_background = zmalloc<pixel_t*>(LOADING_DISK_W * LOADING_DISK_H
                                  * sizeof(*saved_background),
-                                PU_STATIC, NULL);
+                                PU_STATIC, nullptr);
     SaveDiskData(lump_name, xoffs, yoffs);
 }
 
@@ -126,7 +126,7 @@ static pixel_t *DiskRegionPointer(void)
 
 void V_DrawDiskIcon(void)
 {
-    if (disk_data != NULL && recent_bytes_read > diskicon_threshold)
+    if (disk_data != nullptr && recent_bytes_read > diskicon_threshold)
     {
         // Save the background behind the disk before we draw it.
         CopyRegion(saved_background, LOADING_DISK_W,

@@ -21,9 +21,9 @@
 
 
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <time.h> // [crispy] time_t, time(), struct tm, localtime()
 
 #include "config.h"
@@ -74,8 +74,9 @@
 #include "r_local.h"
 #include "statdump.h"
 
-
 #include "d_main.h"
+
+#include "../utils/lump.h"
 
 //
 // D-DoomLoop()
@@ -147,7 +148,7 @@ void D_ProcessEvents (void)
     if (storedemo)
         return;
 	
-    while ((ev = D_PopEvent()) != NULL)
+    while ((ev = D_PopEvent()) != nullptr)
     {
 	if (M_Responder (ev))
 	    continue;               // menu ate the event
@@ -175,7 +176,7 @@ boolean D_Display (void)
     static  boolean		menuactivestate = false;
     static  boolean		inhelpscreensstate = false;
     static  boolean		fullscreen = false;
-    static  gamestate_t		oldgamestate = -1;
+    static  gamestate_t		oldgamestate = GS_INVALID;
     static  int			borderdrawcount;
     int				y;
     boolean			wipe;
@@ -187,7 +188,7 @@ boolean D_Display (void)
     if (setsizeneeded)
     {
 	R_ExecuteSetViewSize ();
-	oldgamestate = -1;                      // force background redraw
+	oldgamestate = GS_INVALID;                      // force background redraw
 	borderdrawcount = 3;
     }
 
@@ -257,7 +258,7 @@ boolean D_Display (void)
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
 #ifndef CRISPY_TRUECOLOR
-	I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+	I_SetPalette (cacheLumpName<byte*> (DEH_String("PLAYPAL"),PU_CACHE));
 #else
 	I_SetPalette (0);
 #endif
@@ -320,7 +321,7 @@ boolean D_Display (void)
 	else
 	    y = (viewwindowy >> crispy->hires)+4;
 	V_DrawPatchDirect((viewwindowx >> crispy->hires) + ((scaledviewwidth >> crispy->hires) - 68) / 2 - WIDESCREENDELTA, y,
-                          W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
+                          cacheLumpName<patch_t*> (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
 
@@ -530,7 +531,7 @@ void D_RunFrame()
 	if (crispy->post_rendering_hook && !wipe)
 	{
 		crispy->post_rendering_hook();
-		crispy->post_rendering_hook = NULL;
+		crispy->post_rendering_hook = nullptr;
 	}
 }
 
@@ -605,7 +606,7 @@ void D_PageTicker (void)
 //
 void D_PageDrawer (void)
 {
-    V_DrawPatchFullScreen (W_CacheLumpName(pagename, PU_CACHE), crispy->fliplevels);
+    V_DrawPatchFullScreen (cacheLumpName<patch_t*>(pagename, PU_CACHE), crispy->fliplevels);
 }
 
 
@@ -789,21 +790,17 @@ static char *GetGameName(const char *gamename)
 
         if (deh_sub != banners[i])
         {
-            size_t gamename_size;
-            int version;
-            char *deh_gamename;
-
             // Has been replaced.
             // We need to expand via printf to include the Doom version number
             // We also need to cut off spaces to get the basic name
 
-            gamename_size = strlen(deh_sub) + 10;
-            deh_gamename = malloc(gamename_size);
-            if (deh_gamename == NULL)
+            const auto gamename_size = strlen(deh_sub) + 10;
+            auto* deh_gamename = static_cast<char*>(malloc(gamename_size));
+            if (deh_gamename == nullptr)
             {
                 I_Error("GetGameName: Failed to allocate new string");
             }
-            version = G_VanillaVersionCode();
+            const auto version = G_VanillaVersionCode();
             DEH_snprintf(deh_gamename, gamename_size, banners[i],
                          version / 100, version % 100);
 
@@ -826,31 +823,30 @@ static char *GetGameName(const char *gamename)
 
 static void SetMissionForPackName(const char *pack_name)
 {
-    int i;
-    static const struct
+    static constexpr struct
     {
         const char *name;
-        int mission;
+        GameMission_t mission;
     } packs[] = {
         { "doom2",    doom2 },
         { "tnt",      pack_tnt },
         { "plutonia", pack_plut },
     };
 
-    for (i = 0; i < arrlen(packs); ++i)
+    for (const auto& pack : packs)
     {
-        if (!strcasecmp(pack_name, packs[i].name))
+        if (!strcasecmp(pack_name, pack.name))
         {
-            gamemission = packs[i].mission;
+            gamemission = pack.mission;
             return;
         }
     }
 
     printf("Valid mission packs are:\n");
 
-    for (i = 0; i < arrlen(packs); ++i)
+    for (const auto &pack : packs)
     {
-        printf("\t%s\n", packs[i].name);
+        printf("\t%s\n", pack.name);
     }
 
     I_Error("Unknown mission pack name: %s", pack_name);
@@ -1003,7 +999,7 @@ static void D_SetGameDescription(void)
         }
     }
 
-    if (gamedescription == NULL)
+    if (gamedescription == nullptr)
     {
         gamedescription = M_StringDuplicate("Unknown");
     }
@@ -1019,7 +1015,7 @@ static boolean D_AddFile(char *filename)
     printf(" adding %s\n", filename);
     handle = W_AddFile(filename);
 
-    return handle != NULL;
+    return handle != nullptr;
 }
 
 // Copyright message banners
@@ -1088,7 +1084,7 @@ static struct
     {"Final Doom",           "final",      exe_final},
     {"Final Doom (alt)",     "final2",     exe_final2},
     {"Chex Quest",           "chex",       exe_chex},
-    { NULL,                  NULL,         0},
+    { nullptr,                  nullptr,         exe_doom_1_2},
 };
 
 // Initialize the game version
@@ -1115,7 +1111,7 @@ static void InitGameVersion(void)
 
     if (p)
     {
-        for (i=0; gameversions[i].description != NULL; ++i)
+        for (i=0; gameversions[i].description != nullptr; ++i)
         {
             if (!strcmp(myargv[p+1], gameversions[i].cmdline))
             {
@@ -1124,11 +1120,11 @@ static void InitGameVersion(void)
             }
         }
         
-        if (gameversions[i].description == NULL) 
+        if (gameversions[i].description == nullptr) 
         {
             printf("Supported game versions:\n");
 
-            for (i=0; gameversions[i].description != NULL; ++i)
+            for (i=0; gameversions[i].description != nullptr; ++i)
             {
                 printf("\t%s (%s)\n", gameversions[i].cmdline,
                         gameversions[i].description);
@@ -1165,7 +1161,7 @@ static void InitGameVersion(void)
                 M_snprintf(demolumpname, 6, "demo%i", i);
                 if (W_CheckNumForName(demolumpname) > 0)
                 {
-                    demolump = W_CacheLumpName(demolumpname, PU_STATIC);
+                    demolump = cacheLumpName<byte*>(demolumpname, PU_STATIC);
                     demoversion = demolump[0];
                     W_ReleaseLumpName(demolumpname);
                     status = true;
@@ -1243,7 +1239,7 @@ void PrintGameVersion(void)
 {
     int i;
 
-    for (i=0; gameversions[i].description != NULL; ++i)
+    for (i=0; gameversions[i].description != nullptr; ++i)
     {
         if (gameversions[i].version == gameversion)
         {
@@ -1270,7 +1266,7 @@ static void D_Endoom(void)
         return;
     }
 
-    endoom = W_CacheLumpName(DEH_String("ENDOOM"), PU_STATIC);
+    endoom = cacheLumpName<byte*>(DEH_String("ENDOOM"), PU_STATIC);
 
     I_Endoom(endoom);
 }
@@ -1301,12 +1297,12 @@ static void LoadIwadDeh(void)
     // and installed next to the IWAD.
     if (gameversion == exe_chex)
     {
-        char *chex_deh = NULL;
+        char *chex_deh = nullptr;
         char *dirname;
 
         // Look for chex.deh in the same directory as the IWAD file.
         dirname = M_DirName(iwadfile);
-        chex_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "chex.deh", NULL);
+        chex_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "chex.deh", nullptr);
         free(dirname);
 
         // If the dehacked patch isn't found, try searching the WAD
@@ -1318,7 +1314,7 @@ static void LoadIwadDeh(void)
         }
 
         // Still not found?
-        if (chex_deh == NULL)
+        if (chex_deh == nullptr)
         {
             I_Error("Unable to find Chex Quest dehacked file (chex.deh).\n"
                     "The dehacked file is required in order to emulate\n"
@@ -1339,9 +1335,9 @@ static void LoadSigilWad(void)
 {
     int i;
 
-    struct {
+    static constexpr struct {
         const char *name;
-        const char new_name[8];
+        const char new_name[9];
     } sigil_lumps [] = {
         {"CREDIT",   "SIGCREDI"},
         {"HELP1",    "SIGHELP1"},
@@ -1395,16 +1391,16 @@ static void LoadSigilWad(void)
             "SIGIL_v1_2.wad",
             "SIGIL.wad"
         };
-        char *sigil_wad = NULL, *sigil_shreds = NULL;
+        char *sigil_wad = nullptr, *sigil_shreds = nullptr;
         char *dirname;
 
         dirname = M_DirName(iwadfile);
-        sigil_shreds = M_StringJoin(dirname, DIR_SEPARATOR_S, "SIGIL_SHREDS.wad", NULL);
+        sigil_shreds = M_StringJoin(dirname, DIR_SEPARATOR_S, "SIGIL_SHREDS.wad", nullptr);
 
         // [crispy] load SIGIL.WAD
         for (i = 0; i < arrlen(sigil_wads); i++)
         {
-            sigil_wad = M_StringJoin(dirname, DIR_SEPARATOR_S, sigil_wads[i], NULL);
+            sigil_wad = M_StringJoin(dirname, DIR_SEPARATOR_S, sigil_wads[i], nullptr);
 
             if (M_FileExists(sigil_wad))
             {
@@ -1421,7 +1417,7 @@ static void LoadSigilWad(void)
         }
         free(dirname);
 
-        if (sigil_wad == NULL)
+        if (sigil_wad == nullptr)
         {
             free(sigil_shreds);
             return;
@@ -1438,7 +1434,7 @@ static void LoadSigilWad(void)
             sigil_shreds = D_FindWADByName("SIGIL_SHREDS.wad");
         }
 
-        if (sigil_shreds != NULL)
+        if (sigil_shreds != nullptr)
         {
             printf(" [expansion]");
             D_AddFile(sigil_shreds);
@@ -1500,11 +1496,11 @@ static void LoadNerveWad(void)
     }
     else
     {
-        if (strrchr(iwadfile, DIR_SEPARATOR) != NULL)
+        if (strrchr(iwadfile, DIR_SEPARATOR) != nullptr)
         {
             char *dir;
             dir = M_DirName(iwadfile);
-            crispy->havenerve = M_StringJoin(dir, DIR_SEPARATOR_S, "nerve.wad", NULL);
+            crispy->havenerve = M_StringJoin(dir, DIR_SEPARATOR_S, "nerve.wad", nullptr);
             free(dir);
         }
         else
@@ -1518,7 +1514,7 @@ static void LoadNerveWad(void)
             crispy->havenerve = D_FindWADByName("nerve.wad");
         }
 
-        if (crispy->havenerve == NULL)
+        if (crispy->havenerve == nullptr)
         {
             return;
         }
@@ -1562,11 +1558,11 @@ static void LoadMasterlevelsWad(void)
     }
     else
     {
-        if (strrchr(iwadfile, DIR_SEPARATOR) != NULL)
+        if (strrchr(iwadfile, DIR_SEPARATOR) != nullptr)
         {
             char *dir;
             dir = M_DirName(iwadfile);
-            crispy->havemaster = M_StringJoin(dir, DIR_SEPARATOR_S, "masterlevels.wad", NULL);
+            crispy->havemaster = M_StringJoin(dir, DIR_SEPARATOR_S, "masterlevels.wad", nullptr);
             free(dir);
         }
         else
@@ -1580,7 +1576,7 @@ static void LoadMasterlevelsWad(void)
             crispy->havemaster = D_FindWADByName("masterlevels.wad");
         }
 
-        if (crispy->havemaster == NULL)
+        if (crispy->havemaster == nullptr)
         {
             return;
         }
@@ -1784,7 +1780,7 @@ void D_DoomMain (void)
     {
         // Auto-detect the configuration dir.
 
-        M_SetConfigDir(NULL);
+        M_SetConfigDir(nullptr);
     }
 
     //!
@@ -1833,7 +1829,7 @@ void D_DoomMain (void)
 
     // None found?
 
-    if (iwadfile == NULL)
+    if (iwadfile == nullptr)
     {
         I_Error("Game mode indeterminate.  No IWAD file was found.  Try\n"
                 "specifying one with the '-iwad' command line parameter.\n");
@@ -2145,7 +2141,7 @@ void D_DoomMain (void)
     {
 	// These are the lumps that will be checked in IWAD,
 	// if any one is not present, execution will be aborted.
-	char name[23][8]=
+	char name[23][9]=
 	{
 	    "e2m1","e2m2","e2m3","e2m4","e2m5","e2m6","e2m7","e2m8","e2m9",
 	    "e3m1","e3m3","e3m3","e3m4","e3m5","e3m6","e3m7","e3m8","e3m9",
@@ -2247,7 +2243,7 @@ void D_DoomMain (void)
 
     if (p)
     {
-	startskill = myargv[p+1][0]-'1';
+	startskill = static_cast<skill_t>(myargv[p+1][0]-'1');
 	autostart = true;
     }
 
@@ -2350,7 +2346,7 @@ void D_DoomMain (void)
     // [crispy] port level flipping feature over from Strawberry Doom
 #ifdef ENABLE_APRIL_1ST_JOKE
     {
-        time_t curtime = time(NULL);
+        time_t curtime = time(nullptr);
         struct tm *curtm = localtime(&curtime);
 
         if (curtm && curtm->tm_mon == 3 && curtm->tm_mday == 1)

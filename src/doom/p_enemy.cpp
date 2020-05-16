@@ -18,8 +18,8 @@
 //	that are associated with states/frames. 
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "m_random.h"
 #include "i_system.h"
@@ -384,7 +384,7 @@ void P_NewChaseDir (mobj_t*	actor)
     if (!actor->target)
 	I_Error ("P_NewChaseDir: called with no target");
 		
-    olddir = actor->movedir;
+    olddir = static_cast<dirtype_t>(actor->movedir);
     turnaround=opposite[olddir];
 
     deltax = actor->target->x - actor->x;
@@ -419,7 +419,7 @@ void P_NewChaseDir (mobj_t*	actor)
     {
 	tdir=d[1];
 	d[1]=d[2];
-	d[2]=tdir;
+	d[2]=static_cast<dirtype_t>(tdir);
     }
 
     if (d[1]==turnaround)
@@ -669,7 +669,7 @@ void A_Look (mobj_t* actor)
 	{
 	    // full volume
 	    // [crispy] prevent from adding up volume
-	    crispy->soundfull ? S_StartSoundOnce (NULL, sound) : S_StartSound (NULL, sound);
+	    crispy->soundfull ? S_StartSoundOnce (nullptr, sound) : S_StartSound (nullptr, sound);
 	}
 	else
 	    S_StartSound (actor, sound);
@@ -681,7 +681,7 @@ void A_Look (mobj_t* actor)
 	}
     }
 
-    P_SetMobjState (actor, actor->info->seestate);
+    P_SetMobjState (actor, static_cast<statenum_t>(actor->info->seestate));
 }
 
 
@@ -728,9 +728,9 @@ void A_Chase (mobj_t*	actor)
 	// look for a new target
 	if (P_LookForPlayers(actor,true))
 	    return; 	// got a new target
-	
-	P_SetMobjState (actor, actor->info->spawnstate);
-	return;
+
+    P_SetMobjState(actor, static_cast<statenum_t>(actor->info->spawnstate));
+    return;
     }
     
     // do not attack twice in a row
@@ -749,7 +749,7 @@ void A_Chase (mobj_t*	actor)
 	if (actor->info->attacksound)
 	    S_StartSound (actor, actor->info->attacksound);
 
-	P_SetMobjState (actor, actor->info->meleestate);
+	P_SetMobjState (actor, static_cast<statenum_t>(actor->info->meleestate));
 	return;
     }
     
@@ -764,9 +764,9 @@ void A_Chase (mobj_t*	actor)
 	
 	if (!P_CheckMissileRange (actor))
 	    goto nomissile;
-	
-	P_SetMobjState (actor, actor->info->missilestate);
-	actor->flags |= MF_JUSTATTACKED;
+
+    P_SetMobjState(actor, static_cast<statenum_t>(actor->info->missilestate));
+    actor->flags |= MF_JUSTATTACKED;
 	return;
     }
 
@@ -895,7 +895,7 @@ void A_CPosRefire (mobj_t* actor)
 	|| actor->target->health <= 0
 	|| !P_CheckSight (actor, actor->target) )
     {
-	P_SetMobjState (actor, actor->info->seestate);
+        P_SetMobjState(actor, static_cast<statenum_t>(actor->info->seestate));
     }
 }
 
@@ -912,7 +912,7 @@ void A_SpidRefire (mobj_t* actor)
 	|| actor->target->health <= 0
 	|| !P_CheckSight (actor, actor->target) )
     {
-	P_SetMobjState (actor, actor->info->seestate);
+        P_SetMobjState(actor, static_cast<statenum_t>(actor->info->seestate));
     }
 }
 
@@ -1241,12 +1241,12 @@ void A_VileChase (mobj_t* actor)
 		    P_SetMobjState (actor, S_VILE_HEAL1);
 		    S_StartSound (corpsehit, sfx_slop);
 		    info = corpsehit->info;
-		    
-		    P_SetMobjState (corpsehit,info->raisestate);
-		    corpsehit->height <<= 2;
+
+            P_SetMobjState(corpsehit, static_cast<statenum_t>(info->raisestate));
+            corpsehit->height <<= 2;
 		    corpsehit->flags = info->flags;
 		    corpsehit->health = info->spawnhealth;
-		    corpsehit->target = NULL;
+		    corpsehit->target = nullptr;
 
 		    // [crispy] count resurrected monsters
 		    extrakills++;
@@ -1624,7 +1624,7 @@ void A_Scream (mobj_t* actor)
     {
 	// full volume
 	// [crispy] prevent from adding up volume
-	crispy->soundfull ? S_StartSoundOnce (NULL, sound) : S_StartSound (NULL, sound);
+	crispy->soundfull ? S_StartSoundOnce (nullptr, sound) : S_StartSound (nullptr, sound);
     }
     else
 	S_StartSound (actor, sound);
@@ -1880,12 +1880,12 @@ A_CloseShotgun2
 {
     if (!player) return; // [crispy] let pspr action pointers get called from mobj states
     S_StartSound (player->so, sfx_dbcls); // [crispy] weapon sound source
-    A_ReFire(NULL,player,psp); // [crispy] let pspr action pointers get called from mobj states
+    A_ReFire(nullptr,player,psp); // [crispy] let pspr action pointers get called from mobj states
 }
 
 
 
-mobj_t**		braintargets = NULL;
+mobj_t**		braintargets = nullptr;
 int		numbraintargets = 0; // [crispy] initialize
 int		braintargeton = 0;
 static int	maxbraintargets; // [crispy] remove braintargets limit
@@ -1915,7 +1915,7 @@ void A_BrainAwake (mobj_t* mo)
 	    if (numbraintargets == maxbraintargets)
 	    {
 		maxbraintargets = maxbraintargets ? 2 * maxbraintargets : 32;
-		braintargets = I_Realloc(braintargets, maxbraintargets * sizeof(*braintargets));
+		braintargets = static_cast<mobj_t**>(I_Realloc(braintargets, maxbraintargets * sizeof(*braintargets)));
 
 		if (maxbraintargets > 32)
 		    fprintf(stderr, "R_BrainAwake: Raised braintargets limit to %d.\n", maxbraintargets);
@@ -1926,7 +1926,7 @@ void A_BrainAwake (mobj_t* mo)
 	}
     }
 	
-    S_StartSound (NULL,sfx_bossit);
+    S_StartSound (nullptr,sfx_bossit);
 
     // [crispy] prevent braintarget overflow
     // (e.g. in two subsequent maps featuring a brain spitter)
@@ -1944,7 +1944,7 @@ void A_BrainAwake (mobj_t* mo)
 void A_BrainPain (mobj_t*	mo)
 {
     // [crispy] prevent from adding up volume
-    crispy->soundfull ? S_StartSoundOnce (NULL,sfx_bospn) : S_StartSound (NULL,sfx_bospn);
+    crispy->soundfull ? S_StartSoundOnce (nullptr,sfx_bospn) : S_StartSound (nullptr,sfx_bospn);
 }
 
 
@@ -1969,7 +1969,7 @@ void A_BrainScream (mobj_t*	mo)
 	    th->tics = 1;
     }
 	
-    S_StartSound (NULL,sfx_bosdth);
+    S_StartSound (nullptr,sfx_bosdth);
 }
 
 
@@ -2016,7 +2016,7 @@ void A_BrainSpit (mobj_t*	mo)
 		
     // [crispy] avoid division by zero by recalculating the number of spawn spots
     if (numbraintargets == 0)
-	A_BrainAwake(NULL);
+	A_BrainAwake(nullptr);
 
     // [crispy] still no spawn spots available
     if (numbraintargets == -1)
@@ -2036,7 +2036,7 @@ void A_BrainSpit (mobj_t*	mo)
     newmobj->reactiontime =
 	((targ->y - mo->y)/newmobj->momy) / newmobj->state->tics;
 
-    S_StartSound(NULL, sfx_bospit);
+    S_StartSound(nullptr, sfx_bospit);
 }
 
 
@@ -2101,8 +2101,8 @@ void A_SpawnFly (mobj_t* mo)
     extrakills++;
 
     if (P_LookForPlayers (newmobj, true) )
-	P_SetMobjState (newmobj, newmobj->info->seestate);
-	
+        P_SetMobjState(newmobj, static_cast<statenum_t>(newmobj->info->seestate));
+
     // telefrag anything in this spot
     P_TeleportMove (newmobj, newmobj->x, newmobj->y);
 

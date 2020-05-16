@@ -23,6 +23,8 @@
 #include "p_local.h"
 #include "s_sound.h"
 
+#include "../../utils/memory.h"
+
 // MACROS ------------------------------------------------------------------
 
 #define ANIM_SCRIPT_NAME "ANIMDEFS"
@@ -269,7 +271,7 @@ static void P_LightningFlash(void)
     if (foundSec)
     {
         Sky1Texture = P_GetMapSky2Texture(gamemap);     // set alternate sky                
-        S_StartSound(NULL, SFX_THUNDER_CRASH);
+        S_StartSound(nullptr, SFX_THUNDER_CRASH);
     }
     // Calculate the next lighting flash
     if (!NextLightningFlash)
@@ -340,8 +342,8 @@ void P_InitLightning(void)
         LevelHasLightning = false;
         return;
     }
-    LightningLightLevels = (int *) Z_Malloc(secCount * sizeof(int), PU_LEVEL,
-                                            NULL);
+    LightningLightLevels = zmalloc<int *>(secCount * sizeof(int), PU_LEVEL,
+                                            nullptr);
     NextLightningFlash = ((P_Random() & 15) + 5) * 35;  // don't flash at level start
 }
 
@@ -382,7 +384,7 @@ void P_InitFTAnims(void)
         }
         else
         {
-            SC_ScriptError(NULL);
+            SC_ScriptError(nullptr);
         }
         SC_MustGetString();     // Name
         ignore = false;
@@ -449,7 +451,7 @@ void P_InitFTAnims(void)
                     }
                     else
                     {
-                        SC_ScriptError(NULL);
+                        SC_ScriptError(nullptr);
                     }
                 }
                 else

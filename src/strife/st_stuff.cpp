@@ -20,7 +20,7 @@
 
 
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "i_system.h"
 #include "i_video.h"
@@ -64,6 +64,8 @@
 #include "m_controls.h"
 #include "hu_lib.h"     // [STRIFE]
 #include "hu_stuff.h"
+
+#include "../../utils/lump.h"
 
 //
 // STATUS BAR DATA
@@ -900,7 +902,7 @@ void ST_doPaletteStuff(void)
     if (palette != st_palette)
     {
         st_palette = palette;
-        pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+palette*768;
+        pal = cacheLumpNum<byte*> (lu_palette, PU_CACHE)+palette*768;
         I_SetPalette (pal);
     }
 
@@ -1006,7 +1008,7 @@ void ST_doRefresh(void)
         V_DrawPatch(ST_X, ST_Y, invback);
 
         // draw multiplayer armor backdrop if netgame
-        // haleyjd 20131031: BUG - vanilla is accessing a NULL pointer here when
+        // haleyjd 20131031: BUG - vanilla is accessing a nullptr pointer here when
         // playing back netdemos! It doesn't appear to draw anything, and there 
         // is no apparent ill effect on gameplay, so the best we can do is check.
         if(netgame && stback)
@@ -1041,9 +1043,9 @@ void ST_doRefresh(void)
 
             lumpnum = W_CheckNumForName(iconname);
             if(lumpnum == -1)
-                patch = W_CacheLumpName(DEH_String("STCFN063"), PU_CACHE);
+                patch = cacheLumpName<patch_t*>(DEH_String("STCFN063"), PU_CACHE);
             else
-                patch = W_CacheLumpNum(lumpnum, PU_STATIC);
+                patch = cacheLumpNum<patch_t*>(lumpnum, PU_STATIC);
 
             V_DrawPatch(icon_x, 182, patch);
             ST_drawNumFontY(num_x, 191, plyr->inventory[i].amount);
@@ -1214,7 +1216,7 @@ static boolean ST_drawKeysPopup(void)
         for(pnum = 0; pnum < MAXPLAYERS/2; pnum++)
         {
             DEH_snprintf(buffer, sizeof(buffer), "stcolor%d", pnum+1);
-            colpatch = W_CacheLumpName(buffer, PU_CACHE);
+            colpatch = cacheLumpName<patch_t*>(buffer, PU_CACHE);
             V_DrawPatchDirect(28, y, colpatch);
             frags = ST_calcFrags(pnum);
             DEH_snprintf(buffer, sizeof(buffer), "%s%d", player_names[pnum], frags);
@@ -1231,7 +1233,7 @@ static boolean ST_drawKeysPopup(void)
         for(pnum = MAXPLAYERS/2; pnum < MAXPLAYERS; pnum++)
         {
             DEH_snprintf(buffer, sizeof(buffer), "stcolor%d", pnum+1);
-            colpatch = W_CacheLumpName(buffer, PU_CACHE);
+            colpatch = cacheLumpName<patch_t*>(buffer, PU_CACHE);
             V_DrawPatchDirect(158, y, colpatch);
             frags = ST_calcFrags(pnum);
             DEH_snprintf(buffer, sizeof(buffer), "%s%d", player_names[pnum], frags);
@@ -1295,7 +1297,7 @@ static boolean ST_drawKeysPopup(void)
                 // Get spawnstate sprite name and load corresponding icon
                 DEH_snprintf(sprname, sizeof(sprname), "I_%s",
                     sprnames[states[info->spawnstate].sprite]);
-                patch = W_CacheLumpName(sprname, PU_CACHE);
+                patch = cacheLumpName<patch_t*>(sprname, PU_CACHE);
                 V_DrawPatchDirect(x, y, patch);
                 HUlib_drawYellowText(x + ST_KEYNAME_X, y + ST_KEYNAME_Y, info->name);
             }
@@ -1373,32 +1375,32 @@ boolean ST_DrawExternal(void)
          if(plyr->weaponowned[wp_elecbow])
          {
              V_DrawPatchDirect(38, 86, 
-                 W_CacheLumpName(DEH_String("CBOWA0"), PU_CACHE));
+                 cacheLumpName<patch_t*>(DEH_String("CBOWA0"), PU_CACHE));
          }
          if(plyr->weaponowned[wp_rifle])
          {
              V_DrawPatchDirect(40, 107, 
-                 W_CacheLumpName(DEH_String("RIFLA0"), PU_CACHE));
+                 cacheLumpName<patch_t*>(DEH_String("RIFLA0"), PU_CACHE));
          }
          if(plyr->weaponowned[wp_missile])
          {
              V_DrawPatchDirect(39, 131, 
-                 W_CacheLumpName(DEH_String("MMSLA0"), PU_CACHE));
+                 cacheLumpName<patch_t*>(DEH_String("MMSLA0"), PU_CACHE));
          }
          if(plyr->weaponowned[wp_hegrenade])
          {
              V_DrawPatchDirect(78, 87, 
-                 W_CacheLumpName(DEH_String("GRNDA0"), PU_CACHE));
+                 cacheLumpName<patch_t*>(DEH_String("GRNDA0"), PU_CACHE));
          }
          if(plyr->weaponowned[wp_flame])
          {
              V_DrawPatchDirect(80, 117, 
-                 W_CacheLumpName(DEH_String("FLAMA0"), PU_CACHE));
+                 cacheLumpName<patch_t*>(DEH_String("FLAMA0"), PU_CACHE));
          }
          if(plyr->weaponowned[wp_mauler])
          {
              V_DrawPatchDirect(75, 142, 
-                 W_CacheLumpName(DEH_String("TRPDA0"), PU_CACHE));
+                 cacheLumpName<patch_t*>(DEH_String("TRPDA0"), PU_CACHE));
          }
          
          // haleyjd 20110213: draw ammo
@@ -1414,7 +1416,7 @@ boolean ST_DrawExternal(void)
          if(plyr->powers[pw_communicator])
          {
              V_DrawPatchDirect(280, 130, 
-                 W_CacheLumpName(DEH_String("I_COMM"), PU_CACHE));
+                 cacheLumpName<patch_t*>(DEH_String("I_COMM"), PU_CACHE));
          }
     }
 
@@ -1487,7 +1489,7 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
 
 static void ST_loadCallback(const char *lumpname, patch_t **variable)
 {
-    *variable = W_CacheLumpName(lumpname, PU_STATIC);
+    *variable = cacheLumpName<patch_t*>(lumpname, PU_STATIC);
 }
 
 void ST_loadGraphics(void)
@@ -1507,7 +1509,7 @@ void ST_loadData(void)
 static void ST_unloadCallback(const char *lumpname, patch_t **variable)
 {
     W_ReleaseLumpName(lumpname);
-    *variable = NULL;
+    *variable = nullptr;
 }
 
 void ST_unloadGraphics(void)
@@ -1599,7 +1601,7 @@ void ST_Stop (void)
     if (st_stopped)
         return;
 
-    I_SetPalette (W_CacheLumpNum (lu_palette, PU_CACHE));
+    I_SetPalette (cacheLumpNum<byte*> (lu_palette, PU_CACHE));
 
     st_stopped = true;
 }
@@ -1609,6 +1611,6 @@ void ST_Init (void)
     ST_loadData();
 
     // haleyjd 20100919: This is not used by Strife. More memory for voices!
-    //st_backing_screen = (byte *) Z_Malloc(ST_WIDTH * ST_HEIGHT, PU_STATIC, 0);
+    //st_backing_screen = zmalloc<byte*>(ST_WIDTH * ST_HEIGHT, PU_STATIC, 0);
 }
 

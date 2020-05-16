@@ -17,9 +17,9 @@
 
 
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 
 #include "doomdef.h" 
 #include "doomkeys.h"
@@ -72,11 +72,11 @@
 #include "r_data.h"
 #include "r_sky.h"
 
-
-
 #include "g_game.h"
 #include "v_trans.h" // [crispy] colored "always run" message
 
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 #define SAVEGAMESIZE	0x2c000
 
@@ -433,7 +433,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
             crstr[CR_GREEN],
             (joybspeed >= MAX_JOY_BUTTONS) ? "ON" : "OFF");
         player->message = playermessage;
-        S_StartSound(NULL, sfx_swtchn);
+        S_StartSound(nullptr, sfx_swtchn);
 
         gamekeydown[key_toggleautorun] = false;
     }
@@ -448,7 +448,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
             crstr[CR_GREEN],
             !novert ? "ON" : "OFF");
         player->message = playermessage;
-        S_StartSound(NULL, sfx_swtchn);
+        S_StartSound(nullptr, sfx_swtchn);
 
         gamekeydown[key_togglenovert] = false;
     }
@@ -843,7 +843,7 @@ void G_DoLoadLevel (void)
     levelstarttic = gametic;        // for time calculation
     
     if (wipegamestate == GS_LEVEL) 
-	wipegamestate = -1;             // force a wipe 
+	wipegamestate = GS_INVALID;             // force a wipe 
 
     gamestate = GS_LEVEL; 
 
@@ -963,7 +963,7 @@ boolean G_Responder (event_t* ev)
 	    M_StartControlPanel (); 
 	    // [crispy] play a sound if the menu is activated with a different key than ESC
 	    if (crispy->soundfix)
-		S_StartSound(NULL,sfx_swtchn);
+		S_StartSound(nullptr,sfx_swtchn);
 	    return true; 
 	} 
 	return false; 
@@ -1545,7 +1545,7 @@ void G_DoReborn (int playernum)
 	// respawn at the start
 
 	// first dissasociate the corpse 
-	players[playernum].mo->player = NULL;   
+	players[playernum].mo->player = nullptr;   
 		 
 	// spawn at random spot if in death match 
 	if (deathmatch) 
@@ -1977,7 +1977,7 @@ void G_DoLoadGame (void)
 	 
     save_stream = fopen(savename, "rb");
 
-    if (save_stream == NULL)
+    if (save_stream == nullptr)
     {
         I_Error("Could not load savegame %s", savename);
     }
@@ -2007,7 +2007,7 @@ void G_DoLoadGame (void)
             free(savewadfilename);
         }
     }
-    savewadfilename = NULL;
+    savewadfilename = nullptr;
 
     savegame_error = false;
 
@@ -2084,7 +2084,7 @@ void G_DoSaveGame (void)
     char *temp_savegame_file;
     char *recovery_savegame_file;
 
-    recovery_savegame_file = NULL;
+    recovery_savegame_file = nullptr;
     temp_savegame_file = P_TempSaveGameFile();
     savegame_file = P_SaveGameFile(savegameslot);
 
@@ -2094,13 +2094,13 @@ void G_DoSaveGame (void)
     // a corrupted one, or if a savegame buffer overrun occurs.
     save_stream = fopen(temp_savegame_file, "wb");
 
-    if (save_stream == NULL)
+    if (save_stream == nullptr)
     {
         // Failed to save the game, so we're going to have to abort. But
         // to be nice, save to somewhere else before we call I_Error().
         recovery_savegame_file = M_TempFile("recovery.dsg");
         save_stream = fopen(recovery_savegame_file, "wb");
-        if (save_stream == NULL)
+        if (save_stream == nullptr)
         {
             I_Error("Failed to open either '%s' or '%s' to write savegame.",
                     temp_savegame_file, recovery_savegame_file);
@@ -2150,7 +2150,7 @@ void G_DoSaveGame (void)
 
     fclose(save_stream);
 
-    if (recovery_savegame_file != NULL)
+    if (recovery_savegame_file != nullptr)
     {
         // We failed to save to the normal location, but we wrote a
         // recovery file to the temp directory. Now we can bomb out
@@ -2500,7 +2500,6 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 static void IncreaseDemoBuffer(void)
 {
     int current_length;
-    byte *new_demobuffer;
     byte *new_demop;
     int new_length;
 
@@ -2511,7 +2510,7 @@ static void IncreaseDemoBuffer(void)
     // Generate a new buffer twice the size
     new_length = current_length * 2;
     
-    new_demobuffer = Z_Malloc(new_length, PU_STATIC, 0);
+    auto* new_demobuffer = zmalloc<byte*>(new_length, PU_STATIC, 0);
     new_demop = new_demobuffer + (demo_p - demobuffer);
 
     // Copy over the old data
@@ -2592,7 +2591,7 @@ void G_RecordDemo (char *name)
 
     // [crispy] demo file name suffix counter
     static unsigned int j = 0;
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
 
     // [crispy] the name originally chosen for the demo, i.e. without "-00000"
     if (!orig_demoname)
@@ -2602,11 +2601,11 @@ void G_RecordDemo (char *name)
 
     usergame = false;
     demoname_size = strlen(name) + 5 + 6; // [crispy] + 6 for "-00000"
-    demoname = Z_Malloc(demoname_size, PU_STATIC, NULL);
+    demoname = zmalloc<char*>(demoname_size, PU_STATIC, nullptr);
     M_snprintf(demoname, demoname_size, "%s.lmp", name);
 
     // [crispy] prevent overriding demos by adding a file name suffix
-    for ( ; j <= 99999 && (fp = fopen(demoname, "rb")) != NULL; j++)
+    for ( ; j <= 99999 && (fp = fopen(demoname, "rb")) != nullptr; j++)
     {
 	M_snprintf(demoname, demoname_size, "%s-%05d.lmp", name, j);
 	fclose (fp);
@@ -2625,7 +2624,7 @@ void G_RecordDemo (char *name)
     i = M_CheckParmWithArgs("-maxdemo", 1);
     if (i)
 	maxsize = atoi(myargv[i+1])*1024;
-    demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
+    demobuffer = zmalloc<byte*>(maxsize,PU_STATIC,nullptr); 
     demoend = demobuffer + maxsize;
 	
     demorecording = true; 
@@ -2769,7 +2768,7 @@ void G_DoPlayDemo (void)
 
     lumpnum = W_GetNumForName(defdemoname);
     gameaction = ga_nothing;
-    demobuffer = W_CacheLumpNum(lumpnum, PU_STATIC);
+    demobuffer = cacheLumpNum<byte*>(lumpnum, PU_STATIC);
     demo_p = demobuffer;
 
     // [crispy] ignore empty demo lumps
@@ -2825,7 +2824,7 @@ void G_DoPlayDemo (void)
         }
     }
 
-    skill = *demo_p++; 
+    skill = static_cast<skill_t>(*demo_p++); 
     episode = *demo_p++; 
     map = *demo_p++; 
     if (!olddemo)

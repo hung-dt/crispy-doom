@@ -15,7 +15,7 @@
 //
 
 
-#include <string.h>
+#include <cstring>
 #include "m_random.h"
 #include "h2def.h"
 #include "s_sound.h"
@@ -29,6 +29,9 @@
 #include "m_misc.h"
 #include "p_local.h"
 #include "v_video.h"
+
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 #define AM_STARTKEY	9
 
@@ -209,7 +212,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 
     // haleyjd: removed externdriver crap
 
-    pClass = players[consoleplayer].class;
+    pClass = players[consoleplayer].pclass;
     memset(cmd, 0, sizeof(*cmd));
 
 //      cmd->consistancy =
@@ -939,7 +942,7 @@ boolean G_Responder(event_t * ev)
 void G_Ticker(void)
 {
     int i, buf;
-    ticcmd_t *cmd = NULL;
+    ticcmd_t *cmd = nullptr;
 
 //
 // do player reborns if needed
@@ -1226,7 +1229,7 @@ void G_PlayerReborn(int player)
     players[player].itemcount = itemcount;
     players[player].secretcount = secretcount;
     players[player].worldTimer = worldTimer;
-    players[player].class = PlayerClass[player];
+    players[player].pclass = PlayerClass[player];
 
     p->usedown = p->attackdown = true;  // don't do anything immediately
     p->playerstate = PST_LIVE;
@@ -1356,7 +1359,7 @@ void G_DoReborn(int playernum)
     }
     else
     {                           // Net-game
-        players[playernum].mo->player = NULL;   // Dissassociate the corpse
+        players[playernum].mo->player = nullptr;   // Dissassociate the corpse
 
         if (deathmatch)
         {                       // Spawn at random spot if in death match
@@ -1520,7 +1523,7 @@ void G_Completed(int map, int position)
     if (gamemode == shareware && map > 4)
     {
         P_SetMessage(&players[consoleplayer], "ACCESS DENIED -- DEMO", true);
-        S_StartSound(NULL, SFX_CHAT);
+        S_StartSound(nullptr, SFX_CHAT);
         return;
     }
 
@@ -1873,7 +1876,7 @@ static void IncreaseDemoBuffer(void)
     // Generate a new buffer twice the size
     new_length = current_length * 2;
 
-    new_demobuffer = Z_Malloc(new_length, PU_STATIC, 0);
+    new_demobuffer = zmalloc<byte*>(new_length, PU_STATIC, 0);
     new_demop = new_demobuffer + (demo_p - demobuffer);
 
     // Copy over the old data
@@ -1995,7 +1998,7 @@ void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
     i = M_CheckParmWithArgs("-maxdemo", 1);
     if (i)
         maxsize = atoi(myargv[i + 1]) * 1024;
-    demobuffer = Z_Malloc(maxsize, PU_STATIC, NULL);
+    demobuffer = zmalloc<byte*>(maxsize, PU_STATIC, nullptr);
     demoend = demobuffer + maxsize;
 
     demo_p = demobuffer;
@@ -2059,7 +2062,7 @@ void G_DoPlayDemo(void)
 
     gameaction = ga_nothing;
     lumpnum = W_GetNumForName(defdemoname);
-    demobuffer = W_CacheLumpNum(lumpnum, PU_STATIC);
+    demobuffer = cacheLumpNum<byte*>(lumpnum, PU_STATIC);
     demo_p = demobuffer;
     skill = *demo_p++;
     episode = *demo_p++;
@@ -2116,7 +2119,7 @@ void G_TimeDemo(char *name)
     skill_t skill;
     int episode, map, i;
 
-    demobuffer = demo_p = W_CacheLumpName(name, PU_STATIC);
+    demobuffer = demo_p = cacheLumpName<byte*>(name, PU_STATIC);
     skill = *demo_p++;
     episode = *demo_p++;
     map = *demo_p++;

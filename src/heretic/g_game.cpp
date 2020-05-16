@@ -16,9 +16,9 @@
 
 // G_game.c
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "doomdef.h"
 #include "doomkeys.h"
 #include "deh_str.h"
@@ -32,6 +32,9 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "v_video.h"
+
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 // Macros
 
@@ -367,7 +370,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
                      "ALWAYS RUN ON" :
                      "ALWAYS RUN OFF", false);
 
-        S_StartSound(NULL, sfx_switch);
+        S_StartSound(nullptr, sfx_switch);
 
         gamekeydown[key_toggleautorun] = false;
     }
@@ -381,7 +384,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
                      "VERTICAL MOUSE MOVEMENT OFF" :
                      "VERTICAL MOUSE MOVEMENT ON", false);
 
-        S_StartSound(NULL, sfx_switch);
+        S_StartSound(nullptr, sfx_switch);
 
         gamekeydown[key_togglenovert] = false;
     }
@@ -1039,7 +1042,7 @@ boolean G_Responder(event_t * ev)
 void G_Ticker(void)
 {
     int i, buf;
-    ticcmd_t *cmd = NULL;
+    ticcmd_t *cmd = nullptr;
 
 //
 // do player reborns if needed
@@ -1282,8 +1285,8 @@ void G_PlayerFinishLevel(int player)
     p->fixedcolormap = 0;       // Remove torch
     p->damagecount = 0;         // No palette changes
     p->bonuscount = 0;
-    p->rain1 = NULL;
-    p->rain2 = NULL;
+    p->rain1 = nullptr;
+    p->rain2 = nullptr;
     if (p == &players[consoleplayer])
     {
         SB_state = -1;          // refresh the status bar
@@ -1447,7 +1450,7 @@ void G_DoReborn(int playernum)
         gameaction = ga_loadlevel;      // reload the level from scratch
     else
     {                           // respawn at the start
-        players[playernum].mo->player = NULL;   // dissasociate the corpse
+        players[playernum].mo->player = nullptr;   // dissasociate the corpse
 
         // spawn at random spot if in death match
         if (deathmatch)
@@ -1578,7 +1581,7 @@ void G_DoWorldDone(void)
 //
 //---------------------------------------------------------------------------
 
-static char *savename = NULL;
+static char *savename = nullptr;
 
 void G_LoadGame(char *name)
 {
@@ -1608,7 +1611,7 @@ void G_DoLoadGame(void)
     SV_OpenRead(savename);
 
     free(savename);
-    savename = NULL;
+    savename = nullptr;
 
     // Skip the description field
     SV_Read(savestr, SAVESTRINGSIZE);
@@ -1819,7 +1822,7 @@ static void IncreaseDemoBuffer(void)
     // Generate a new buffer twice the size
     new_length = current_length * 2;
 
-    new_demobuffer = Z_Malloc(new_length, PU_STATIC, 0);
+    new_demobuffer = zmalloc<byte*>(new_length, PU_STATIC, 0);
     new_demop = new_demobuffer + (demo_p - demobuffer);
 
     // Copy over the old data
@@ -1941,7 +1944,7 @@ void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
     i = M_CheckParmWithArgs("-maxdemo", 1);
     if (i)
         maxsize = atoi(myargv[i + 1]) * 1024;
-    demobuffer = Z_Malloc(maxsize, PU_STATIC, NULL);
+    demobuffer = zmalloc<byte*>(maxsize, PU_STATIC, nullptr);
     demoend = demobuffer + maxsize;
 
     demo_p = demobuffer;
@@ -2000,7 +2003,7 @@ void G_DoPlayDemo(void)
 
     gameaction = ga_nothing;
     lumpnum = W_GetNumForName(defdemoname);
-    demobuffer = W_CacheLumpNum(lumpnum, PU_STATIC);
+    demobuffer = cacheLumpNum<byte*>(lumpnum, PU_STATIC);
     demo_p = demobuffer;
     skill = *demo_p++;
     episode = *demo_p++;
@@ -2048,7 +2051,7 @@ void G_TimeDemo(char *name)
     skill_t skill;
     int episode, map, i;
 
-    demobuffer = demo_p = W_CacheLumpName(name, PU_STATIC);
+    demobuffer = demo_p = cacheLumpName<byte*>(name, PU_STATIC);
     skill = *demo_p++;
     episode = *demo_p++;
     map = *demo_p++;

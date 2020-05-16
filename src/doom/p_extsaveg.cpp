@@ -17,8 +17,8 @@
 //	[crispy] Archiving: Extended SaveGame I/O.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "config.h"
 #include "doomstat.h"
@@ -31,6 +31,8 @@
 #include "s_sound.h"
 #include "s_musinfo.h"
 #include "z_zone.h"
+
+#include "../../utils/memory.h"
 
 #define MAX_LINE_LEN 260
 #define MAX_STRING_LEN 80
@@ -45,7 +47,7 @@ static void P_WritePackageTarname (const char *key)
 
 // maplumpinfo->wad_file->basename
 
-char *savewadfilename = NULL;
+char *savewadfilename = nullptr;
 
 static void P_WriteWadFileName (const char *key)
 {
@@ -152,9 +154,7 @@ static void P_ReadFireFlicker (const char *key)
 	           &minlight) == 5 &&
 	    !strncmp(string, key, MAX_STRING_LEN))
 	{
-		fireflicker_t *flick;
-
-		flick = Z_Malloc(sizeof(*flick), PU_LEVEL, NULL);
+		fireflicker_t *flick = zmalloc<fireflicker_t*>(sizeof(*flick), PU_LEVEL, nullptr);
 
 		flick->sector = &sectors[sector];
 		flick->count = count;
@@ -272,7 +272,7 @@ static void P_ReadButton (const char *key)
 	           &btimer) == 5 &&
 	    !strncmp(string, key, MAX_STRING_LEN))
 	{
-		P_StartButton(&lines[linedef], where, btexture, btimer);
+		P_StartButton(&lines[linedef], static_cast<bwhere_e>(where), btexture, btimer);
 	}
 }
 
@@ -442,7 +442,7 @@ typedef struct
 static const extsavegdata_t extsavegdata[] =
 {
 	// [crispy] @FORKS: please change this if you are going to introduce incompatible changes!
-	{"crispy-doom", P_WritePackageTarname, NULL, 0},
+	{"crispy-doom", P_WritePackageTarname, nullptr, 0},
 	{"wadfilename", P_WriteWadFileName, P_ReadWadFileName, 0},
 	{"extrakills", P_WriteExtraKills, P_ReadExtraKills, 1},
 	{"totalleveltimes", P_WriteTotalLevelTimes, P_ReadTotalLevelTimes, 1},
@@ -460,7 +460,7 @@ void P_WriteExtendedSaveGameData (void)
 {
 	int i;
 
-	line = malloc(MAX_LINE_LEN);
+	line = static_cast<char*>(malloc(MAX_LINE_LEN));
 
 	for (i = 0; i < arrlen(extsavegdata); i++)
 	{
@@ -492,7 +492,7 @@ static void P_ReadKeyValuePairs (int pass)
 }
 
 // [crispy] pointer to the info struct for the map lump about to load
-lumpinfo_t *savemaplumpinfo = NULL;
+lumpinfo_t *savemaplumpinfo = nullptr;
 
 void P_ReadExtendedSaveGameData (int pass)
 {
@@ -500,8 +500,8 @@ void P_ReadExtendedSaveGameData (int pass)
 	byte episode, map;
 	int lumpnum = -1;
 
-	line = malloc(MAX_LINE_LEN);
-	string = malloc(MAX_STRING_LEN);
+	line = static_cast<char*>(malloc(MAX_LINE_LEN));
+	string = static_cast<char*>(malloc(MAX_STRING_LEN));
 
 	// [crispy] two-pass reading of extended savegame data
 	if (pass == 1)
@@ -531,7 +531,7 @@ void P_ReadExtendedSaveGameData (int pass)
 	else
 	{
 		// [crispy] unavailable map!
-		savemaplumpinfo = NULL;
+		savemaplumpinfo = nullptr;
 	}
 
 	// [crispy] read key/value pairs past the end of the regular savegame data

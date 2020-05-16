@@ -22,8 +22,8 @@
 #include "m_random.h"
 #include "s_sound.h"
 
-extern void A_Explode();
-extern void A_FaceTarget();
+extern void A_Explode(mobj_t* actor);
+extern void A_FaceTarget(mobj_t *actor);
 
 extern boolean P_CheckMeleeRange (mobj_t *actor);
 extern void P_Thrust (player_t* player, angle_t angle, fixed_t move);
@@ -31,7 +31,7 @@ extern void P_Thrust (player_t* player, angle_t angle, fixed_t move);
 // killough 11/98: kill an object
 void A_Die(mobj_t *actor)
 {
-  P_DamageMobj(actor, NULL, NULL, actor->health);
+  P_DamageMobj(actor, nullptr, nullptr, actor->health);
 }
 
 //
@@ -109,7 +109,7 @@ void A_Spawn(mobj_t *mo)
     {
 /*    mobj_t *newmobj = */ P_SpawnMobj(mo->x, mo->y,
 				    (mo->state->misc2 << FRACBITS) + mo->z,
-				    mo->state->misc1 - 1);
+				    static_cast<mobjtype_t>(mo->state->misc1 - 1));
 //    newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (mo->flags & MF_FRIEND);
 
     }
@@ -134,7 +134,7 @@ void A_Scratch(mobj_t *mo)
 
 void A_PlaySound(mobj_t *mo)
 {
-  S_StartSound(mo->state->misc2 ? NULL : mo, mo->state->misc1);
+  S_StartSound(mo->state->misc2 ? nullptr : mo, mo->state->misc1);
 }
 
 // [crispy] this is pretty much the only action pointer that makes sense for both mobj and pspr states
@@ -147,7 +147,7 @@ void A_RandomJump(mobj_t *mo, player_t *player, pspdef_t *psp)
 		{
 			extern void P_SetPsprite (player_t *player, int position, statenum_t stnum);
 
-			P_SetPsprite(player, psp - &player->psprites[0], psp->state->misc1);
+			P_SetPsprite(player, psp - &player->psprites[0], static_cast<statenum_t>(psp->state->misc1));
 		}
 	}
 	else
@@ -156,7 +156,7 @@ void A_RandomJump(mobj_t *mo, player_t *player, pspdef_t *psp)
 	{
 		if (Crispy_Random() < mo->state->misc2)
 		{
-			P_SetMobjState(mo, mo->state->misc1);
+			P_SetMobjState(mo, static_cast<statenum_t>(mo->state->misc1));
 		}
 	}
 }
@@ -196,7 +196,7 @@ void A_LineEffect(mobj_t *mo)
 
 void A_FireOldBFG(mobj_t *mobj, player_t *player, pspdef_t *psp)
 {
-  int type = MT_PLASMA1;
+  mobjtype_t type = MT_PLASMA1;
   extern void P_CheckMissileSpawn (mobj_t* th);
 
   if (!player) return; // [crispy] let pspr action pointers get called from mobj states

@@ -15,8 +15,8 @@
 // DESCRIPTION:  none
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <ctype.h>
 
 #include "i_sound.h"
@@ -37,6 +37,9 @@
 #include "p_local.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include "../../utils/lump.h"
+#include "../../utils/memory.h"
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -109,7 +112,7 @@ static boolean mus_paused;
 
 // Music currently being played
 
-static musicinfo_t *mus_playing = NULL;
+static musicinfo_t *mus_playing = nullptr;
 
 // Number of channels to use
 
@@ -147,7 +150,7 @@ void S_Init(int sfxVolume, int musicVolume, int voiceVolume)
     // Allocating the internal channels for mixing
     // (the maximum numer of sounds rendered
     // simultaneously) within zone memory.
-    channels = Z_Malloc(snd_channels*sizeof(channel_t), PU_STATIC, 0);
+    channels = zmalloc<channel_t*>(snd_channels*sizeof(channel_t), PU_STATIC, 0);
 
     // Free all channels for use
     for (i=0 ; i<snd_channels ; i++)
@@ -206,7 +209,7 @@ static void S_StopChannel(int cnum)
         // degrade usefulness of sound data
 
         c->sfxinfo->usefulness--;
-        c->sfxinfo = NULL;
+        c->sfxinfo = nullptr;
     }
 }
 
@@ -520,7 +523,7 @@ static unsigned int S_voiceHash(const char *str)
    unsigned int h = 0;
 
    if(!str)
-      I_Error("S_voiceHash: cannot hash NULL string!\n");
+      I_Error("S_voiceHash: cannot hash nullptr string!\n");
 
    // note: this needs to be case insensitive for lump names
    while(*c)
@@ -601,10 +604,10 @@ void I_StartVoice(const char *lumpname)
         S_StopChannel(i_voicehandle);
 
     // Vanilla STRIFE appears to have stopped any current voice without
-    // starting a new one if NULL was passed in here, though I cannot 
-    // find an explicit check for NULL in the assembly. Either way, it 
+    // starting a new one if nullptr was passed in here, though I cannot 
+    // find an explicit check for nullptr in the assembly. Either way, it 
     // didn't crash, so do a check now:
-    if(lumpname == NULL)
+    if(lumpname == nullptr)
         return;
 
     // Because of constness problems...
@@ -616,7 +619,7 @@ void I_StartVoice(const char *lumpname)
         voice = S_getVoice(lumpnamedup, lumpnum);
 
         // get a channel for the voice
-        i_voicehandle = S_GetChannel(NULL, &voice->sfx, true);
+        i_voicehandle = S_GetChannel(nullptr, &voice->sfx, true);
 
         channels[i_voicehandle].handle 
             = I_StartSound(&voice->sfx, i_voicehandle, snd_VoiceVolume, NORM_SEP, NORM_PITCH);
@@ -764,7 +767,7 @@ void S_StartMusic(int m_id)
 
 void S_ChangeMusic(int musicnum, int looping)
 {
-    musicinfo_t *music = NULL;
+    musicinfo_t *music = nullptr;
     char namebuf[9];
     void *handle;
 
@@ -792,7 +795,7 @@ void S_ChangeMusic(int musicnum, int looping)
         music->lumpnum = W_GetNumForName(namebuf);
     }
 
-    music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
+    music->data = cacheLumpNum<void*>(music->lumpnum, PU_STATIC);
 
     handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
     music->handle = handle;
@@ -818,8 +821,8 @@ void S_StopMusic(void)
         I_StopSong();
         I_UnRegisterSong(mus_playing->handle);
         W_ReleaseLumpNum(mus_playing->lumpnum);
-        mus_playing->data = NULL;
-        mus_playing = NULL;
+        mus_playing->data = nullptr;
+        mus_playing = nullptr;
     }
 }
 

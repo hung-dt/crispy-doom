@@ -12,8 +12,8 @@
 // GNU General Public License for more details.
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomkeys.h"
 
@@ -23,6 +23,8 @@
 #include "txt_main.h"
 #include "txt_utf8.h"
 #include "txt_window.h"
+
+#include "../utils/memory.h"
 
 static void TXT_ButtonSizeCalc(TXT_UNCAST_ARG(button))
 {
@@ -90,7 +92,7 @@ txt_widget_class_t txt_button_class =
     TXT_ButtonKeyPress,
     TXT_ButtonDestructor,
     TXT_ButtonMousePress,
-    NULL,
+    nullptr,
 };
 
 void TXT_SetButtonLabel(txt_button_t *button, const char *label)
@@ -101,9 +103,7 @@ void TXT_SetButtonLabel(txt_button_t *button, const char *label)
 
 txt_button_t *TXT_NewButton(const char *label)
 {
-    txt_button_t *button;
-
-    button = malloc(sizeof(txt_button_t));
+    auto* button = createStruct<txt_button_t>();
 
     TXT_InitWidget(button, &txt_button_class);
     button->label = strdup(label);

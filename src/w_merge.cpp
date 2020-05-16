@@ -18,9 +18,9 @@
 // read the deutex source code made my brain hurt.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <ctype.h>
 
 #include "doomtype.h"
@@ -30,6 +30,8 @@
 #include "w_merge.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include "../utils/memory.h"
 
 typedef enum 
 { 
@@ -91,7 +93,7 @@ static boolean SetupList(searchlist_t *list, searchlist_t *src_list,
     list->numlumps = 0;
     startlump = FindInList(src_list, startname);
 
-    if (startname2 != NULL && startlump < 0)
+    if (startname2 != nullptr && startlump < 0)
     {
         startlump = FindInList(src_list, startname2);
     }
@@ -100,7 +102,7 @@ static boolean SetupList(searchlist_t *list, searchlist_t *src_list,
     {
         endlump = FindInList(src_list, endname);
 
-        if (endname2 != NULL && endlump < 0)
+        if (endname2 != nullptr && endlump < 0)
         {
             endlump = FindInList(src_list, endname2);
         }
@@ -122,12 +124,12 @@ static void SetupLists(void)
 {
     // IWAD
 
-    if (!SetupList(&iwad_flats, &iwad, "F_START", "F_END", NULL, NULL))
+    if (!SetupList(&iwad_flats, &iwad, "F_START", "F_END", nullptr, nullptr))
     {
         I_Error("Flats section not found in IWAD");
     }
 
-    if (!SetupList(&iwad_sprites, &iwad, "S_START", "S_END", NULL, NULL))
+    if (!SetupList(&iwad_sprites, &iwad, "S_START", "S_END", nullptr, nullptr))
 
     {
         I_Error("Sprites section not found in IWAD");
@@ -143,11 +145,11 @@ static void SetupLists(void)
 
 static void InitSpriteList(void)
 {
-    if (sprite_frames == NULL)
+    if (sprite_frames == nullptr)
     {
         sprite_frames_alloced = 128;
-        sprite_frames = Z_Malloc(sizeof(*sprite_frames) * sprite_frames_alloced,
-                                 PU_STATIC, NULL);
+        sprite_frames = zmalloc<decltype(sprite_frames)>(sizeof(*sprite_frames) * sprite_frames_alloced,
+                                 PU_STATIC, nullptr);
     }
 
     num_sprite_frames = 0;
@@ -205,8 +207,8 @@ static sprite_frame_t *FindSpriteFrame(char *name, int frame)
     {
         sprite_frame_t *newframes;
 
-        newframes = Z_Malloc(sprite_frames_alloced * 2 * sizeof(*sprite_frames),
-                             PU_STATIC, NULL);
+        newframes = zmalloc<decltype(newframes)>(sprite_frames_alloced * 2 * sizeof(*sprite_frames),
+                             PU_STATIC, nullptr);
         memcpy(newframes, sprite_frames,
                sprite_frames_alloced * sizeof(*sprite_frames));
         Z_Free(sprite_frames);
@@ -221,7 +223,7 @@ static sprite_frame_t *FindSpriteFrame(char *name, int frame)
     result->frame = frame;
 
     for (i=0; i<8; ++i)
-        result->angle_lumps[i] = NULL;
+        result->angle_lumps[i] = nullptr;
 
     ++num_sprite_frames;
 
@@ -393,7 +395,7 @@ static void DoMerge(void)
     int i, n;
 
     // Can't ever have more lumps than we already have
-    newlumps = calloc(numlumps, sizeof(lumpinfo_t *));
+    newlumps = static_cast<decltype(newlumps)>(calloc(numlumps, sizeof(lumpinfo_t *)));
     num_newlumps = 0;
 
     // Add IWAD lumps
@@ -576,7 +578,7 @@ void W_MergeFile(const char *filename)
 
     // Load PWAD
 
-    if (W_AddFile(filename) == NULL)
+    if (W_AddFile(filename) == nullptr)
         return;
 
     // IWAD is at the start, PWAD was appended to the end
@@ -633,7 +635,7 @@ void W_NWTMergeFile(const char *filename, int flags)
 
     // Load PWAD
 
-    if (W_AddFile(filename) == NULL)
+    if (W_AddFile(filename) == nullptr)
         return;
 
     // IWAD is at the start, PWAD was appended to the end
@@ -683,7 +685,7 @@ void W_NWTDashMerge(const char *filename)
 
     wad_file = W_AddFile(filename);
 
-    if (wad_file == NULL)
+    if (wad_file == nullptr)
     {
         return;
     }
@@ -724,8 +726,8 @@ void W_NWTDashMerge(const char *filename)
 // [crispy] dump merged WAD data into a new IWAD file
 int W_MergeDump (const char *file)
 {
-    FILE *fp = NULL;
-    char *lump_p = NULL;
+    FILE *fp = nullptr;
+    char *lump_p = nullptr;
     uint32_t i, dir_p;
 
     // [crispy] WAD directory structure
@@ -734,7 +736,7 @@ int W_MergeDump (const char *file)
 	uint32_t size;
 	char name[8];
     } directory_t;
-    directory_t *dir = NULL;
+    directory_t *dir = nullptr;
 
     // [crispy] open file for writing
     fp = fopen(file, "wb");
@@ -744,7 +746,7 @@ int W_MergeDump (const char *file)
     }
 
     // [crispy] prepare directory
-    dir = calloc(numlumps, sizeof(*dir));
+    dir = static_cast<directory_t*>(calloc(numlumps, sizeof(*dir)));
     if (!dir)
     {
 	I_Error("W_MergeDump: Error allocating memory!");
@@ -761,7 +763,7 @@ int W_MergeDump (const char *file)
 	strncpy(dir[i].name, lumpinfo[i]->name, 8);
 
 	// [crispy] avoid flooding Doom's Zone Memory
-	lump_p = I_Realloc(lump_p, lumpinfo[i]->size);
+	lump_p = static_cast<char*>(I_Realloc(lump_p, lumpinfo[i]->size));
 	W_ReadLump(i, lump_p);
 	fwrite(lump_p, 1, lumpinfo[i]->size, fp);
     }

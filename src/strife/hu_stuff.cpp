@@ -42,6 +42,8 @@
 #include "dstrings.h"
 #include "sounds.h"
 
+#include "../../utils/lump.h"
+
 //
 // Locally used constants, shortcuts.
 //
@@ -187,12 +189,12 @@ void HU_Init(void)
     for (i=0;i<HU_FONTSIZE;i++)
     {
         DEH_snprintf(buffer, 9, "STCFN%.3d", j++);
-        hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+        hu_font[i] = cacheLumpName<patch_t*>(buffer, PU_STATIC);
 
         // haleyjd 09/18/10: load yfont as well; and yes, this is exactly
         // how Rogue did it :P
         buffer[2] = 'B';
-        yfont[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+        yfont[i] = cacheLumpName<patch_t*>(buffer, PU_STATIC);
     }
 }
 
@@ -268,7 +270,7 @@ void HU_Start(void)
         // haleyjd 09/18/10: [STRIFE] nickname weirdness. 
         if(nickname != player_names[consoleplayer])
         {
-            if(nickname != NULL && *nickname)
+            if(nickname != nullptr && *nickname)
             {
                 DEH_printf("have one\n");
                 nickname = player_names[consoleplayer];
@@ -389,7 +391,7 @@ static void HU_addMessage(const char *prefix, const char *message)
 
     // Add two message lines.
     HUlib_addMessageToSText(&w_message, prefix, buffer);
-    HUlib_addMessageToSText(&w_message, NULL,   rover2);
+    HUlib_addMessageToSText(&w_message, nullptr,   rover2);
 }
 
 //
@@ -419,7 +421,7 @@ void HU_Ticker(void)
             || (plr->message && message_dontfuckwithme))
         {
             //HUlib_addMessageToSText(&w_message, 0, plr->message);
-            HU_addMessage(NULL, plr->message); // haleyjd [STRIFE]
+            HU_addMessage(nullptr, plr->message); // haleyjd [STRIFE]
             plr->message = 0;
             message_on = true;
             message_counter = HU_MSGTIMEOUT;

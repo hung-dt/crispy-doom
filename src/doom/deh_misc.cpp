@@ -15,8 +15,8 @@
 // Parses "Misc" sections in dehacked files
 //
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "doomtype.h"
 #include "deh_defs.h"
@@ -154,7 +154,7 @@ static struct
 
 static void *DEH_MiscStart(deh_context_t *context, char *line)
 {
-    return NULL;
+    return nullptr;
 }
 
 static void DEH_MiscParseLine(deh_context_t *context, char *line, void *tag)
@@ -219,10 +219,10 @@ static void DEH_MiscSHA1Sum(sha1_context_t *context)
 deh_section_t deh_section_misc =
 {
     "Misc",
-    NULL,
+    nullptr,
     DEH_MiscStart,
     DEH_MiscParseLine,
-    NULL,
+    nullptr,
     DEH_MiscSHA1Sum,
 };
 

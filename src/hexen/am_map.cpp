@@ -14,7 +14,7 @@
 // GNU General Public License for more details.
 //
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "h2def.h"
 #include "doomkeys.h"
@@ -330,7 +330,7 @@ void AM_initVariables(void)
 
 void AM_loadPics(void)
 {
-    maplump = W_CacheLumpName("AUTOPAGE", PU_STATIC);
+    maplump = cacheLumpName<byte*>("AUTOPAGE", PU_STATIC);
 }
 
 
@@ -854,7 +854,7 @@ boolean AM_clipMline(mline_t * ml, fline_t * fl)
 
 void AM_drawFline(fline_t * fl, int color)
 {
-    register int x, y, dx, dy, sx, sy, ax, ay, d;
+    int x, y, dx, dy, sx, sy, ax, ay, d;
     //static fuck = 0;
 
     switch (color)
@@ -960,7 +960,7 @@ void PUTDOT(short xx, short yy, byte * cc, byte * cm)
     else if (yy > (finit_height - 32))
         cc += 7 - ((finit_height - yy) >> 2);
 //      }
-    if (cc > cm && cm != NULL)
+    if (cc > cm && cm != nullptr)
     {
         cc = cm;
     }
@@ -1006,7 +1006,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
     }
     /* Draw the initial pixel, which is always exactly intersected by
        the line and so needs no weighting */
-    PUTDOT(X0, Y0, &BaseColor[0], NULL);
+    PUTDOT(X0, Y0, &BaseColor[0], nullptr);
 
     if ((DeltaX = X1 - X0) >= 0)
     {
@@ -1026,7 +1026,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
         while (DeltaX-- != 0)
         {
             X0 += XDir;
-            PUTDOT(X0, Y0, &BaseColor[0], NULL);
+            PUTDOT(X0, Y0, &BaseColor[0], nullptr);
         }
         return;
     }
@@ -1036,7 +1036,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
         do
         {
             Y0++;
-            PUTDOT(X0, Y0, &BaseColor[0], NULL);
+            PUTDOT(X0, Y0, &BaseColor[0], nullptr);
         }
         while (--DeltaY != 0);
         return;
@@ -1048,7 +1048,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
         {
             X0 += XDir;
             Y0++;
-            PUTDOT(X0, Y0, &BaseColor[0], NULL);
+            PUTDOT(X0, Y0, &BaseColor[0], nullptr);
         }
         while (--DeltaY != 0);
         return;
@@ -1089,7 +1089,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
         }
         /* Draw the final pixel, which is always exactly intersected by the line
            and so needs no weighting */
-        PUTDOT(X1, Y1, &BaseColor[0], NULL);
+        PUTDOT(X1, Y1, &BaseColor[0], nullptr);
         return;
     }
     /* It's an X-major line; calculate 16-bit fixed-point fractional part of a
@@ -1119,7 +1119,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
     }
     /* Draw the final pixel, which is always exactly intersected by the line
        and so needs no weighting */
-    PUTDOT(X1, Y1, &BaseColor[0], NULL);
+    PUTDOT(X1, Y1, &BaseColor[0], nullptr);
 }
 
 void AM_drawMline(mline_t * ml, int color)

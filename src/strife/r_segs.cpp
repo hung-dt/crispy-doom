@@ -21,8 +21,8 @@
 
 
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "i_system.h"
 
@@ -459,7 +459,7 @@ R_StoreWallRange
     worldbottom = frontsector->floorheight - viewz;
 	
     midtexture = toptexture = bottomtexture = maskedtexture = 0;
-    ds_p->maskedtexturecol = NULL;
+    ds_p->maskedtexturecol = nullptr;
 	
     if (!backsector)
     {
@@ -490,7 +490,7 @@ R_StoreWallRange
     else
     {
 	// two sided line
-	ds_p->sprtopclip = ds_p->sprbottomclip = NULL;
+	ds_p->sprtopclip = ds_p->sprbottomclip = nullptr;
 	ds_p->silhouette = 0;
 	
 	if (frontsector->floorheight > backsector->floorheight)

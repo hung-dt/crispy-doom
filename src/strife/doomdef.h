@@ -20,8 +20,8 @@
 #ifndef __DOOMDEF__
 #define __DOOMDEF__
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "doomtype.h"
 #include "i_timer.h"
@@ -55,6 +55,7 @@ typedef enum
     GS_UNKNOWN,
     GS_FINALE,
     GS_DEMOSCREEN,
+    GS_INVALID = -1
 } gamestate_t;
 
 typedef enum

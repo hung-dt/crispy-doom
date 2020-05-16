@@ -16,8 +16,8 @@
 
 // D_main.c
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "txt_main.h"
 #include "txt_io.h"
@@ -46,6 +46,8 @@
 #include "w_main.h"
 #include "v_video.h"
 #include "v_trans.h" // [crispy] dp_translation
+
+#include "../../utils/lump.h"
 
 #define CT_KEY_GREEN    'g'
 #define CT_KEY_YELLOW   'y'
@@ -99,7 +101,7 @@ void D_ProcessEvents(void)
 {
     event_t *ev;
 
-    while ((ev = D_PopEvent()) != NULL)
+    while ((ev = D_PopEvent()) != nullptr)
     {
         if (F_Responder(ev))
         {
@@ -151,7 +153,7 @@ void DrawCenterMessage(void)
     // Place message above quit game message position so they don't overlap
     dp_translation = cr[CR_GOLD];
     MN_DrTextA(player->centerMessage, 160 - MN_TextAWidth(player->centerMessage) / 2, 70);
-    dp_translation = NULL;
+    dp_translation = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -171,7 +173,7 @@ static void CrispyDrawStats (void)
     if (!height || !coord_x)
     {
 	const int FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
-	const patch_t *const p = W_CacheLumpNum(FontABaseLump + 'A' - 33, PU_CACHE);
+	const patch_t *const p = cacheLumpNum<patch_t*>(FontABaseLump + 'A' - 33, PU_CACHE);
 
 	height = SHORT(p->height) + 1;
 	coord_x = ORIGWIDTH - 7 * SHORT(p->width);
@@ -218,7 +220,7 @@ static void CrispyDrawFps(void)
     player_t* const player = &players[consoleplayer];
 
     const int FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
-    const patch_t* const p = W_CacheLumpNum(FontABaseLump + 'A' - 33, PU_CACHE);
+    const patch_t* const p = cacheLumpNum<patch_t*>(FontABaseLump + 'A' - 33, PU_CACHE);
 
     height = SHORT(p->height) + 1;
     coord_x = ORIGWIDTH - 6 * SHORT(p->width);
@@ -283,12 +285,12 @@ void D_Display(void)
     {
         if (!netgame)
         {
-            V_DrawPatch(160, (viewwindowy >> crispy->hires) + 5, W_CacheLumpName(DEH_String("PAUSED"),
+            V_DrawPatch(160, (viewwindowy >> crispy->hires) + 5, cacheLumpName<patch_t*>(DEH_String("PAUSED"),
                                                               PU_CACHE));
         }
         else
         {
-            V_DrawPatch(160, 70, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE));
+            V_DrawPatch(160, 70, cacheLumpName<patch_t*>(DEH_String("PAUSED"), PU_CACHE));
         }
     }
     // Handle player messages
@@ -364,7 +366,7 @@ void D_DoomLoop(void)
         if (crispy->post_rendering_hook)
         {
             crispy->post_rendering_hook();
-            crispy->post_rendering_hook = NULL;
+            crispy->post_rendering_hook = nullptr;
         }
     }
 }
@@ -409,10 +411,10 @@ void D_PageTicker(void)
 
 void D_PageDrawer(void)
 {
-    V_DrawRawScreen(W_CacheLumpName(pagename, PU_CACHE));
+    V_DrawRawScreen(cacheLumpName<patch_t*>(pagename, PU_CACHE));
     if (demosequence == 1)
     {
-        V_DrawPatch(4, 160, W_CacheLumpName(DEH_String("ADVISOR"), PU_CACHE));
+        V_DrawPatch(4, 160, cacheLumpName<patch_t*>(DEH_String("ADVISOR"), PU_CACHE));
     }
     UpdateState |= I_FULLSCRN;
 }
@@ -573,7 +575,7 @@ boolean D_AddFile(char *file)
 
     handle = W_AddFile(file);
 
-    return handle != NULL;
+    return handle != nullptr;
 }
 
 //==========================================================
@@ -694,7 +696,7 @@ void initStartup(void)
 
     // Blit main screen
     textScreen = TXT_GetScreenData();
-    loading = W_CacheLumpName(DEH_String("LOADING"), PU_CACHE);
+    loading = cacheLumpName<byte*>(DEH_String("LOADING"), PU_CACHE);
     memcpy(textScreen, loading, 4000);
 
     // Print version string
@@ -831,7 +833,7 @@ static void D_Endoom(void)
         return;
     }
 
-    endoom_data = W_CacheLumpName(DEH_String("ENDTEXT"), PU_STATIC);
+    endoom_data = cacheLumpName<byte*>(DEH_String("ENDTEXT"), PU_STATIC);
 
     I_Endoom(endoom_data);
 }
@@ -991,7 +993,7 @@ void D_DoomMain(void)
     }
     else
     {
-        M_SetConfigDir(NULL);
+        M_SetConfigDir(nullptr);
     }
 
     // Load defaults before initing other systems
@@ -1009,7 +1011,7 @@ void D_DoomMain(void)
 
     iwadfile = D_FindIWAD(IWAD_MASK_HERETIC, &gamemission);
 
-    if (iwadfile == NULL)
+    if (iwadfile == nullptr)
     {
         I_Error("Game mode indeterminate. No IWAD was found. Try specifying\n"
                 "one with the '-iwad' command line parameter.");
